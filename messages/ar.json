@@ -1,0 +1,765 @@
+{
+  "navigation": {
+    "dashboard": "لوحـة المعلـومـــات",
+    "personnel": "قســم الأفــــــــــراد",
+    "newAgent": "موظف جــديــد",
+    "personnelList": "قائمة الأفـــــراد",
+    "personnelOnMission": "الموظفون في المهام",
+    "personnelInTraining": "الموظفون في التدريب",
+    "personnelOnLeave": "الموظفون في الإجازة",
+    "marineUnits": "الوحـدات البحريــة",
+    "newUnit": "وحــدة جــديــدة",
+    "unitsList": "قائمـة الوحــدات",
+    "orgChart": "الهيكل التنظيمي",
+    "directions": "الإدارات",
+    "coastGuardDirection": "إدارة خفر السواحل",
+    "northMaritimeDistrict": "المقاطعة البحرية الشمالية",
+    "sahelMaritimeDistrict": "المقاطعة البحرية الساحل",
+    "centerMaritimeDistrict": "المقاطعة البحرية الوسطى",
+    "southMaritimeDistrict": "المقاطعة البحرية الجنوبية",
+    "leaves": "الإجازات",
+    "leaveStatistics": "إحصائيات الإجازات",
+    "leaveTracking": "تتبع الإجازات",
+    "documentation": "التوثيق",
+    "periodicHrReports": "التقارير الدورية للموارد البشرية",
+    "certificatesAndAttestations": "الشهادات والمصادقات",
+    "hrStatistics": "إحصائيات الموارد البشرية"
+  },
+  "breadcrumbs": {
+    "maritimeHR": "الموارد البشرية البحرية",
+    "dashboard": "لوحة المعلومات",
+    "personnel": "الموظفون",
+    "personnelList": "قائمة الموظفين",
+    "newAgent": "موظف جديد",
+    "agentProfile": "ملف الموظف",
+    "marineUnits": "الوحدات البحرية",
+    "unitsList": "قائمة الوحدات",
+    "newUnit": "وحـدة جـديـدة",
+    "organizationalChart": "الهيكل التنظيمي"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "markAllAsRead": "تحديد الكل كمقروء",
+    "noNotifications": "لا توجد إشعارات",
+    "viewAll": "عرض جميع الإشعارات",
+    "newLeaveRequest": "طلب إجازة جديدة معلق",
+    "leaveRequestMessage": "قدم أحمد بن علي طلب إجازة",
+    "mandatoryTraining": "تدريب إجباري",
+    "trainingMessage": "تدريب أمان بحري مجدول في 15/08",
+    "monthlyReport": "تم إنشاء التقرير الشهري",
+    "reportMessage": "تقرير الموارد البشرية لشهر يوليو متاح",
+    "systemUpdate": "تحديث النظام",
+    "updateMessage": "صيانة مجدولة الليلة في الساعة 22:00",
+    "documentExpiry": "انتهاء صلاحية الوثيقة",
+    "expiryMessage": "شهادة طبية لفاطمة التريكي تنتهي صلاحيتها خلال 7 أيام",
+    "timeAgo": {
+      "minutes": "منذ 5 دقائق",
+      "hours": "منذ ساعتين",
+      "day": "منذ يوم واحد",
+      "days": "منذ 3 أيام",
+      "week": "منذ أسبوع واحد"
+    }
+  },
+  "common": {
+    "changeLanguage": "تغيير اللغة",
+    "french": "الفرنسية",
+    "arabic": "العربية",
+    "appTitle": "الموارد البشرية البحرية",
+    "appSubtitle": "نظـام إدارة المـوارد البشـريــة",
+    "notAvailable": "غير متوفر",
+    "notDefined": "غير محدد",
+    "notApplicable": "غ/م"
+  },
+  "userNav": {
+    "upgradeToPro": "الترقية إلى النسخة المميزة",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "signOut": "تسجيل الخروج"
+  },
+  "dashboard": {
+    "title": "لوحة المعلومات",
+    "totalEmployees": "إجمــالــي المــوظفيــن",
+    "employees": "الموظفون",
+    "charts": {
+      "barChart": "مخــطط - عــدد أيــام الإجــازات",
+      "radarChart": "مخــطط - التوزيع حسب الــرتب",
+      "funnelChart": "مخــطط - تــدفق المــوظفيــن",
+      "officersSubOfficers": "ضباط - ضباط صف",
+      "gradeAnalysis": "توزيع الأفراد حسب الرتب",
+      "recruitmentProcess": "عملية التوظيف",
+      "chartInDevelopment": "المخطط قيد التطوير",
+      "funnelComingSoon": "مخــطط القمع - قريباً",
+      "effectivesByCategory": "الموظفين حسب الفئة: ",
+      "officers": "الضباط",
+      "subOfficers": "ضباط صف",
+      "functionalityInDevelopment": "الوظيفة قيد التطوير",
+      "loadingData": "جاري تحميل البيانات...",
+      "newLeaveActivity": "نشاط إجازات جديد في",
+      "noLeaveData": "لا توجد بيانات إجازات متاحة",
+      "stableLeaveLevel": "مستوى إجازات مستقر مقارنة بـ",
+      "increase": "زيادة",
+      "decrease": "انخفاض",
+      "january": "جانفي",
+      "days": "أيام",
+      "loadingError": "خطأ في تحميل البيانات",
+      "noDataAvailable": "لا توجد بيانات متاحة",
+      "effectif": "العدد",
+      "genderDistribution": "التوزيع حسب الجنس"
+    },
+    "grades": {
+      "colonelMajor": "عميد",
+      "colonel": "عقيد", 
+      "lieutenantColonel": "مقدم",
+      "commandant": "رائد",
+      "capitaine": "نقيب",
+      "lieutenant": "ملازم أول",
+      "sousLieutenant": "ملازم",
+      "adjudantChef": "وكيل أول",
+      "adjudant": "وكيل",
+      "sergentChef": "عريف أول",
+      "sergent": "عريف",
+      "caporalChef": "رقيب أول",
+      "caporal": "رقيب",
+      "garde": "حرس"
+    },
+    "select": {
+      "leaves": "الإجــازات",
+      "funnel": "قــمــع",
+      "grade": "الـرتـــــب"
+    },  
+    "months": {
+      "abbreviations": {
+        "Jan": "جانفي",
+        "Feb": "فيفري",
+        "Mar": "مارس",
+        "Apr": "أفريل",
+        "May": "ماي",
+        "Jun": "جوان",
+        "Jul": "جويلية",
+        "Aug": "أوت",
+        "Sep": "سبتمبر",
+        "Oct": "أكتوبر",
+        "Nov": "نوفمبر",
+        "Dec": "ديسمبر"
+      },
+      "full": {
+        "Janvier": "جانفي",
+        "Février": "فيفري",
+        "Mars": "مارس",
+        "Avril": "أفريل",
+        "Mai": "ماي",
+        "Juin": "جوان",
+        "Juillet": "جويلية",
+        "Août": "أوت",
+        "Septembre": "سبتمبر",
+        "Octobre": "أكتوبر",
+        "Novembre": "نوفمبر",
+        "Décembre": "ديسمبر"
+      }
+    },
+    "unitStatistics": {
+      "title": "إحصــائيـــات الــوحــــدات",
+      "totalUnits": "إجمـالـي الــوحـــدات",
+      "administrativeUnits": "الــوحـــدات الإداريــــة",
+      "operationalUnits": "الــوحـــدات النشيطـــــة"
+    },
+    "employeeStatistics": {
+      "employeesOnLeave": "إجمالي الموظفين في إجازة",
+      "employeesAdministration": "إجمالي الموظفين الإداريين",
+      "employeesOperational": "إجمالي الموظفين الميدانيين",
+      "lastMonth": "الشهر الماضي",
+      "increase": "زيادة",
+      "decrease": "انخفاض",
+      "vsLastMonth": "مقارنة بالشهر الماضي :",
+      "stableVsLastMonth": "مستقر مقارنة بالشهر الماضي",
+      "newDataAvailable": "بيانات جديدة متاحة"
+    },
+    "tables": {
+      "unitsList": "قــائمــــة الــوحــــدات",
+      "employeesList": "قــائمــــة المــوظفيــــن",
+      "viewAll": "عرض الكل",
+      "unitColumns": {
+        "unitName": "الـــــــوحــــــــدة",
+        "type": "النـــــــــــــوع",
+        "nature": "طبيعــة الوحــــدة"
+      },
+      "employeeColumns": {
+        "identity": "الهــــويـــــــــــــة",
+        "matricule": "الرقــــم",
+        "uniqueIdentifier": "المعــرف الوحيـــد",
+        "status": "الحــالــــــة"
+      },
+      "unitTypes": {
+        "navigante": "وحـدة عـائمـة",
+        "terrestre": "وحـدة قــــارة"
+      },
+      "noData": {
+        "noUnitsFound": "لم يتم العثور على وحدات",
+        "noEmployeesFound": "لم يتم العثور على موظفين"
+      }
+    },
+    "genderChart": {
+      "employees": "موظفون",
+      "male": "ذكر",
+      "female": "أنثى",
+      "genderPercent": "النسيــــــــــــــــة",
+      "avgAge": "معـــدل العـمــــر",
+      "marriedPercent": "نسبة المتزوجون",
+      "years": "سنة"
+    },
+    "employeeStatus": {
+      "مباشر": "مبـاشــر",
+      "غير مباشر": "غير مباشر",
+      "إجازة": "في إجازة",
+      "Maladie": "مــــرض",
+      "Formation": "تكــويــن",
+      "Mission": "في مهمــة",
+      "Abscent": "غائــب"
+    },
+    "conges": {
+      "distributionByType": "التوزيع حسب النوع",
+      "total": "المجموع",
+      "types": {
+        "annual": "إجـازة سـنـويـة",
+        "sick": "إجــازة مـرضـيــة",
+        "emergency": "إجــازة طـارئــة",
+        "marriage": "إجــازة زواج",
+        "maternity": "إجــازة أمــومــة",
+        "unpaid": "إجـازة بـدون راتـب"
+      }
+    }
+  },
+  "NotFoundPage": {
+    "title": "404 - الصفحة غير موجودة",
+    "description": "الصفحة التي تبحث عنها غير موجودة.",
+    "backHome": "العودة إلى الصفحة الرئيسية"
+  },
+  "employeesList": {
+    "title": "قائمـة المـوظفيـن",
+    "totalEmployees": "موظـف",
+    "totalEmployeesPlural": "موظـف",
+    "totalOf": "من أصل",
+    "realTimeStatus": {
+      "active": "الربط المباشر نشط",
+      "inactive": "الربط المباشر غير نشط"
+    },
+    "refresh": "تحديث",
+    "filters": {
+      "searchByName": "البحــث حسـب الاســم واللـقــب . . .",
+      "searchByMatricule": "البحــث حسـب الرقــم  . . .",
+      "selectStatus": "اختــر الحــالــــة"
+    },
+    "table": {
+      "headers": {
+        "order": "العــدد",
+        "identity": "هــويــــة المــوظــــف",
+        "matricule": "الــرقــــم",
+        "status": "الحـــالــــــة",
+        "unit": "الــــــــوحــــــــــــــــدة",
+        "responsibility": "المســــؤوليــــــة",
+        "affectationDate": "تاريخ التعييــن",
+        "action": "خيارات"
+      }
+    },
+    "pagination": {
+      "rowsPerPage": "عدد الصفوف لكل صفحة",
+      "page": "الصفحة",
+      "of": "من"
+    },
+    "emptyStates": {
+      "noEmployees": "لا يوجد موظفون",
+      "startByAdding": "ابدأ بإضافة أول موظف لك.",
+      "noResults": "لا يوجد موظف يطابق بحثك.",
+      "noDataToShow": "لا توجد بيانات للعرض."
+    },
+    "buttons": {
+      "newAgent": "موظــف جــديــد",
+      "clearFilters": "إعادة تعيين جميع المرشحات"
+    },
+    "loadingError": "خطأ في تحميل الموظفين: {error}"
+  },
+  "unitsList": {
+    "title": "قائمـة الـوحــدات",
+    "totalUnits": "وحــدة",
+    "totalUnitsPlural": "وحــدة",
+    "realTimeStatus": {
+      "active": "الربط المباشر نشط",
+      "inactive": "الربط المباشر غير نشط"
+    },
+    "refresh": "تحديث",
+    "search": {
+      "placeholder": "البــحث عــن وحــــدة . . ."
+    },
+    "table": {
+      "headers": {
+        "order": "العــدد",
+        "unitName": "اســم الــــــــوحــــــــــــــــدة",
+        "type": "إدارية / ميدانية",
+        "direction": "الإدارة أو الإقـلـيــــم",
+        "category": "الفــئــــــــــــة",
+        "nature": "طبيـعــــة الوحـــدة",
+        "action": "خيارات"
+      }
+    },
+    "pagination": {
+      "rowsPerPage": "عدد الصفوف لكل صفحة",
+      "page": "الصفحة",
+      "of": "من"
+    },
+    "unitTypes": {
+      "navigante": "وحـدة عـائمـة",
+      "terrestre": "وحـدة قــــارة"
+    },
+    "emptyStates": {
+      "noUnits": "لا توجد وحدات",
+      "startByAdding": "ابدأ بإضافة أول وحدة لك.",
+      "noResults": "لا توجد وحدة تطابق بحثك.",
+      "noDataToShow": "لا توجد بيانات للعرض."
+    },
+    "buttons": {
+      "newUnit": "وحــدة جـديـدة"
+    },
+    "loadingError": "خطأ في تحميل الوحدات",
+    "dataRetrievalError": "خطأ في استرداد البيانات"
+  },
+  "uniteDetails": {
+    "title": "تفاصيل الوحدة",
+    "backToList": "العودة إلى القائمة",
+    "noImage": "لا توجد صورة",
+    "addImage": "إضافة صورة",
+    "personnel": "الأفراد",
+    "onLeave": "في إجازة",
+    "class": "الفئة",
+    "type": "النوع",
+    "navigante": "بحرية",
+    "terrestre": "برية",
+    "notDefined": "غير محدد",
+    "specifications": "المواصفات التفصيلية",
+    "agentsList": "قائمة الأعوان",
+    "orgChart": "الهيكل التنظيمي",
+    "addAgent": "إضافة عون",
+    "editAgent": "تعديل العون",
+    "deleteAgent": "حذف العون",
+    "confirmDelete": "تأكيد الحذف",
+    "deleteMessage": "هل أنت متأكد من حذف هذا العون من الوحدة؟",
+    "cancel": "إلـغــــاء",
+    "delete": "حذف",
+    "save": "حفظ",
+    "edit": "تعديل",
+    "searchEmployee": "البحث عن موظف...",
+    "selectResponsibility": "اختر المسؤولية",
+    "responsibilityDate": "تاريخ المسؤولية",
+    "noEmployeesFound": "لم يتم العثور على موظفين",
+    "searchByMatricule": "البحث بالرقم التسلسلي...",
+    "loading": "جاري التحميل...",
+    "grade": "الرتبة",
+    "phone": "الهاتف",
+    "responsibility": "المســؤوليــــة",
+    "actions": "الإجراءات",
+    "unitType": {
+      "navigante": "وحدة بحرية",
+      "terrestre": "وحدة برية"
+    },
+    "unitCategory": "فئة {category}",
+    "ratings": {
+      "title": "التقييمات",
+      "subtitle": "تقييمات الأفراد"
+    },
+    "leaveCount": "{count} إجازة",
+    "personnelCount": "{count} فرد",
+    "organigramme": {
+      "direction": "الإدارة",
+      "district": "المقاطعة",
+      "unit": "الوحدة"
+    },
+    "messages": {
+      "employeeAdded": "تم إضافة الموظف بنجاح",
+      "employeeUpdated": "تم تحديث الموظف بنجاح",
+      "employeeDeleted": "تم حذف الموظف بنجاح",
+      "error": "حدث خطأ أثناء العملية"
+    }
+  },
+  "newAgent": {
+    "title": "موظــف جـديــد",
+    "steps": {
+      "step1": "الخطوة الأولى",
+      "step2": "الخطوة الثانية", 
+      "step3": "الخطوة الثالثة",
+      "stepOf": "الخطوة {current} من {total}"
+    },
+    "form": {
+      "basicData": "البيانات الأساسية",
+      "familyData": "البيانات العائلية",
+      "personalContacts": "البيانات الشخصية",
+      "fields": {
+        "firstName": "الإســــــم",
+        "fatherName": "اســــــم الأب",
+        "grandfatherName": "اســـم الجــد",
+        "motherName": "اســـم الأم و لقبـهــا",
+        "lastName": "اللـقـــــــــــب",
+        "matricule": "الــرقـــــم",
+        "birthDate": "تـاريخ الــولادة",
+        "birthPlace": "مكـــان الــــولادة",
+        "recruitmentDate": "تـاريخ الإنـنــداب",
+        "uniqueIdentifier": "المعـــرف الــوحيـــــد",
+        "gender": "الجنـــس",
+        "privateProfile": "الملف الشخصي الخاص",
+        "cin": "رقـــم بطـاقــة التعـريـف الـوطنيـة",
+        "passport": "جـــــــواز السـفـــــر",
+        "mutualMatricule": "رقـــم التعـــاونيـــــة",
+        "address": "العنــــــوان الـرئيـــسي",
+        "governorate": "الــولايـــــــــة",
+        "mobilePhone": "الهـــاتــــف الجــــوال",
+        "whatsapp": "واتســـــــاب",
+        "personalEmail": "البـريــد الإلكتــروني الشخصــــي",
+        "agentPhoto": "صـــورة المـــوظــف"
+      },
+      "gender": {
+        "male": "ذكر",
+        "female": "أنثى"
+      },
+      "privateProfileDescription": "تفعيل هذا الخيار لجعل الملف الشخصي خاصا"
+    },
+    "governorates": {
+      "Tunis": "تونس",
+      "Ariana": "أريانة", 
+      "Ben Arous": "بن عروس",
+      "Manouba": "منوبة",
+      "Nabeul": "نابل",
+      "Zaghouan": "زغوان",
+      "Bizerte": "بنزرت",
+      "Béja": "باجة",
+      "Jendouba": "جندوبة",
+      "Kef": "الكاف",
+      "Siliana": "سليانة",
+      "Sousse": "سوسة",
+      "Monastir": "المنستير",
+      "Mahdia": "المهدية",
+      "Sfax": "صفاقس",
+      "Kairouan": "القيروان",
+      "Kasserine": "القصرين",
+      "Sidi Bouzid": "سيدي بوزيد",
+      "Gabès": "قابس",
+      "Médenine": "مدنين",
+      "Tataouine": "تطاوين",
+      "Gafsa": "قفصة",
+      "Tozeur": "توزر",
+      "Kébili": "قبلي"
+    },
+    "agentForm": {
+      "labels": {
+        "matricule": "الــرقـــــم",
+        "unite": "الــــــــوحــــــــــــــــدة"
+      },
+      "fields": {
+        "matricule": "الــرقـــــم"
+      }
+    },
+    "employeeDetails": {
+      "tabs": {
+        "personalInfo": "بيــانــات شخصيـــة",
+        "professionalInfo": "بيــانــات المهنيــــة", 
+        "familyInfo": "بيــانــات العائلية",
+        "trainingInfo": "التكوين والتدريب",
+        "disciplineInfo": "الانضباط العقـوبـات",
+        "leavesInfo": "الإجازات والغياب"
+      },
+      "navigation": {
+        "backToEmployees": "العودة إلى قائمة الموظفين",
+        "employeeProfile": "ملف الموظف"
+      },
+      "personalInfo": {
+        "basicInfo": "المعلومات الأساسية",
+        "contactInfo": "معلومات الاتصال",
+        "identityDocuments": "وثائق الهوية",
+        "address": "العنوان",
+        "photo": "الصورة الشخصية",
+        "labels": {
+          "identityInfo": "معلومات الهوية",
+          "residenceInfo": "معلومات السكن",
+          "contactInfo": "معلومات الاتصال",
+          "otherInfo": "معلومات أخرى",
+          "tags": "العلامات",
+          "firstName": "الاسم الأول",
+          "lastName": "اللقب",
+          "fatherName": "اسم الأب",
+          "grandfatherName": "اسم الجد",
+          "motherName": "هوية الأم",
+          "gender": "الجنس",
+          "birthDate": "تاريخ الميلاد",
+          "birthPlace": "مكان الميلاد",
+          "mainAddress": "العنوان الرئيسي",
+          "currentAddress": "العنوان الحالي",
+          "notes": "ملاحظات",
+          "personalContact": "الاتصال الشخصي",
+          "mobileNumber": "رقم الهاتف المحمول",
+          "email": "البريد الإلكتروني",
+          "otherContact": "اتصال آخر",
+          "mobileNumber2": "رقم الهاتف المحمول 2",
+          "whatsapp": "واتساب",
+          "maritalStatus": "الحالة المدنية",
+          "childrenCount": "عدد الأطفال",
+          "idCard": "بطاقة الهوية",
+          "bloodGroup": "فصيلة الدم",
+          "notDefined": "غير محدد"
+        }
+      },
+      "professionalInfo": {
+        "currentPosition": "المنصب الحالي",
+        "careerHistory": "التاريخ المهني",
+        "grades": "الرتب والدرجات",
+        "assignments": "التكليفات",
+        "bankingInfo": "المعلومات المصرفية"
+      },
+      "familyInfo": {
+        "maritalStatus": "الحالة المدنية",
+        "children": "الأطفال",
+        "emergencyContacts": "جهات الاتصال في حالات الطوارئ"
+      },
+      "trainingInfo": {
+        "education": "التعليم",
+        "training": "التدريب المهني",
+        "certifications": "الشهادات",
+        "modifyTraining": "تعديل التكوين",
+        "addTraining": "إضافة تكوين",
+        "manageEducationLevels": "إدارة المستويات التعليمية",
+        "trainingType": "نوع التكوين",
+        "establishment": "المؤسسة",
+        "establishmentType": "نوع المؤسسة", 
+        "place": "المكان",
+        "diplomaDescription": "وصف الشهادة",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ النهاية",
+        "result": "النتيجة",
+        "status": "الحالة",
+        "educationLevel": "المستوى التعليمي",
+        "diploma": "الشهادة",
+        "startYear": "سنة البداية",
+        "endYear": "سنة النهاية",
+        "requiredFields": "الحقول المطلوبة",
+        "requiredFieldsMessage": "نوع التكوين، المؤسسة ووصف الشهادة مطلوبة",
+        "cancel": "إلـغــــاء",
+        "save": "حفظ",
+        "add": "إضافة",
+        "close": "إغلاق",
+        "saving": "جاري الحفظ...",
+        "actions": "الإجراءات",
+        "modify": "تعديل",
+        "delete": "حذف",
+        "confirmDelete": "تأكيد الحذف",
+        "deleteConfirmMessage": "هل أنت متأكد من حذف \"{itemName}\"؟ هذا الإجراء لا يمكن التراجع عنه.",
+        "noEducationLevels": "لا توجد مستويات تعليمية مسجلة",
+        "addFirstLevel": "إضافة أول مستوى",
+        "notDefined": "غير محدد",
+        "selectType": "اختر النوع",
+        "selectPlace": "اختر المكان",
+        "selectStatus": "اختر الحالة",
+        "selectLevel": "اختر المستوى",
+        "enterEstablishment": "أدخل اسم المؤسسة",
+        "enterDiplomaDescription": "وصف الشهادة المحصل عليها",
+        "enterResult": "النتيجة المحصل عليها",
+        "enterDiploma": "الشهادة المحصل عليها",
+        "enterStudyPlace": "مكان الدراسة",
+        "yearPlaceholder": "2020",
+        "endYearPlaceholder": "2024",
+        "educationalPath": "المسار التعليمي",
+        "level": "المستوى",
+        "beginYear": "البداية",
+        "finishYear": "النهاية",
+        "creationError": "خطأ في الإنشاء",
+        "creationErrorMessage": "خطأ أثناء إنشاء التكوين: {error}",
+        "updateError": "خطأ في التحديث",
+        "updateErrorMessage": "خطأ أثناء تحديث التكوين: {error}",
+        "saveError": "خطأ في الحفظ",
+        "saveErrorMessage": "خطأ أثناء الحفظ: {error}",
+        "deleteError": "خطأ في الحذف",
+        "deleteErrorMessage": "خطأ أثناء حذف المستوى التعليمي",
+        "trainingAdded": "تم إضافة التكوين",
+        "trainingAddedMessage": "تم إضافة التكوين بنجاح",
+        "trainingUpdated": "تم تحديث التكوين",
+        "trainingUpdatedMessage": "تم تحديث التكوين بنجاح",
+        "levelSaved": "تم حفظ المستوى",
+        "levelSavedMessage": "تم حفظ المستوى التعليمي بنجاح",
+        "levelDeleted": "تم حذف المستوى",
+        "levelDeletedMessage": "تم حذف المستوى التعليمي بنجاح"
+      },
+      "disciplineInfo": {
+        "sanctions": "العقوبات",
+        "rewards": "التـشـجيـع والتقديرات"
+      },
+      "leavesInfo": {
+        "currentLeaves": "الإجازات الحالية",
+        "leaveHistory": "تاريخ الإجازات",
+        "absences": "الغيابات"
+      },
+      "status": {
+        "active": "الربط المباشر نشط",
+        "onLeave": "في إجازة",
+        "inactive": "الربط المباشر غير نشط",
+        "suspended": "موقوف"
+      },
+      "loading": "جاري التحميل...",
+      "error": "حدث خطأ في تحميل البيانات",
+      "noData": "لا توجد بيانات متاحة",
+      "edit": "تعديل",
+      "save": "حفظ",
+      "cancel": "إلـغــــاء",
+      "delete": "حذف",
+      "add": "إضافة"
+    },
+    "photo": {
+      "title": "صـــورة المــوظــــف",
+      "noImage": "لا توجــــد صـــورة",
+      "upload": "رفـع صـورة",
+      "acceptedFormats": "الصيغ المقبولة: JPG, PNG, WEBP, GIF",
+      "maxSize": "الحد الأقصى للحجم: 5 ميجابايت",
+      "unsupportedFormat": "صيغة الملف غير مدعومة",
+      "onlyFormats": "فقط الصيغ .jpg، .jpeg، .png، .webp و .gif مقبولة",
+      "fileTooLarge": "الملف كبير جداً",
+      "maxSizeExceeded": "حجم الملف يجب ألا يتجاوز 5 ميجابايت"
+    },
+    "buttons": {
+      "previous": "السـابــق",
+      "next": "التـــالي",
+      "save": "حــفـــظ",
+      "saveAndAdd": "حفـظ وإضافـة آخـر",
+      "cancel": "إلغـــــاء"
+    },
+    "validation": {
+      "requiredFieldsMissing": "حقول مطلوبة مفقودة",
+      "pleaseCompleteRequired": "يرجى إكمال جميع الحقول المطلوبة",
+      "required": "مطلوب",
+      "firstNameRequired": "الاسم الأول مطلوب",
+      "lastNameRequired": "اللقب مطلوب",
+      "matriculeRequired": "رقم التسجيل مطلوب",
+      "matriculeExists": "رقم التسجيل هذا مستخدم بالفعل",
+      "verificationError": "خطأ في التحقق",
+      "matriculeChecking": "جاري التحقق من رقم التسجيل...",
+      "birthDateRequired": "تاريخ الميلاد مطلوب",
+      "genderRequired": "الجنس مطلوب"
+    },
+    "confirmation": {
+      "title": "تأكيد الحفظ",
+      "message": "هل أنت متأكد من أنك تريد حفظ هذا الموظف الجديد؟",
+      "confirm": "تأكيد الحفظ"
+    },
+    "messages": {
+      "saveSuccess": "تم حفظ الموظف بنجاح",
+      "saveError": "فشل في الحفظ",
+      "formResetForNew": "تم إعادة تعيين النموذج لموظف جديد . . .",
+      "redirectingToList": "جاري التوجيه إلى قائمة الموظفين . . .",
+      "unknownError": "خطأ غير معروف"
+    },
+    "progress": {
+      "saving": "جاري الحفظ . . . ",
+      "processing": "جاري المعالجة . . ."
+    }
+  },
+  "newUnit": {
+    "title": "وحـدة جـديـدة",
+    "steps": {
+      "step1": "المعلومات الأساسية",
+      "step2": "التسلسل الإداري",
+      "step3": "معلومات الاتصال",
+      "step4": "الموقع الجغرافي",
+      "stepOf": "الخطوة {current} من {total}"
+    },
+    "form": {
+      "fields": {
+        "unitName": "اسم الوحدة",
+        "matricule": "الرقم المتسلسل",
+        "category": "الفئة",
+        "type": "النوع",
+        "class": "الصنف",
+        "description": "الوصف",
+        "navigante": "نوع الوحدة",
+        "level1": "المستوى الأول",
+        "level2": "المستوى الثاني", 
+        "level3": "المستوى الثالث",
+        "phone1": "الهاتف الأول",
+        "phone2": "الهاتف الثاني",
+        "phone3": "الهاتف الثالث",
+        "callSign": "الكنية",
+        "email": "البريد الإلكتروني",
+        "building": "المبنى",
+        "address": "العنوان",
+        "port": "الميناء",
+        "coordinates": "الإحداثيات"
+      },
+      "placeholders": {
+        "unitName": "أدخل اسم الوحدة",
+        "matricule": "أدخل الرقم المتسلسل",
+        "description": "وصف الوحدة",
+        "phone": "رقم الهاتف",
+        "email": "البريد الإلكتروني",
+        "building": "اسم المبنى",
+        "address": "العنوان الكامل",
+        "port": "اسم الميناء",
+        "coordinates": "خط العرض، خط الطول"
+      },
+      "naviganteOptions": {
+        "navigante": "بحرية",
+        "terrestre": "برية"
+      },
+      "selectOptions": {
+        "selectCategory": "اختر الفئة",
+        "selectType": "اختر النوع",
+        "selectNavigante": "اختر نوع الوحدة",
+        "selectLevel": "اختر المستوى"
+      }
+    },
+    "validation": {
+      "required": "مطلوب",
+      "unitNameRequired": "اسم الوحدة مطلوب",
+      "requiredFields": "الحقول المطلوبة مفقودة",
+      "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة"
+    },
+    "confirmation": {
+      "title": "تأكيد الحفظ",
+      "message": "هل أنت متأكد من أنك تريد حفظ هذه الوحدة الجديدة؟",
+      "confirm": "تأكيد الحفظ",
+      "cancel": "إلـغــــاء"
+    },
+    "buttons": {
+      "previous": "السابق",
+      "next": "التالي",
+      "save": "حفظ",
+      "cancel": "إلـغــــاء"
+    },
+    "messages": {
+      "saveSuccess": "تم حفظ الوحدة بنجاح",
+      "saveError": "فشل في حفظ الوحدة",
+      "savingUnit": "جاري حفظ الوحدة...",
+      "redirecting": "جاري التوجيه..."
+    },
+    "progress": {
+      "step": "الخطوة {current} من {total}"
+    }
+  },
+  "error": {
+    "title": "خطأ في الخادم الداخلي!",
+    "description": "خطأ في الخادم 500. لسنا متأكدين تماماً مما حدث، لكن خوادمنا تقول أن هناك شيئاً خاطئاً.",
+    "backToHome": "العودة للرئيسية"
+  },
+  "employeeProfile": {
+    "personalInfo": {
+      "sections": {
+        "identityInfo": "معلومات الهوية",
+        "residenceInfo": "معلومات السكن",
+        "contactInfo": "معلومات الاتصال",
+        "otherInfo": "معلومات أخرى",
+        "tags": "العلامات"
+      },
+      "labels": {
+        "firstName": "الاسم الأول",
+        "lastName": "اللقب",
+        "fatherName": "اسم الأب",
+        "grandfatherName": "اسم الجد",
+        "motherIdentity": "هوية الأم",
+        "gender": "الجنس",
+        "birthDate": "تاريخ الميلاد",
+        "birthPlace": "مكان الميلاد"
+      }
+    }
+  }
+}

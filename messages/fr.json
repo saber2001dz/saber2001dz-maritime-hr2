@@ -1,0 +1,691 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "personnel": "Personnel",
+    "newAgent": "Nouvel Agent",
+    "personnelList": "Liste du personnel",
+    "personnelOnMission": "Personnel En Mission",
+    "personnelInTraining": "Personnel En Formation",
+    "personnelOnLeave": "Personnel En Conges",
+    "marineUnits": "Unites Maritimes",
+    "newUnit": "Nouvelle Unite",
+    "unitsList": "Liste des Unites",
+    "orgChart": "Organigramme",
+    "directions": "Directions",
+    "coastGuardDirection": "Direction Garde-Cotes",
+    "northMaritimeDistrict": "District Maritime Nord",
+    "sahelMaritimeDistrict": "District Maritime Sahel",
+    "centerMaritimeDistrict": "District Maritime Centre",
+    "southMaritimeDistrict": "District Maritime Sud",
+    "leaves": "Conges",
+    "leaveStatistics": "Statistique conges",
+    "leaveTracking": "Suivi des conges",
+    "documentation": "Documentation",
+    "periodicHrReports": "Rapports RH périodiques",
+    "certificatesAndAttestations": "Attestations et certificats",
+    "hrStatistics": "Statistiques RH"
+  },
+  "breadcrumbs": {
+    "maritimeHR": "Maritime HR",
+    "dashboard": "Tableau de bord",
+    "personnel": "Personnel",
+    "personnelList": "Liste du personnel",
+    "newAgent": "Nouvel Agent",
+    "agentProfile": "Profil de l'Agent",
+    "marineUnits": "Unités Maritimes",
+    "unitsList": "Liste des Unités",
+    "newUnit": "Nouvelle Unité",
+    "organizationalChart": "Organigramme"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllAsRead": "Tout marquer comme lu",
+    "noNotifications": "Aucune notification",
+    "viewAll": "Voir toutes les notifications",
+    "newLeaveRequest": "Nouveau congé en attente",
+    "leaveRequestMessage": "Ahmed Ben Ali a soumis une demande de congé",
+    "mandatoryTraining": "Formation obligatoire",
+    "trainingMessage": "Formation sécurité maritime programmée le 15/08",
+    "monthlyReport": "Rapport mensuel généré",
+    "reportMessage": "Le rapport RH de juillet est disponible",
+    "systemUpdate": "Mise à jour système",
+    "updateMessage": "Maintenance programmée ce soir à 22h",
+    "documentExpiry": "Échéance document",
+    "expiryMessage": "Certificat médical de Fatma Triki expire dans 7 jours",
+    "timeAgo": {
+      "minutes": "Il y a 5 minutes",
+      "hours": "Il y a 2 heures",
+      "day": "Il y a 1 jour",
+      "days": "Il y a 3 jours",
+      "week": "Il y a 1 semaine"
+    }
+  },
+  "common": {
+    "changeLanguage": "Changer de langue",
+    "french": "Français",
+    "arabic": "العربية",
+    "appTitle": "Maritime HR",
+    "appSubtitle": "Système de Gestion HR",
+    "notAvailable": "N/A",
+    "notDefined": "Non défini"
+  },
+  "loadingData": "Chargement des données...",
+  "responsibility": "Responsabilité",
+  "userNav": {
+    "upgradeToPro": "Mise à niveau Pro",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "signOut": "Se déconnecter"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "totalEmployees": "Total des Employées",
+    "employees": "Employés",
+    "charts": {
+      "barChart": "Graphique - Jours de congés",
+      "radarChart": "Graphique - Répartition par grades",
+      "funnelChart": "Graphique - Flux des employés",
+      "officersSubOfficers": "Officiers - Sous-Officiers",
+      "gradeAnalysis": "Analyse des employés par grade",
+      "recruitmentProcess": "Processus de recrutement",
+      "chartInDevelopment": "Le graphique est en développement",
+      "funnelComingSoon": "Graphique entonnoir - Prochainement",
+      "effectivesByCategory": "Employés par catégorie : ",
+      "officers": "Les officiers",
+      "subOfficers": "Sous-officiers",
+      "functionalityInDevelopment": "Fonctionnalité en développement",
+      "loadingData": "Chargement des données...",
+      "newLeaveActivity": "Nouvelle activité de congés en",
+      "noLeaveData": "Aucune donnée de congés disponible",
+      "stableLeaveLevel": "Niveau de congés stable par rapport à",
+      "increase": "augmentation",
+      "decrease": "diminution",
+      "january": "janvier",
+      "days": "jours",
+      "loadingError": "Erreur de chargement des données",
+      "noDataAvailable": "Aucune donnée disponible",
+      "effectif": "Nombre",
+      "genderDistribution": "Répartition par sexe"
+    },
+    "grades": {
+      "colonelMajor": "Colonel Major",
+      "colonel": "Colonel", 
+      "lieutenantColonel": "Lieutenant Colonel",
+      "commandant": "Commandant",
+      "capitaine": "Capitaine",
+      "lieutenant": "Lieutenant",
+      "sousLieutenant": "Sous Lieutenant",
+      "adjudantChef": "Adjudant Chef",
+      "adjudant": "Adjudant",
+      "sergentChef": "Sergent Chef",
+      "sergent": "Sergent",
+      "caporalChef": "Caporal Chef",
+      "caporal": "Caporal",
+      "garde": "Garde"
+    },
+    "select": {
+      "leaves": "Congés",
+      "funnel": "Entonnoir",
+      "grade": "Grades"
+    },
+    "months": {
+      "abbreviations": {
+        "Jan": "Jan",
+        "Feb": "Fév",
+        "Mar": "Mar",
+        "Apr": "Avr",
+        "May": "Mai",
+        "Jun": "Jun",
+        "Jul": "Jul",
+        "Aug": "Août",
+        "Sep": "Sep",
+        "Oct": "Oct",
+        "Nov": "Nov",
+        "Dec": "Déc"
+      },
+      "full": {
+        "Janvier": "Janvier",
+        "Février": "Février",
+        "Mars": "Mars",
+        "Avril": "Avril",
+        "Mai": "Mai",
+        "Juin": "Juin",
+        "Juillet": "Juillet",
+        "Août": "Août",
+        "Septembre": "Septembre",
+        "Octobre": "Octobre",
+        "Novembre": "Novembre",
+        "Décembre": "Décembre"
+      }
+    },
+    "unitStatistics": {
+      "title": "Statistiques des Unités",
+      "totalUnits": "Total des Unités",
+      "administrativeUnits": "Unités Administratives",
+      "operationalUnits": "Unités Opérationnelles"
+    },
+    "employeeStatistics": {
+      "employeesOnLeave": "Total des employés en congés",
+      "employeesAdministration": "Total des employés administratifs",
+      "employeesOperational": "Total des employés opérationnels",
+      "lastMonth": "le mois dernier",
+      "increase": "augmentation",
+      "decrease": "diminution",
+      "vsLastMonth": "par rapport au mois dernier :"
+    },
+    "tables": {
+      "unitsList": "Liste des Unités",
+      "employeesList": "Liste des Employés",
+      "viewAll": "Voir tout",
+      "unitColumns": {
+        "unitName": "Nom de l'Unité",
+        "type": "Type",
+        "nature": "Nature de l'unité"
+      },
+      "employeeColumns": {
+        "identity": "Identité",
+        "matricule": "Matricule",
+        "uniqueIdentifier": "Identifiant unique",
+        "status": "Statut"
+      },
+      "unitTypes": {
+        "navigante": "maritime",
+        "terrestre": "unité terrestre"
+      },
+      "noData": {
+        "noUnitsFound": "Aucune unité trouvée",
+        "noEmployeesFound": "Aucun employé trouvé"
+      }
+    },
+    "genderChart": {
+      "employees": "employés",
+      "male": "Homme",
+      "female": "Femme",
+      "genderPercent": "Pourcentage",
+      "avgAge": "Âge moyen",
+      "marriedPercent": "Pourcentage de mariés",
+      "years": "ans"
+    },
+    "employeeStatus": {
+      "مباشر": "Actif",
+      "غير مباشر": "Inactif",
+      "إجازة": "En congés",
+      "Maladie": "Maladie",
+      "Formation": "Formation",
+      "Mission": "En mission",
+      "Abscent": "Absent"
+    }
+  },
+  "NotFoundPage": {
+    "title": "404 - Page non trouvée",
+    "description": "La page que vous recherchez n'existe pas.",
+    "backHome": "Retour à l'accueil"
+  },
+  "employeesList": {
+    "title": "Liste des employés",
+    "totalEmployees": "employé",
+    "totalEmployeesPlural": "employés",
+    "totalOf": "sur",
+    "realTimeStatus": {
+      "active": "Temps réel actif",
+      "inactive": "Temps réel inactif"
+    },
+    "refresh": "Actualiser",
+    "filters": {
+      "searchByName": "Rechercher par prénom et nom...",
+      "searchByMatricule": "Rechercher par matricule...",
+      "selectStatus": "Sélectionner le statut"
+    },
+    "table": {
+      "headers": {
+        "order": "N°",
+        "identity": "Identité de l'employé",
+        "matricule": "Matricule",
+        "status": "Statut",
+        "unit": "Unité",
+        "responsibility": "Responsabilité",
+        "affectationDate": "Date d'affectation",
+        "action": "Action"
+      }
+    },
+    "pagination": {
+      "rowsPerPage": "Lignes par page",
+      "page": "Page",
+      "of": "sur"
+    },
+    "emptyStates": {
+      "noEmployees": "Aucun employé",
+      "startByAdding": "Commencez par ajouter votre premier employé.",
+      "noResults": "Aucun employé ne correspond à votre recherche.",
+      "noDataToShow": "Aucune donnée à afficher."
+    },
+    "buttons": {
+      "newAgent": "Nouvel Agent",
+      "clearFilters": "Réinitialiser tous les filtres"
+    },
+    "loadingError": "Erreur de chargement des employés : {error}"
+  },
+  "unitsList": {
+    "title": "Liste des unités",
+    "totalUnits": "unité",
+    "totalUnitsPlural": "unités",
+    "realTimeStatus": {
+      "active": "Temps réel actif",
+      "inactive": "Temps réel inactif"
+    },
+    "refresh": "Actualiser",
+    "search": {
+      "placeholder": "Rechercher une unité..."
+    },
+    "table": {
+      "headers": {
+        "order": "N°",
+        "unitName": "Nom de l'unité",
+        "type": "Type",
+        "direction": "Direction",
+        "category": "Catégorie",
+        "nature": "Nature",
+        "action": "Action"
+      }
+    },
+    "pagination": {
+      "rowsPerPage": "Lignes par page",
+      "page": "Page",
+      "of": "sur"
+    },
+    "unitTypes": {
+      "navigante": "maritime",
+      "terrestre": "terrestre"
+    },
+    "emptyStates": {
+      "noUnits": "Aucune unité",
+      "startByAdding": "Commencez par ajouter votre première unité.",
+      "noResults": "Aucune unité ne correspond à votre recherche.",
+      "noDataToShow": "Aucune donnée à afficher."
+    },
+    "buttons": {
+      "newUnit": "Nouvelle Unité"
+    },
+    "loadingError": "Erreur de chargement des unités",
+    "dataRetrievalError": "Erreur de récupération des données"
+  },
+  "uniteDetails": {
+    "title": "Détail Unité",
+    "backToList": "Retour à la liste",
+    "noImage": "Aucune image",
+    "addImage": "Ajouter",
+    "personnel": "Personnel",
+    "onLeave": "En congés",
+    "class": "Classe",
+    "type": "Type",
+    "navigante": "Navigante",
+    "terrestre": "Terrestre",
+    "notDefined": "Non définie",
+    "specifications": "Spécifications Détaillées",
+    "agentsList": "Liste des agents",
+    "orgChart": "Organigramme",
+    "addAgent": "Ajouter un agent",
+    "editAgent": "Modifier l'agent",
+    "deleteAgent": "Supprimer l'agent",
+    "confirmDelete": "Confirmer la suppression",
+    "deleteMessage": "Êtes-vous sûr de vouloir supprimer l'affectation de cet agent de cette unité ?",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "save": "Sauvegarder",
+    "edit": "Modifier",
+    "searchEmployee": "Rechercher un employé...",
+    "selectResponsibility": "Choisir responsabilité",
+    "responsibilityDate": "Date de responsabilité",
+    "noEmployeesFound": "Aucun employé trouvé",
+    "searchByMatricule": "Rechercher matricule...",
+    "loading": "Recherche en cours...",
+    "grade": "Grade",
+    "phone": "Téléphone",
+    "responsibility": "Responsabilité",
+    "actions": "Actions",
+    "unitType": {
+      "navigante": "Unité Navigante",
+      "terrestre": "Unité Terrestre"
+    },
+    "unitCategory": "de type {category}",
+    "ratings": {
+      "title": "Évaluations",
+      "subtitle": "Évaluations Personnel"
+    },
+    "leaveCount": "{count} congés",
+    "personnelCount": "{count} personnel",
+    "organigramme": {
+      "direction": "Direction",
+      "district": "District",
+      "unit": "Unité"
+    },
+    "messages": {
+      "employeeAdded": "Employé ajouté avec succès",
+      "employeeUpdated": "Employé mis à jour avec succès",
+      "employeeDeleted": "Employé supprimé avec succès",
+      "error": "Une erreur s'est produite lors de l'opération"
+    }
+  },
+  "newAgent": {
+    "title": "Nouvel Agent",
+    "steps": {
+      "step1": "1ère étape",
+      "step2": "2ème étape", 
+      "step3": "3ème étape",
+      "stepOf": "Étape {current} sur {total}"
+    },
+    "employeeDetails": {
+      "tabs": {
+        "personalInfo": "Information Personnel",
+        "professionalInfo": "Information Professionnel",
+        "familyInfo": "Information Familial",
+        "trainingInfo": "Formation",
+        "disciplineInfo": "Discipline",
+        "leavesInfo": "Congés"
+      }
+    },
+    "form": {
+      "basicData": "Données Basiques",
+      "familyData": "Données Familiales",
+      "personalContacts": "Coordonnées Personnelles",
+      "fields": {
+        "firstName": "Prénom",
+        "fatherName": "Prénom du Père",
+        "grandfatherName": "Prénom du Grand-Père",
+        "motherName": "Prénom Nom Mère",
+        "lastName": "Nom",
+        "matricule": "Matricule",
+        "birthDate": "Date de Naissance",
+        "birthPlace": "Lieu de Naissance",
+        "recruitmentDate": "Date de Recrutement",
+        "uniqueIdentifier": "Identifiant Unique",
+        "gender": "Sexe",
+        "privateProfile": "Profil Privé",
+        "cin": "C.I.N",
+        "passport": "Passeport",
+        "mutualMatricule": "Matricule Mutuel",
+        "address": "Adresse Principale",
+        "governorate": "Gouvernorat",
+        "mobilePhone": "Téléphone Mobile",
+        "whatsapp": "WhatsApp",
+        "personalEmail": "Email Personnel",
+        "agentPhoto": "Photo de l'Agent"
+      },
+      "placeholders": {
+        "enterFirstName": "Entrez le prénom",
+        "enterFatherName": "Entrez le prénom du père",
+        "enterGrandfatherName": "Entrez le prénom du grand-père",
+        "enterMotherName": "Entrez le prénom et le nom de la mère",
+        "enterLastName": "Entrez le nom",
+        "enterMatricule": "Entrez le matricule",
+        "enterBirthPlace": "Entrez le lieu de naissance",
+        "enterCin": "Entrez le numéro de la cin",
+        "enterPassport": "Entrez le numéro du Passeport",
+        "enterUniqueIdentifier": "Entrez l'identifiant unique",
+        "enterAddress": "123 Rue Principale, Ville, CP",
+        "selectGovernorate": "Sélectionnez un gouvernorat",
+        "phoneFormat": "XX XXX XXX",
+        "emailFormat": "example@domaine.com",
+        "selectDate": "jj/mm/aaaa"
+      },
+      "gender": {
+        "male": "Masculin",
+        "female": "Féminin"
+      },
+      "privateProfileDescription": "Activer cette option pour rendre le profil privé"
+    },
+    "governorates": {
+      "Tunis": "Tunis",
+      "Ariana": "Ariana", 
+      "Ben Arous": "Ben Arous",
+      "Manouba": "Manouba",
+      "Nabeul": "Nabeul",
+      "Zaghouan": "Zaghouan",
+      "Bizerte": "Bizerte",
+      "Béja": "Béja",
+      "Jendouba": "Jendouba",
+      "Kef": "Kef",
+      "Siliana": "Siliana",
+      "Sousse": "Sousse",
+      "Monastir": "Monastir",
+      "Mahdia": "Mahdia",
+      "Sfax": "Sfax",
+      "Kairouan": "Kairouan",
+      "Kasserine": "Kasserine",
+      "Sidi Bouzid": "Sidi Bouzid",
+      "Gabès": "Gabès",
+      "Médenine": "Médenine",
+      "Tataouine": "Tataouine",
+      "Gafsa": "Gafsa",
+      "Tozeur": "Tozeur",
+      "Kébili": "Kébili"
+    },
+    "photo": {
+      "title": "Photo de l'Agent",
+      "noImage": "Aucune image",
+      "upload": "Uploader",
+      "acceptedFormats": "Formats acceptés: JPG, PNG, WEBP, GIF",
+      "maxSize": "Taille max: 5MB",
+      "unsupportedFormat": "Format de fichier non supporté",
+      "onlyFormats": "Seuls les formats .jpg, .jpeg, .png, .webp et .gif sont acceptés",
+      "fileTooLarge": "Fichier trop volumineux",
+      "maxSizeExceeded": "La taille du fichier ne doit pas dépasser 5MB"
+    },
+    "buttons": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "save": "Enregistrer",
+      "saveAndAdd": "Enregistrer et Ajouter",
+      "cancel": "Annuler"
+    },
+    "validation": {
+      "requiredFieldsMissing": "Champs requis manquants",
+      "pleaseCompleteRequired": "Veuillez remplir tous les champs obligatoires",
+      "required": "requis",
+      "firstNameRequired": "Le prénom est requis",
+      "lastNameRequired": "Le nom est requis",
+      "matriculeRequired": "Le matricule est requis",
+      "matriculeExists": "Ce matricule est déjà utilisé",
+      "verificationError": "Erreur de vérification",
+      "matriculeChecking": "Vérification du matricule en cours...",
+      "birthDateRequired": "La date de naissance est requise",
+      "genderRequired": "Le sexe est requis"
+    },
+    "confirmation": {
+      "title": "Confirmation d'enregistrement",
+      "message": "Êtes-vous sûr de vouloir enregistrer ce nouvel agent ?",
+      "confirm": "Confirmer l'enregistrement"
+    },
+    "messages": {
+      "saveSuccess": "Agent enregistré avec succès",
+      "saveError": "Échec de l'enregistrement",
+      "formResetForNew": "Formulaire réinitialisé pour un nouvel agent...",
+      "redirectingToList": "Redirection vers la liste des agents...",
+      "unknownError": "Erreur inconnue"
+    },
+    "progress": {
+      "saving": "Enregistrement en cours...",
+      "processing": "Traitement en cours..."
+    }
+  },
+  "newUnit": {
+    "title": "Nouvelle Unité",
+    "steps": {
+      "step1": "Informations de Base",
+      "step2": "Hiérarchie Organisationnelle",
+      "step3": "Informations de Contact",
+      "step4": "Localisation",
+      "stepOf": "Étape {current} sur {total}"
+    },
+    "form": {
+      "fields": {
+        "unitName": "Nom de l'Unité",
+        "matricule": "Matricule",
+        "category": "Catégorie",
+        "type": "Type",
+        "class": "Classe",
+        "description": "Description",
+        "navigante": "Type d'Unité",
+        "level1": "Niveau 1",
+        "level2": "Niveau 2",
+        "level3": "Niveau 3",
+        "phone1": "Téléphone 1",
+        "phone2": "Téléphone 2",
+        "phone3": "Téléphone 3",
+        "callSign": "Indicatif d'appel",
+        "email": "Email",
+        "building": "Bâtiment",
+        "address": "Adresse",
+        "port": "Port",
+        "coordinates": "Coordonnées GPS"
+      },
+      "placeholders": {
+        "unitName": "Entrez le nom de l'unité",
+        "matricule": "Entrez le matricule",
+        "description": "Description de l'unité",
+        "phone": "Numéro de téléphone",
+        "email": "Adresse email",
+        "building": "Nom du bâtiment",
+        "address": "Adresse complète",
+        "port": "Nom du port",
+        "coordinates": "Latitude, Longitude"
+      },
+      "naviganteOptions": {
+        "navigante": "Navigante",
+        "terrestre": "Terrestre"
+      },
+      "selectOptions": {
+        "selectCategory": "Sélectionnez la catégorie",
+        "selectType": "Sélectionnez le type",
+        "selectNavigante": "Sélectionnez le type d'unité",
+        "selectLevel": "Sélectionnez le niveau"
+      }
+    },
+    "validation": {
+      "required": "Requis",
+      "unitNameRequired": "Le nom de l'unité est requis",
+      "requiredFields": "Champs requis manquants",
+      "fillRequiredFields": "Veuillez remplir tous les champs obligatoires"
+    },
+    "confirmation": {
+      "title": "Confirmation d'enregistrement",
+      "message": "Êtes-vous sûr de vouloir enregistrer cette nouvelle unité ?",
+      "confirm": "Confirmer l'enregistrement",
+      "cancel": "Annuler"
+    },
+    "buttons": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
+    },
+    "messages": {
+      "saveSuccess": "Unité enregistrée avec succès",
+      "saveError": "Échec de l'enregistrement de l'unité",
+      "savingUnit": "Enregistrement de l'unité en cours...",
+      "redirecting": "Redirection en cours..."
+    },
+    "progress": {
+      "step": "Étape {current} sur {total}"
+    }
+  },
+  "agentForm": {
+    "labels": {
+      "matricule": "Matricule",
+      "unite": "Unité"
+    },
+    "fields": {
+      "matricule": "Matricule"
+    }
+  },
+  "employeeDetails": {
+    "tabs": {
+      "personalInfo": "Information Personnel",
+      "professionalInfo": "Information Professionnel",
+      "familyInfo": "Information Familial",
+      "trainingInfo": "Formation",
+      "disciplineInfo": "Discipline",
+      "leavesInfo": "Congés"
+    },
+    "navigation": {
+      "backToEmployees": "Retour aux employés",
+      "employeeProfile": "Profil de l'employé"
+    },
+    "personalInfo": {
+      "basicInfo": "Informations de base",
+      "contactInfo": "Informations de contact",
+      "identityDocuments": "Documents d'identité",
+      "address": "Adresse",
+      "photo": "Photo personnelle",
+      "labels": {
+        "identityInfo": "Information Identité",
+        "residenceInfo": "Information Résidence",
+        "contactInfo": "Information de Contact",
+        "otherInfo": "Autre Information",
+        "tags": "Tags",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "fatherName": "Prénom Père",
+        "grandfatherName": "Prénom G. Père",
+        "motherName": "Identité Mère",
+        "gender": "Genre",
+        "birthDate": "Date de Naissance",
+        "birthPlace": "Lieu de Naissance",
+        "mainAddress": "Adresse Principale",
+        "currentAddress": "Adresse Actuelle",
+        "notes": "Notes",
+        "personalContact": "Contact Personnel",
+        "mobileNumber": "Numéro Portable",
+        "email": "Email",
+        "otherContact": "Autre Contact",
+        "mobileNumber2": "Numéro Portable 2",
+        "whatsapp": "WhatsApp",
+        "maritalStatus": "Statut Marital",
+        "childrenCount": "Nombre d'enfants",
+        "idCard": "Carte d'identité",
+        "bloodGroup": "Groupe Sanguin",
+        "notDefined": "Non défini"
+      }
+    },
+    "professionalInfo": {
+      "currentPosition": "Poste actuel",
+      "careerHistory": "Historique professionnel",
+      "grades": "Grades et échelons",
+      "assignments": "Affectations",
+      "bankingInfo": "Informations bancaires"
+    },
+    "familyInfo": {
+      "maritalStatus": "État civil",
+      "children": "Enfants",
+      "emergencyContacts": "Contacts d'urgence"
+    },
+    "trainingInfo": {
+      "education": "Éducation",
+      "training": "Formation professionnelle",
+      "certifications": "Certifications"
+    },
+    "disciplineInfo": {
+      "sanctions": "Sanctions",
+      "rewards": "Récompenses et distinctions"
+    },
+    "leavesInfo": {
+      "currentLeaves": "Congés actuels",
+      "leaveHistory": "Historique des congés",
+      "absences": "Absences"
+    },
+    "status": {
+      "active": "Actif",
+      "onLeave": "En congé",
+      "inactive": "Inactif",
+      "suspended": "Suspendu"
+    },
+    "loading": "Chargement en cours...",
+    "error": "Erreur lors du chargement des données",
+    "noData": "Aucune donnée disponible",
+    "edit": "Modifier",
+    "save": "Sauvegarder",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "add": "Ajouter"
+  }
+}
