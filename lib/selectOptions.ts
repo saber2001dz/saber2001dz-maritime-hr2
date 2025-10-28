@@ -309,6 +309,15 @@ export const statutCongeOptions: SelectOption[] = [
   { value: "منتهية", label: "Terminé", labelAr: "منتهية" },
 ];
 
+// Options pour les directions (niveau_1_enum)
+export const directionValues: string[] = [
+  "إدارة حرس السواحل",
+  "إقليم الحرس البحري بالشمال",
+  "إفليم الحرس البحري بالساحل",
+  "إقليم الحرس البحري بالوسط",
+  "إفليم الحرس البحري بالجنوب"
+];
+
 // Options pour le statut des employés (basées sur l'ENUM employee_status de la base de données)
 export const employeeStatusOptions: SelectOption[] = [
   { value: "مباشر", label: "Actif" },

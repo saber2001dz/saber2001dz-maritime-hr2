@@ -46,9 +46,12 @@ export function SearchableSelect({
   
   const filteredOptions = React.useMemo(() => {
     if (!searchValue) return options
-    return options.filter(option =>
-      option.toLowerCase().startsWith(searchValue.toLowerCase())
-    )
+    const searchLower = searchValue.toLowerCase().trim()
+    return options.filter(option => {
+      const optionLower = option.toLowerCase()
+      // Support both startsWith and includes for better Arabic text matching
+      return optionLower.includes(searchLower) || optionLower.startsWith(searchLower)
+    })
   }, [options, searchValue])
 
   // Reset highlighted index when filtered options change

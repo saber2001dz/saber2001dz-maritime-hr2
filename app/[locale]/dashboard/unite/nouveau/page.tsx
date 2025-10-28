@@ -7,23 +7,22 @@ import { Stepper, Step, StepLabel, ThemeProvider } from "@mui/material"
 import { CacheProvider } from "@emotion/react"
 import { rtlTheme, ltrTheme, cacheRtl, cacheLtr } from "@/lib/mui-rtl-config"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SearchableSelect } from "@/components/ui/searchable-select"
 import { createClient } from "@/lib/supabase/client"
 import Toaster, { ToasterRef } from "@/components/ui/toast"
-import { useTranslations } from "next-intl"
 import { useParams } from "next/navigation"
-import {
-  getDirection,
-  getTitleFont,
-  getMainTitleFont,
-  getCardTitleFont,
-  getCardSubtitleFont,
-  getSelectFont,
-  getTableCellFont,
-} from "@/lib/direction"
+import { getDirection } from "@/lib/direction"
 import type { Locale } from "@/lib/types"
 
 // Les valeurs des ENUM sont maintenant récupérées dynamiquement depuis la base de données
+
+// Valeurs pour le combo Direction/District (niveau_1)
+const DIRECTION_VALUES = [
+  "إدارة حرس السواحل",
+  "إقليم الحرس البحري بالشمال",
+  "إفليم الحرس البحري بالساحل",
+  "إقليم الحرس البحري بالوسط",
+  "إفليم الحرس البحري بالجنوب"
+]
 
 // STEPS will be dynamically generated with translations
 
@@ -61,24 +60,17 @@ export default function NewUnitePage() {
   const router = useRouter()
   const toasterRef = useRef<ToasterRef>(null)
   
-  // Translation and locale setup
-  const t = useTranslations()
+  // Locale setup
   const params = useParams()
   const locale = params.locale as Locale
   const isRTL = locale === "ar"
-  const titleFontClass = getTitleFont(locale)
-  const mainTitleFontClass = getMainTitleFont(locale)
-  const cardTitleFontClass = getCardTitleFont(locale)
-  const cardSubtitleFontClass = getCardSubtitleFont(locale)
-  const selectFontClass = getSelectFont(locale)
-  const tableCellFontClass = getTableCellFont(locale)
 
-  // Dynamic steps with translations
+  // Steps with hardcoded translations
   const STEPS = [
-    { id: 1, name: t("newUnit.steps.step1") },
-    { id: 2, name: t("newUnit.steps.step2") },
-    { id: 3, name: t("newUnit.steps.step3") },
-    { id: 4, name: t("newUnit.steps.step4") },
+    { id: 1, name: isRTL ? "المعلومات الأساسية" : "Informations de Base" },
+    { id: 2, name: isRTL ? "التسلسل الإداري" : "Hiérarchie Organisationnelle" },
+    { id: 3, name: isRTL ? "معلومات الاتصال" : "Informations de Contact" },
+    { id: 4, name: isRTL ? "الموقع الجغرافي" : "Localisation" },
   ]
   
   const [currentStep, setCurrentStep] = useState(1)
@@ -110,7 +102,6 @@ export default function NewUnitePage() {
   const [secteurOptions, setSecteurOptions] = useState<string[]>([])
   const [brigadeOptions, setBrigadeOptions] = useState<string[]>([])
   const [categorieOptions, setCategorieOptions] = useState<string[]>([])
-  const [directionOptions, setDirectionOptions] = useState<string[]>([])
   const [uniteNameError, setUniteNameError] = useState<string>("")
   const [isCheckingName, setIsCheckingName] = useState(false)
 
@@ -138,16 +129,16 @@ export default function NewUnitePage() {
       setPhoneErrors(prev => ({ ...prev, [fieldName]: "" }))
       return true
     }
-    
+
     const digits = value.replace(/\D/g, '')
     if (digits.length !== 8) {
-      setPhoneErrors(prev => ({ 
-        ...prev, 
-        [fieldName]: isRTL ? "يجب أن يحتوي رقم الهاتف على 8 أرقام بالضبط" : "Le numéro de téléphone doit contenir exactement 8 chiffres" 
+      setPhoneErrors(prev => ({
+        ...prev,
+        [fieldName]: isRTL ? "يجب أن يحتوي رقم الهاتف على 8 أرقام بالضبط" : "Le numéro de téléphone doit contenir exactement 8 chiffres"
       }))
       return false
     }
-    
+
     setPhoneErrors(prev => ({ ...prev, [fieldName]: "" }))
     return true
   }
@@ -172,7 +163,7 @@ export default function NewUnitePage() {
       }
 
       const exists = data && data.length > 0
-      setUniteNameError(exists ? (isRTL ? "هذا اسم الوحدة موجود بالفعل في قاعدة البيانات" : "Ce nom d'unité existe déjà dans la base de données") : "")
+      setUniteNameError(exists ? isRTL ? "هذا اسم الوحدة موجود بالفعل في قاعدة البيانات" : "Ce nom d'unité existe déjà dans la base de données" : "")
       return exists
     } catch (error) {
       console.error("Error checking unit name:", error)
@@ -205,39 +196,54 @@ export default function NewUnitePage() {
     const fetchUniteOptions = async () => {
       const supabase = createClient()
 
-      // Fetch categorie options from ENUM - use values from database
-      const categorieValues = [
-        "إدارة حرس السواحل",
-        "إقليم بحري",
-        "منطقة بحرية",
-        "إدارة فرعية",
-        "طوافة سريعة 35 متر",
-        "فرقة بحرية",
-        "خافرة 23 متر",
-        "خافرة 20 متر",
-        "خافرة 17 متر",
-        "مركز بحري",
-        "برج مراقبة",
-        "محطة رصد",
-        "زورق سريع 16 متر",
-        "زورق سريع 15 متر",
-        "زورق سريع 14 متر",
-        "زورق سريع 12 متر",
-        "زورق سريع برق",
-        "زورق سريع صقر",
-        "مصلحة"
-      ]
-      setCategorieOptions(categorieValues)
+      // Fetch categorie options from ENUM dynamically from database
+      const { data: categorieData, error: categorieError } = await supabase.rpc(
+        'get_enum_values',
+        { enum_name: 'categorie_unite_enum' }
+      )
 
-      // Fetch direction options from ENUM - use values from database
-      const directionValues = [
-        "إدارة حرس السواحل",
-        "إقليم الحرس البحري بالشمال",
-        "إفليم الحرس البحري بالساحل",
-        "إقليم الحرس البحري بالوسط",
-        "إفليم الحرس البحري بالجنوب"
-      ]
-      setDirectionOptions(directionValues)
+      if (!categorieError && categorieData) {
+        setCategorieOptions(categorieData.map((item: { value: string }) => item.value))
+      } else {
+        // Fallback to hardcoded values if RPC fails
+        console.error('Error fetching categorie enum:', categorieError)
+        const categorieValues = [
+          "إدارة حرس السواحل",
+          "إقليم بحري",
+          "منطقة بحرية",
+          "إدارة فرعية",
+          "طوافة سريعة 35 متر",
+          "فرقة بحرية",
+          "فرقة ملاحة",
+          "فرقة صيانة",
+          "فرقة إستطلاع و دعم عملياتي بحري",
+          "فرقة تدخل سريع بحري",
+          "فرقة توقي من الإرهاب",
+          "خافرة 23 متر",
+          "خافرة 20 متر",
+          "خافرة 17 متر",
+          "مركز بحري",
+          "مركز بحري عملياتي",
+          "مركز إرشاد",
+          "مركز",
+          "فصيل",
+          "برج مراقبة",
+          "محطة رصد",
+          "زورق سريع 16 متر",
+          "زورق سريع 15 متر",
+          "زورق سريع 14 متر",
+          "زورق سريع 12 متر",
+          "زورق سريع برق",
+          "زورق سريع صقر",
+          "مصلحة",
+          "قسم",
+          "مكتب",
+          "حضيرة",
+          "خلية",
+          "حصة إستمرار"
+        ]
+        setCategorieOptions(categorieValues)
+      }
 
       // Fetch secteur options
       const { data: secteurData } = await supabase
@@ -247,7 +253,9 @@ export default function NewUnitePage() {
         .order("unite")
 
       if (secteurData) {
-        setSecteurOptions(secteurData.map((item: { unite: string }) => item.unite))
+        // Remove duplicates using Set
+        const uniqueSecteurs = Array.from(new Set(secteurData.map((item: { unite: string }) => item.unite))) as string[]
+        setSecteurOptions(uniqueSecteurs)
       }
 
       // Fetch brigade options
@@ -264,7 +272,9 @@ export default function NewUnitePage() {
         .order("unite")
 
       if (brigadeData) {
-        setBrigadeOptions(brigadeData.map((item: { unite: string }) => item.unite))
+        // Remove duplicates using Set
+        const uniqueBrigades = Array.from(new Set(brigadeData.map((item: { unite: string }) => item.unite))) as string[]
+        setBrigadeOptions(uniqueBrigades)
       }
     }
 
@@ -413,7 +423,7 @@ export default function NewUnitePage() {
     } catch (error) {
       return {
         type: "error",
-        message: isRTL ? "خطأ غير متوقع أثناء الإنشاء" : "Erreur inattendue lors de la création",
+        message: isRTL ? "خطأ غير معروف" : "Erreur inconnue",
         errors: { general: [isRTL ? "خطأ في الاتصال" : "Erreur de connexion"] },
       }
     }
@@ -456,7 +466,7 @@ export default function NewUnitePage() {
                 return `${field} : ${String(messages)}`
               })
               .join("\n")
-          : result.message || (isRTL ? "خطأ غير معروف" : "Erreur inconnue")
+          : result.message || isRTL ? "خطأ غير معروف" : "Erreur inconnue"
         toasterRef.current?.show({
           title: isRTL ? "فشل في الحفظ" : "Échec de l'enregistrement",
           message: fieldErrors,
@@ -500,7 +510,7 @@ export default function NewUnitePage() {
                   top: "20px",
                 },
                 "& .MuiStepLabel-root": {
-                  fontFamily: isRTL ? titleFontClass : "inherit",
+                  fontFamily: isRTL ? "'Noto Naskh Arabic', serif" : "inherit",
                 },
                 "& .MuiStepIcon-text": {
                   fontSize: "0.7rem", // Numéros encore plus petits
@@ -547,7 +557,7 @@ export default function NewUnitePage() {
   // Validation Toast Component
   const ValidationToast = ({ message, onClose }: { message: string; onClose: () => void }) => {
     const getTitle = (message: string) => {
-      if (message.includes("existe déjà") || message.includes("هذا اسم")) {
+      if (message.includes("existe déjà") || message.includes("موجود")) {
         return isRTL ? "اسم الوحدة موجود" : "Nom d'unité existant"
       }
       return isRTL ? "حقل مطلوب مفقود" : "Champs requis manquant"
@@ -576,21 +586,19 @@ export default function NewUnitePage() {
     )
   }
 
-  function SubmitButton({ isFormValid, onConfirm }: { isFormValid: boolean; onConfirm: () => void }) {
+  function SubmitButton({ onConfirm }: { onConfirm: () => void }) {
     return (
       <button
         type="button"
-        disabled={!isFormValid}
+        disabled={true}
         onClick={onConfirm}
-        className={`flex items-center justify-center gap-2 w-32 h-10 text-sm border border-gray-300 dark:border-transparent text-white rounded font-medium transition-colors ${
-          !isFormValid ? "bg-gray-400 cursor-not-allowed" : "cursor-pointer hover:bg-[rgb(36,124,149)]"
-        } ${isRTL ? titleFontClass : ""}`}
+        className={`flex items-center justify-center gap-2 w-32 h-10 text-sm border border-gray-300 dark:border-transparent text-white rounded font-medium transition-colors bg-gray-400 cursor-not-allowed ${isRTL ? 'font-noto-naskh-arabic' : ""}`}
         style={{
-          backgroundColor: isFormValid ? "rgb(14, 102, 129)" : "rgb(156, 163, 175)",
+          backgroundColor: "rgb(156, 163, 175)",
         }}
       >
         <Save className="w-4 h-4" />
-        <span className={isRTL ? titleFontClass : ""}>{t('newUnit.buttons.save')}</span>
+        <span className={isRTL ? 'font-noto-naskh-arabic' : ""}>{isRTL ? "حفظ" : "Enregistrer"}</span>
       </button>
     )
   }
@@ -628,7 +636,7 @@ export default function NewUnitePage() {
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
               <div className={`flex ${isRTL ? "space-x-reverse" : "items-center"} space-x-2`}>
                 <Building2 className="h-5 w-5 text-[#076784]" />
-                <h2 className={`${isRTL ? "text-base mr-2 -mb-2" : "text-lg"} font-semibold text-[#076784] dark:text-[#80D5D4] ${isRTL ? `${mainTitleFontClass} mt-0.5` : titleFontClass}`}>{t('newUnit.confirmation.title')}</h2>
+                <h2 className={`${isRTL ? "text-base mr-2 -mb-2" : "text-lg"} font-semibold text-[#076784] dark:text-[#80D5D4] ${isRTL ? 'font-noto-naskh-arabic mt-0.5' : ''}`}>{isRTL ? "تأكيد الحفظ" : "Confirmation d'enregistrement"}</h2>
               </div>
               <button
                 onClick={onClose}
@@ -640,18 +648,18 @@ export default function NewUnitePage() {
 
             {/* Content */}
             <div className="py-4 px-6">
-              <p className={`text-gray-700 dark:text-gray-300 mb-8 mt-4 ${isRTL ? `text-right ${cardSubtitleFontClass}` : "text-center"}`}>
-                {t('newUnit.confirmation.message')}
+              <p className={`text-gray-700 dark:text-gray-300 mb-8 mt-4 ${isRTL ? 'text-right font-noto-naskh-arabic' : "text-center"}`}>
+                {isRTL ? "هل أنت متأكد من أنك تريد حفظ هذه الوحدة الجديدة؟" : "Êtes-vous sûr de vouloir enregistrer cette nouvelle unité ?"}
               </p>
 
               <div className={`flex justify-end ${isRTL ? "space-x-reverse gap-3" : ""} space-x-3`}>
                 <button
                   onClick={onClose}
                   className={`px-5 py-2.5 text-[14px] text-gray-500 border border-border dark:border-transparent rounded-md hover:bg-accent hover:text-accent-foreground hover:border-accent transition-all duration-200 cursor-pointer hover:shadow-sm ${
-                    isRTL ? titleFontClass : ""
+                    isRTL ? 'font-noto-naskh-arabic' : ""
                   }`}
                 >
-                  {t('newUnit.buttons.cancel')}
+                  {isRTL ? "إلغاء" : "Annuler"}
                 </button>
                 <button
                   onClick={onConfirm}
@@ -660,7 +668,7 @@ export default function NewUnitePage() {
                   } space-x-2 cursor-pointer hover:shadow-md active:scale-95`}
                 >
                   <Save className="h-4 w-4" />
-                  <span className={isRTL ? titleFontClass : ""}>{t('newUnit.buttons.save')}</span>
+                  <span className={isRTL ? 'font-noto-naskh-arabic' : ""}>{isRTL ? "حفظ" : "Enregistrer"}</span>
                 </button>
               </div>
             </div>
@@ -676,7 +684,7 @@ export default function NewUnitePage() {
       <div className="min-h-screen pb-12 bg-[#F4F5F9] dark:bg-[#26272A]" dir={getDirection(locale)}>
         <div className="px-6 py-6">
           <div className="flex items-center gap-4">
-            <h1 className={`text-2xl font-semibold text-gray-900 dark:text-white ${mainTitleFontClass}`}>{t('newUnit.title')}</h1>
+            <h1 className={`text-2xl font-semibold text-gray-900 dark:text-white ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>{isRTL ? "وحدة جديدة" : "Nouvelle Unité"}</h1>
           </div>
         </div>
 
@@ -686,11 +694,11 @@ export default function NewUnitePage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Building2 className="w-5 h-5 text-[rgb(14,102,129)] dark:text-[#80D5D4]" />
-                  <h2 className={`text-lg font-medium text-[rgb(14,102,129)] dark:text-[#80D5D4] ${titleFontClass}`}>
-                    {STEPS.find((s) => s.id === currentStep)?.name || t('newUnit.form.fields.unitName')}
+                  <h2 className={`text-lg font-medium text-[rgb(14,102,129)] dark:text-[#80D5D4] ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
+                    {STEPS.find((s) => s.id === currentStep)?.name || isRTL ? "اسم الوحدة" : "Nom de l'Unité"}
                   </h2>
                 </div>
-                <span className={`text-sm text-gray-600 dark:text-gray-400 ${isRTL ? titleFontClass : ""}`}>
+                <span className={`text-sm text-gray-600 dark:text-gray-400 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
                   {isRTL ? `الخطوة ${currentStep} من ${STEPS.length}` : `Étape ${currentStep} sur ${STEPS.length}`}
                 </span>
               </div>
@@ -705,8 +713,8 @@ export default function NewUnitePage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="unite" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${cardSubtitleFontClass}`}>
-                          {t('newUnit.form.fields.unitName')} *
+                        <label htmlFor="unite" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
+                          {isRTL ? "اسم الوحدة" : "Nom de l'Unité"} *
                         </label>
                         <input
                           id="unite"
@@ -721,8 +729,8 @@ export default function NewUnitePage() {
                             uniteNameError
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-300 dark:border-[#565656] focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)]"
-                          } ${isRTL ? "text-right" : ""} ${isRTL ? tableCellFontClass : ""}`}
-                          placeholder={isRTL ? "" : "Ex: Brigade Maritime Zarzis"}
+                          } ${isRTL ? "text-right" : ""} ${isRTL ? 'font-noto-naskh-arabic' : ""}`}
+                          placeholder={isRTL ? "مثال: الفرقة البحرية بجرجيس" : "Ex: Brigade Maritime Zarzis"}
                           required
                         />
                         <div className="h-2 mt-0.5">
@@ -735,8 +743,8 @@ export default function NewUnitePage() {
                         </div>
                       </div>
                       <div>
-                        <label htmlFor="unite_matricule" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${cardSubtitleFontClass}`}>
-                          {t('newUnit.form.fields.matricule')}
+                        <label htmlFor="unite_matricule" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
+                          {isRTL ? "الرقم المتسلسل" : "Matricule"}
                         </label>
                         <input
                           id="unite_matricule"
@@ -746,7 +754,7 @@ export default function NewUnitePage() {
                           value={formData.unite_matricule}
                           onChange={(e) => handleInputChange("unite_matricule", e.target.value)}
                           className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
-                          placeholder={isRTL ? "" : "Ex: UNI-001"}
+                          placeholder={isRTL ? "مثال : 3501" : "Ex: UNI-001"}
                         />
                         <div className="h-2 mt-0.5"></div>
                       </div>
@@ -754,8 +762,8 @@ export default function NewUnitePage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="unite_categorie" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${cardSubtitleFontClass}`}>
-                          {t('newUnit.form.fields.category')} *
+                        <label htmlFor="unite_categorie" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
+                          {isRTL ? "الفئة" : "Catégorie"} *
                         </label>
                         <Select
                           dir={isRTL ? "rtl" : "ltr"}
@@ -767,10 +775,10 @@ export default function NewUnitePage() {
                             id="unite_categorie"
                             name="unite_categorie"
                             className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
-                              isRTL ? "text-right" : ""
+                              isRTL ? "text-start" : ""
                             } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
                           >
-                            <SelectValue placeholder={isRTL ? "" : t('newUnit.form.selectOptions.selectCategory')} />
+                            <SelectValue placeholder={isRTL ? "اختر الفئة" : "Sélectionnez une catégorie"} />
                           </SelectTrigger>
                           <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50">
                             {categorieOptions.map((categorie) => (
@@ -787,8 +795,8 @@ export default function NewUnitePage() {
                         <div className="h-4 mt-0.5"></div>
                       </div>
                       <div>
-                        <label htmlFor="unite_type" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${cardSubtitleFontClass}`}>
-                          {t('newUnit.form.fields.type')}
+                        <label htmlFor="unite_type" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
+                          {isRTL ? "النوع" : "Type"}
                         </label>
                         <Select
                           dir={isRTL ? "rtl" : "ltr"}
@@ -799,10 +807,10 @@ export default function NewUnitePage() {
                             id="unite_type"
                             name="unite_type"
                             className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
-                              isRTL ? "text-right" : ""
+                              isRTL ? "text-start" : ""
                             } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
                           >
-                            <SelectValue placeholder={isRTL ? "" : t('newUnit.form.selectOptions.selectType')} />
+                            <SelectValue placeholder={isRTL ? "اختر النوع" : "Sélectionnez un type"} />
                           </SelectTrigger>
                           <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50">
                             <SelectItem
@@ -825,8 +833,8 @@ export default function NewUnitePage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="unite_classe" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${cardSubtitleFontClass}`}>
-                          {t('newUnit.form.fields.class')}
+                        <label htmlFor="unite_classe" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
+                          {isRTL ? "الصنف" : "Classe"}
                         </label>
                         <input
                           id="unite_classe"
@@ -836,13 +844,13 @@ export default function NewUnitePage() {
                           value={formData.unite_classe}
                           onChange={(e) => handleInputChange("unite_classe", e.target.value)}
                           className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
-                          placeholder={isRTL ? "" : "Ex: Classe A"}
+                          placeholder={isRTL ? "مثال : صنف أ" : "Ex: Classe A"}
                         />
                         <div className="h-2 mt-0.5"></div>
                       </div>
                       <div>
-                        <label htmlFor="navigante" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${cardSubtitleFontClass}`}>
-                          {t('newUnit.form.fields.navigante')}
+                        <label htmlFor="navigante" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
+                          {isRTL ? "نوع الوحدة" : "Type d'Unité"}
                         </label>
                         <Select
                           dir={isRTL ? "rtl" : "ltr"}
@@ -853,27 +861,27 @@ export default function NewUnitePage() {
                             id="navigante"
                             name="navigante"
                             className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
-                              isRTL ? "text-right" : ""
+                              isRTL ? "text-start" : ""
                             } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
                           >
-                            <SelectValue placeholder={isRTL ? "" : t('newUnit.form.selectOptions.selectNavigante')} />
+                            <SelectValue placeholder={isRTL ? "اختر نوع الوحدة" : "Sélectionnez le type"} />
                           </SelectTrigger>
                           <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50">
                             <SelectItem
                               value="false"
                               className={`px-2 py-1.5 text-[13px] hover:bg-[rgb(236,243,245)] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${isRTL ? 'font-noto-naskh-arabic font-medium' : ''}`}
                             >
-                              {isRTL ? 'غير ملاحية' : 'Non navigante'}
+                              {isRTL ? 'وحدة عائمة' : 'Non navigante'}
                             </SelectItem>
                             <SelectItem
                               value="true"
                               className={`px-2 py-1.5 text-[13px] hover:bg-[rgb(236,243,245)] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${isRTL ? 'font-noto-naskh-arabic font-medium' : ''}`}
                             >
-                              {isRTL ? t('newUnit.form.naviganteOptions.navigante') : t('newUnit.form.naviganteOptions.navigante')}
+                              {isRTL ? "وحدة قارة" : "Navigante"}
                             </SelectItem>
                           </SelectContent>
                         </Select>
-                        <p className={`text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 ${isRTL ? cardSubtitleFontClass : ""}`}>
+                        <p className={`text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
                           {isRTL ? 'حدد إذا كانت هذه الوحدة تعمل في البحر' : 'Sélectionnez si cette unité opère en mer'}
                         </p>
                       </div>
@@ -881,7 +889,7 @@ export default function NewUnitePage() {
 
 
                     <div>
-                      <label htmlFor="unite_description" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
+                      <label htmlFor="unite_description" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
                         {isRTL ? 'وصف الوحدة' : 'Description de l\'Unité'}
                       </label>
                       <textarea
@@ -892,7 +900,7 @@ export default function NewUnitePage() {
                         value={formData.unite_description}
                         onChange={(e) => handleInputChange("unite_description", e.target.value)}
                         className="w-full h-[60px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] resize-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
-                        placeholder={isRTL ? "" : t('newUnit.form.placeholders.description')}
+                        placeholder={isRTL ? "وصف تفصيلي للوحدة..." : "Description détaillée de l'unité..."}
                       />
                       <div className="h-4 mt-0.5"></div>
                     </div>
@@ -905,7 +913,7 @@ export default function NewUnitePage() {
                     {/* Ligne 1: Direction/District et Niveau 2 côte à côte */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="niveau_1" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
+                        <label htmlFor="niveau_1" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
                           {isRTL ? 'الإدارة / المقاطعة' : 'Direction / District'}
                         </label>
                         <Select
@@ -917,15 +925,15 @@ export default function NewUnitePage() {
                             id="niveau_1"
                             name="niveau_1"
                             className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
-                              isRTL ? "text-right" : ""
+                              isRTL ? "text-start" : ""
                             } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
                           >
-                            <SelectValue placeholder={isRTL ? "" : t('newUnit.form.selectOptions.selectLevel')} />
+                            <SelectValue placeholder={isRTL ? "اختر الإدارة / المقاطعة" : "Sélectionnez une direction/district"} />
                           </SelectTrigger>
                           <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50">
-                            {directionOptions.map((direction) => (
+                            {DIRECTION_VALUES.map((direction: string, index: number) => (
                               <SelectItem
-                                key={direction}
+                                key={`${direction}-${index}`}
                                 value={direction}
                                 className={`px-2 py-1.5 text-[13px] hover:bg-[rgb(236,243,245)] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${isRTL ? 'font-noto-naskh-arabic font-medium' : ''}`}
                               >
@@ -937,20 +945,35 @@ export default function NewUnitePage() {
                         <div className="h-2 mt-0.5"></div>
                       </div>
                       <div>
-                        <label htmlFor="niveau_2" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${cardSubtitleFontClass}`}>
-                          {t('newUnit.form.fields.level2')}
+                        <label htmlFor="niveau_2" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
+                          {isRTL ? "المستوى الثاني" : "Niveau 2"}
                         </label>
-                        <SearchableSelect
-                          id="niveau_2"
-                          name="niveau_2"
+                        <Select
+                          dir={isRTL ? "rtl" : "ltr"}
                           value={formData.niveau_2}
                           onValueChange={(value) => handleInputChange("niveau_2", value)}
-                          options={secteurOptions}
-                          placeholder={isRTL ? "" : "Sélectionnez un secteur/sous direction"}
-                          searchPlaceholder={isRTL ? "بحث عن قطاع/إدارة فرعية..." : "Rechercher un secteur/sous direction..."}
-                          emptyMessage={isRTL ? "لا توجد قطاعات/إدارات فرعية" : "Aucun secteur/sous direction trouvé"}
-                          triggerClassName="w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)]"
-                        />
+                        >
+                          <SelectTrigger
+                            id="niveau_2"
+                            name="niveau_2"
+                            className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
+                              isRTL ? "text-start" : ""
+                            } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
+                          >
+                            <SelectValue placeholder={isRTL ? "اختر المستوى الثاني" : "Sélectionnez un secteur/sous direction"} />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50 max-h-[300px] overflow-y-auto">
+                            {secteurOptions.map((secteur) => (
+                              <SelectItem
+                                key={secteur}
+                                value={secteur}
+                                className={`px-2 py-1.5 text-[13px] hover:bg-[rgb(236,243,245)] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${isRTL ? 'font-noto-naskh-arabic font-medium' : ''}`}
+                              >
+                                {secteur}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <div className="h-2 mt-0.5"></div>
                       </div>
                     </div>
@@ -958,20 +981,35 @@ export default function NewUnitePage() {
                     {/* Ligne 2: Niveau 3 sous Direction/District avec la même largeur */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="niveau_3" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${cardSubtitleFontClass}`}>
-                          {t('newUnit.form.fields.level3')}
+                        <label htmlFor="niveau_3" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
+                          {isRTL ? "المستوى الثالث" : "Niveau 3"}
                         </label>
-                        <SearchableSelect
-                          id="niveau_3"
-                          name="niveau_3"
+                        <Select
+                          dir={isRTL ? "rtl" : "ltr"}
                           value={formData.niveau_3}
                           onValueChange={(value) => handleInputChange("niveau_3", value)}
-                          options={brigadeOptions}
-                          placeholder={isRTL ? "" : "Sélectionnez une brigade/service"}
-                          searchPlaceholder={isRTL ? "بحث عن لواء/قسم..." : "Rechercher une brigade/service..."}
-                          emptyMessage={isRTL ? "لا توجد ألوية/أقسام" : "Aucune brigade/service trouvée"}
-                          triggerClassName="w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)]"
-                        />
+                        >
+                          <SelectTrigger
+                            id="niveau_3"
+                            name="niveau_3"
+                            className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
+                              isRTL ? "text-start" : ""
+                            } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
+                          >
+                            <SelectValue placeholder={isRTL ? "اختر المستوى الثالث" : "Sélectionnez une brigade/service"} />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50 max-h-[300px] overflow-y-auto">
+                            {brigadeOptions.map((brigade) => (
+                              <SelectItem
+                                key={brigade}
+                                value={brigade}
+                                className={`px-2 py-1.5 text-[13px] hover:bg-[rgb(236,243,245)] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${isRTL ? 'font-noto-naskh-arabic font-medium' : ''}`}
+                              >
+                                {brigade}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <div className="h-2 mt-0.5"></div>
                       </div>
                       <div></div>
@@ -984,7 +1022,7 @@ export default function NewUnitePage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="unite_telephone1" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
+                        <label htmlFor="unite_telephone1" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
                           {isRTL ? 'الهاتف الرئيسي' : 'Téléphone principal'}
                         </label>
                         <input
@@ -1001,7 +1039,7 @@ export default function NewUnitePage() {
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-300 dark:border-[#565656] focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)]"
                           }`}
-                          placeholder={isRTL ? "" : "12345678 (8 chiffres)"}
+                          placeholder={isRTL ? "12345678 (8 أرقام)" : "12345678 (8 chiffres)"}
                           inputMode="numeric"
                           pattern="[0-9]*"
                         />
@@ -1015,7 +1053,7 @@ export default function NewUnitePage() {
                         </div>
                       </div>
                       <div>
-                        <label htmlFor="unite_telephone2" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
+                        <label htmlFor="unite_telephone2" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
                           {isRTL ? 'الهاتف الثانوي' : 'Téléphone secondaire'}
                         </label>
                         <input
@@ -1031,7 +1069,7 @@ export default function NewUnitePage() {
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-300 dark:border-[#565656] focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)]"
                           }`}
-                          placeholder={isRTL ? "" : "12345678 (8 chiffres)"}
+                          placeholder={isRTL ? "12345678 (8 أرقام)" : "12345678 (8 chiffres)"}
                           inputMode="numeric"
                           pattern="[0-9]*"
                         />
@@ -1048,8 +1086,8 @@ export default function NewUnitePage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="unite_telephone3" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
-                          {isRTL ? 'هاتف الطوارئ' : 'Téléphone d\'urgence'}
+                        <label htmlFor="unite_telephone3" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
+                          {isRTL ? 'هاتف 5 أرقـام' : 'Téléphone d\'urgence'}
                         </label>
                         <input
                           id="unite_telephone3"
@@ -1064,7 +1102,7 @@ export default function NewUnitePage() {
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-300 dark:border-[#565656] focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)]"
                           }`}
-                          placeholder={isRTL ? "" : "12345678 (8 chiffres)"}
+                          placeholder={isRTL ? "12345 (5 أرقام)" : "12345 (5 chiffres)"}
                           inputMode="numeric"
                           pattern="[0-9]*"
                         />
@@ -1078,8 +1116,8 @@ export default function NewUnitePage() {
                         </div>
                       </div>
                       <div>
-                        <label htmlFor="unite_indicatif" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
-                          {isRTL ? 'مؤشر الراديو' : 'Indicatif radio'}
+                        <label htmlFor="unite_indicatif" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
+                          {isRTL ? 'رمــز النــداء' : 'Indicatif radio'}
                         </label>
                         <input
                           id="unite_indicatif"
@@ -1089,15 +1127,15 @@ export default function NewUnitePage() {
                           value={formData.unite_indicatif}
                           onChange={(e) => handleInputChange("unite_indicatif", e.target.value)}
                           className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
-                          placeholder={isRTL ? "" : "Ex: TUN-001"}
+                          placeholder={isRTL ? "مثال: TUN-001" : "Ex: TUN-001"}
                         />
                         <div className="h-2 mt-0.5"></div>
                       </div>
                     </div>
 
                     <div>
-                      <label htmlFor="unite_email" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
-                        {isRTL ? 'عنوان البريد الإلكتروني' : 'Adresse email'}
+                      <label htmlFor="unite_email" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
+                        {isRTL ? 'رقــم التراسل' : 'Adresse email'}
                       </label>
                       <input
                         id="unite_email"
@@ -1107,7 +1145,7 @@ export default function NewUnitePage() {
                         value={formData.unite_email}
                         onChange={(e) => handleInputChange("unite_email", e.target.value)}
                         className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
-                        placeholder={isRTL ? "" : "Ex: unite@garde-cotes.tn"}
+                        placeholder={isRTL ? "مثال: unite@garde-cotes.tn" : "Ex: unite@garde-cotes.tn"}
                       />
                       <div className="h-4 mt-0.5"></div>
                     </div>
@@ -1119,8 +1157,8 @@ export default function NewUnitePage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="unite_batiment" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
-                          {isRTL ? 'المبنى / القاعدة' : 'Bâtiment / Base'}
+                        <label htmlFor="unite_batiment" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
+                          {isRTL ? 'المبنى' : 'Bâtiment / Base'}
                         </label>
                         <input
                           id="unite_batiment"
@@ -1136,8 +1174,8 @@ export default function NewUnitePage() {
                         <div className="h-2 mt-0.5"></div>
                       </div>
                       <div>
-                        <label htmlFor="unite_port" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
-                          {isRTL ? 'ميناء المرفق' : 'Port d\'attache'}
+                        <label htmlFor="unite_port" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
+                          {isRTL ? 'ميناء الإرتفاق' : 'Port d\'attache'}
                         </label>
                         <input
                           id="unite_port"
@@ -1147,14 +1185,14 @@ export default function NewUnitePage() {
                           value={formData.unite_port}
                           onChange={(e) => handleInputChange("unite_port", e.target.value)}
                           className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
-                          placeholder={isRTL ? "" : "Ex: Port de Bizerte"}
+                          placeholder={isRTL ? "مثال: ميناء بنزرت" : "Ex: Port de Bizerte"}
                         />
                         <div className="h-2 mt-0.5"></div>
                       </div>
                     </div>
 
                     <div>
-                      <label htmlFor="unite_adresse" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
+                      <label htmlFor="unite_adresse" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
                         {isRTL ? 'العنوان الكامل' : 'Adresse complète'}
                       </label>
                       <textarea
@@ -1165,13 +1203,13 @@ export default function NewUnitePage() {
                         value={formData.unite_adresse}
                         onChange={(e) => handleInputChange("unite_adresse", e.target.value)}
                         className="w-full h-[60px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] resize-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
-                        placeholder={isRTL ? "" : "Adresse complète de l'unité..."}
+                        placeholder={isRTL ? "العنوان الكامل للوحدة..." : "Adresse complète de l'unité..."}
                       />
                       <div className="h-4 mt-0.5"></div>
                     </div>
 
                     <div>
-                      <label htmlFor="unite_gps" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? cardSubtitleFontClass : ""}`}>
+                      <label htmlFor="unite_gps" className={`block text-[11px] font-medium text-gray-700 dark:text-[#D0D0D0] mb-1 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
                         {isRTL ? 'إحداثيات GPS' : 'Coordonnées GPS'}
                       </label>
                       <input
@@ -1182,9 +1220,9 @@ export default function NewUnitePage() {
                         value={formData.unite_gps}
                         onChange={(e) => handleInputChange("unite_gps", e.target.value)}
                         className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
-                        placeholder={isRTL ? "" : "Ex: 36.8065,10.1815 (latitude,longitude)"}
+                        placeholder={isRTL ? "مثال: 36.8065,10.1815 (خط العرض،خط الطول)" : "Ex: 36.8065,10.1815 (latitude,longitude)"}
                       />
-                      <p className={`text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 ${isRTL ? cardSubtitleFontClass : ""}`}>
+                      <p className={`text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
                         {isRTL ? 'النموذج: خط العرض، خط الطول (عشري)' : 'Format: latitude,longitude (décimal)'}
                       </p>
                       <div className="h-4 mt-0.5"></div>
@@ -1202,11 +1240,11 @@ export default function NewUnitePage() {
                         type="button"
                         onClick={handlePrevStep}
                         className={`flex items-center justify-center gap-2 w-32 h-10 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer ${
-                          isRTL ? titleFontClass : ""
+                          isRTL ? 'font-noto-naskh-arabic' : ""
                         }`}
                       >
                         {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                        {t('newUnit.buttons.previous')}
+                        {isRTL ? "السابق" : "Précédent"}
                       </button>
                     )}
                   </div>
@@ -1218,7 +1256,7 @@ export default function NewUnitePage() {
                         type="button"
                         onClick={handleNextStep}
                         className={`flex items-center justify-center gap-2 w-32 h-10 text-sm border border-gray-300 dark:border-transparent text-white rounded font-medium hover:bg-[rgb(36,124,149)] transition-colors cursor-pointer ${
-                          isRTL ? titleFontClass : ""
+                          isRTL ? 'font-noto-naskh-arabic' : ""
                         }`}
                         style={{
                           backgroundColor: "rgb(14, 102, 129)",
@@ -1230,13 +1268,13 @@ export default function NewUnitePage() {
                           e.currentTarget.style.backgroundColor = "rgb(14, 102, 129)"
                         }}
                       >
-                        {t('newUnit.buttons.next')}
+                        {isRTL ? "التالي" : "Suivant"}
                         {isRTL ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                       </button>
                     )}
                     {/* Bouton de soumission finale */}
                     {currentStep === STEPS.length && (
-                      <SubmitButton isFormValid={validateFinalSubmission()} onConfirm={() => handleSubmit()} />
+                      <SubmitButton onConfirm={() => handleSubmit()} />
                     )}
                   </div>
                 </div>

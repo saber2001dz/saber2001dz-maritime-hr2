@@ -672,47 +672,106 @@
         "type": "النوع",
         "class": "الصنف",
         "description": "الوصف",
+        "unitDescription": "وصف الوحدة",
         "navigante": "نوع الوحدة",
         "level1": "المستوى الأول",
-        "level2": "المستوى الثاني", 
+        "level2": "المستوى الثاني",
         "level3": "المستوى الثالث",
+        "directionDistrict": "الإدارة / المقاطعة",
         "phone1": "الهاتف الأول",
         "phone2": "الهاتف الثاني",
         "phone3": "الهاتف الثالث",
+        "mainPhone": "الهاتف الرئيسي",
+        "secondaryPhone": "الهاتف الثانوي",
+        "emergencyPhone": "هاتف الطوارئ",
         "callSign": "الكنية",
+        "radioCallSign": "مؤشر الراديو",
         "email": "البريد الإلكتروني",
+        "emailAddress": "عنوان البريد الإلكتروني",
         "building": "المبنى",
+        "buildingBase": "المبنى / القاعدة",
         "address": "العنوان",
+        "fullAddress": "العنوان الكامل",
         "port": "الميناء",
-        "coordinates": "الإحداثيات"
+        "homePort": "ميناء المرفق",
+        "coordinates": "الإحداثيات",
+        "gpsCoordinates": "إحداثيات GPS"
       },
       "placeholders": {
         "unitName": "أدخل اسم الوحدة",
+        "unitNameExample": "مثال: الفرقة البحرية بجرجيس",
         "matricule": "أدخل الرقم المتسلسل",
+        "matriculeExample": "مثال: UNI-001",
+        "classExample": "مثال: الفئة أ",
         "description": "وصف الوحدة",
+        "descriptionPlaceholder": "وصف تفصيلي للوحدة...",
         "phone": "رقم الهاتف",
+        "phoneExample": "12345678 (8 أرقام)",
+        "radioExample": "مثال: TUN-001",
         "email": "البريد الإلكتروني",
+        "emailExample": "مثال: unite@garde-cotes.tn",
         "building": "اسم المبنى",
+        "buildingExample": "مثال: القاعدة البحرية ببنزرت",
         "address": "العنوان الكامل",
+        "addressPlaceholder": "العنوان الكامل للوحدة...",
         "port": "اسم الميناء",
-        "coordinates": "خط العرض، خط الطول"
+        "portExample": "مثال: ميناء بنزرت",
+        "coordinates": "خط العرض، خط الطول",
+        "gpsExample": "مثال: 36.8065,10.1815 (خط العرض،خط الطول)",
+        "selectSector": "اختر قطاع/إدارة فرعية",
+        "searchSector": "بحث عن قطاع/إدارة فرعية...",
+        "noSectorFound": "لا توجد قطاعات/إدارات فرعية",
+        "selectBrigade": "اختر لواء/قسم",
+        "searchBrigade": "بحث عن لواء/قسم...",
+        "noBrigadeFound": "لا توجد ألوية/أقسام"
+      },
+      "typeOptions": {
+        "operational": "عملياتية",
+        "administrative": "إدارية"
       },
       "naviganteOptions": {
         "navigante": "بحرية",
-        "terrestre": "برية"
+        "terrestre": "برية",
+        "nonNavigante": "غير ملاحية"
       },
       "selectOptions": {
         "selectCategory": "اختر الفئة",
         "selectType": "اختر النوع",
         "selectNavigante": "اختر نوع الوحدة",
         "selectLevel": "اختر المستوى"
+      },
+      "helpText": {
+        "naviganteDescription": "حدد إذا كانت هذه الوحدة تعمل في البحر",
+        "gpsFormat": "النموذج: خط العرض، خط الطول (عشري)"
       }
     },
     "validation": {
       "required": "مطلوب",
       "unitNameRequired": "اسم الوحدة مطلوب",
+      "categoryRequired": "فئة الوحدة مطلوبة",
       "requiredFields": "الحقول المطلوبة مفقودة",
-      "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة"
+      "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة",
+      "phoneError": "يجب أن يحتوي رقم الهاتف على 8 أرقام بالضبط",
+      "unitNameExists": "هذا اسم الوحدة موجود بالفعل في قاعدة البيانات",
+      "checkingName": "جاري التحقق من الاسم..."
+    },
+    "errors": {
+      "createError": "خطأ في إنشاء الوحدة",
+      "saveError": "فشل في الحفظ",
+      "unknownError": "خطأ غير معروف",
+      "connectionError": "خطأ في الاتصال"
+    },
+    "success": {
+      "unitCreated": "تم إنشاء الوحدة بنجاح",
+      "unitSaved": "تم حفظ الوحدة بنجاح",
+      "redirecting": "جاري التوجيه إلى جدول الوحدات..."
+    },
+    "toast": {
+      "unitNameExists": "اسم الوحدة موجود",
+      "requiredFieldMissing": "حقل مطلوب مفقود"
+    },
+    "stepIndicator": {
+      "stepXofY": "الخطوة {current} من {total}"
     },
     "confirmation": {
       "title": "تأكيد الحفظ",
