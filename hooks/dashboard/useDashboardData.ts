@@ -440,64 +440,51 @@ const fetchRecentUnites = async (limit: number) => {
   const supabase = createClient()
   const { data, error } = await supabase
     .from("unite")
-    .select("id, unite, unite_categorie, unite_type, niveau_1, navigante")
-    .order("created_at", { ascending: false })
-  
+    .select("id, unite, unite_categorie, unite_type, niveau_1, navigante, unite_rang")
+
   if (error) {
     throw error
   }
-  
-  // Trier par ordre hiérarchique : Direction Garde-Côtes, puis District Nord, puis District Sahel
+
+  // Appliquer le même tri que la table des unités (par unite_rang + nom alphabétique)
   const sortedData = data?.sort((a: any, b: any) => {
-    // 1. Direction Garde-Côtes en premier
-    if (a.unite_categorie === "Direction Garde-Cotes") return -1
-    if (b.unite_categorie === "Direction Garde-Cotes") return 1
-    
-    // 2. District Maritime Nord ensuite (vérifier le nom de l'unité)
-    if (a.unite === "District Maritime Nord") return -1
-    if (b.unite === "District Maritime Nord") return 1
-    
-    // 3. District Maritime Sahel après  
-    if (a.unite === "District Maritime Sahel") return -1
-    if (b.unite === "District Maritime Sahel") return 1
-    
-    // 4. Autres districts dans l'ordre alphabétique
-    if (a.unite_categorie === "District Maritime" && b.unite_categorie === "District Maritime") {
-      return a.unite.localeCompare(b.unite)
+    // Tri primaire : par unite_rang (ordre croissant)
+    const rankA = a.unite_rang ?? 999
+    const rankB = b.unite_rang ?? 999
+
+    if (rankA !== rankB) {
+      return rankA - rankB
     }
-    
-    // 5. Districts avant les autres catégories
-    if (a.unite_categorie === "District Maritime") return -1
-    if (b.unite_categorie === "District Maritime") return 1
-    
-    // 6. Autres unités par ordre alphabétique
-    return a.unite.localeCompare(b.unite)
+
+    // Tri secondaire : par nom d'unité (alphabétique)
+    const nameA = a.unite || ""
+    const nameB = b.unite || ""
+    return nameA.localeCompare(nameB, "fr", { sensitivity: "base" })
   })
-  
+
   return sortedData?.slice(0, limit) || []
 }
 
 const fetchRecentEmployees = async (limit: number) => {
   const supabase = createClient()
-  
+
   // Utiliser la même requête que la liste des employés pour assurer la cohérence du tri
   const { data, error } = await supabase
     .from("employees")
     .select(EMPLOYEE_LIST_SELECT_QUERY)
-    .eq("actif", "مباشر")
-  
+
   if (error) {
     throw error
   }
-  
+
   if (!data || data.length === 0) {
     return []
   }
-  
+
   // Traiter les données avec la même fonction que la liste des employés
   const processedEmployees = data.map(processEmployeeData)
-  
-  // Retourner tous les employés actifs traités (le tri sera appliqué plus tard dans DashboardContent)
+
+  // Retourner tous les employés traités (le tri sera appliqué plus tard dans DashboardContent)
   return processedEmployees
 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -308,6 +308,26 @@ export function DashboardContent({ data }: DashboardContentProps) {
     // Appliquer directement le tri hiérarchique centralisé et limiter aux 3 premiers
     return sortEmployeesByHierarchy(data.colonelMajorEmployees).slice(0, 3)
   }, [data.colonelMajorEmployees])
+
+  // Appliquer le même tri que la table des unités (par unite_rang + nom alphabétique)
+  const sortedRecentUnites = useMemo(() => {
+    if (!data.recentUnites || data.recentUnites.length === 0) return []
+
+    return [...data.recentUnites].sort((a: any, b: any) => {
+      // Tri primaire : par unite_rang (ordre croissant)
+      const rankA = a.unite_rang ?? 999
+      const rankB = b.unite_rang ?? 999
+
+      if (rankA !== rankB) {
+        return rankA - rankB
+      }
+
+      // Tri secondaire : par nom d'unité (alphabétique)
+      const nameA = a.unite || ""
+      const nameB = b.unite || ""
+      return nameA.localeCompare(nameB, "fr", { sensitivity: "base" })
+    })
+  }, [data.recentUnites])
 
   // Données dynamiques basées sur les vraies statistiques
   const expensesData = {
@@ -789,7 +809,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-card divide-y divide-gray-200 dark:divide-[#393A41]">
-                  {!data.recentUnites || data.recentUnites.length === 0 ? (
+                  {!sortedRecentUnites || sortedRecentUnites.length === 0 ? (
                     <tr>
                       <td
                         colSpan={3}
@@ -799,7 +819,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                       </td>
                     </tr>
                   ) : (
-                    data.recentUnites.map((unite: any) => (
+                    sortedRecentUnites.map((unite: any) => (
                       <tr key={unite.id} className="hover:bg-gray-50 dark:hover:bg-[#363C44]">
                         <td className="px-6 py-2.5 whitespace-nowrap">
                           <div className="flex items-center gap-3">
