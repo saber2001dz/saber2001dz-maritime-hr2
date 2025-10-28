@@ -4,7 +4,8 @@ import createIntlMiddleware from 'next-intl/middleware'
 
 const intlMiddleware = createIntlMiddleware({
   locales: ['fr', 'ar'],
-  defaultLocale: 'fr'
+  defaultLocale: 'ar',
+  localeDetection: false // Désactiver la détection automatique de la locale basée sur le navigateur
 })
 
 export async function middleware(request: NextRequest) {

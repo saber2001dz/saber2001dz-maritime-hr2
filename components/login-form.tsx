@@ -39,7 +39,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         setError(signInError.message)
       }
     } else {
-      router.push("/dashboard")
+      router.push("/ar/dashboard")
     }
   }
 

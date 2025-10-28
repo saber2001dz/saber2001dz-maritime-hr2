@@ -87,9 +87,9 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Extract locale from pathname, default to 'fr'
+  // Extract locale from pathname, default to 'ar'
   const localeMatch = pathname.match(/^\/([^\/]+)/)
-  const locale = localeMatch && ['fr', 'ar'].includes(localeMatch[1]) ? localeMatch[1] : 'fr'
+  const locale = localeMatch && ['fr', 'ar'].includes(localeMatch[1]) ? localeMatch[1] : 'ar'
 
   // Optimisation 4: Logique de redirection simplifiée avec locale
   if (!user && !isPublicPath && pathname.includes('/dashboard')) {
