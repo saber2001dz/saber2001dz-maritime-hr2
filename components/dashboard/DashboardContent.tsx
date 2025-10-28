@@ -45,7 +45,7 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ data }: DashboardContentProps) {
-  const [selectedChart, setSelectedChart] = useState("conges")
+  const [selectedChart, setSelectedChart] = useState("grade")
   const t = useTranslations()
   const params = useParams()
   const isRTL = params.locale === "ar"
@@ -581,21 +581,21 @@ export function DashboardContent({ data }: DashboardContentProps) {
               </AnimatePresence>
               <Select
                 dir={isRTL ? "rtl" : "ltr"}
-                defaultValue="conges"
+                defaultValue="grade"
                 onValueChange={(value) => setSelectedChart(value)}
               >
                 <SelectTrigger className={`w-[120px] rounded ${selectFontClass}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="grade" className={selectFontClass}>
+                    {isRTL ? t("dashboard.select.grade") : "Grade"}
+                  </SelectItem>
                   <SelectItem value="conges" className={selectFontClass}>
                     {isRTL ? t("dashboard.select.leaves") : "Congés"}
                   </SelectItem>
                   <SelectItem value="funnel" className={selectFontClass}>
                     {isRTL ? t("dashboard.select.funnel") : "Funnel"}
-                  </SelectItem>
-                  <SelectItem value="grade" className={selectFontClass}>
-                    {isRTL ? t("dashboard.select.grade") : "Grade"}
                   </SelectItem>
                 </SelectContent>
               </Select>

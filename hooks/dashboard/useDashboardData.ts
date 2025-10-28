@@ -662,7 +662,7 @@ export function useDashboardData(params: UseDashboardDataParams = {}): UseDashbo
         fetchCongesData(),
         fetchOfficerGradesDistribution(),
         fetchNCOGradesDistribution(),
-        fetchEmployeeMonthlyStatistics(2025, 'monthly'),
+        fetchEmployeeMonthlyStatistics(new Date().getFullYear(), 'monthly'),
         fetchRecentUnites(3),
         fetchRecentEmployees(3),
         fetchEmployeeTrends(isRTL, t),
