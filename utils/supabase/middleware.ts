@@ -92,9 +92,10 @@ export async function updateSession(request: NextRequest) {
   const locale = localeMatch && ['fr', 'ar'].includes(localeMatch[1]) ? localeMatch[1] : 'ar'
 
   // Optimisation 4: Logique de redirection simplifiée avec locale
+  // Force login to always use /fr/auth/login (LTR mode)
   if (!user && !isPublicPath && pathname.includes('/dashboard')) {
     const url = request.nextUrl.clone()
-    url.pathname = `/${locale}/auth/login`
+    url.pathname = '/fr/auth/login'
     return NextResponse.redirect(url)
   }
 

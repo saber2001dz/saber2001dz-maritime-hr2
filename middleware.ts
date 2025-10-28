@@ -1,4 +1,4 @@
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 import createIntlMiddleware from 'next-intl/middleware'
 
@@ -9,6 +9,15 @@ const intlMiddleware = createIntlMiddleware({
 })
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Force login page to always use /fr/auth/login
+  if (pathname === '/auth/login' || pathname === '/ar/auth/login') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/fr/auth/login'
+    return NextResponse.redirect(url)
+  }
+
   // First handle internationalization
   const intlResponse = intlMiddleware(request)
   

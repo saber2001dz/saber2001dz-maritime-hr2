@@ -44,7 +44,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   }
 
   return (
-    <form onSubmit={handleSignIn} className={cn("flex flex-col gap-6", className)} {...props}>
+    <form onSubmit={handleSignIn} className={cn("flex flex-col gap-6", className)} dir="ltr" {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-4xl font-extrabold text-[#0E6681]  tracking-tight sm:text-4xl">Welcome Back</h1>
         <p className="text-muted-foreground text-sm max-w-[90%] sm:max-w-full">
