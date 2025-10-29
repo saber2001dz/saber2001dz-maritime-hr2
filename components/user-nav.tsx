@@ -97,10 +97,9 @@ export function UserNav() {
     signOut: isRTL ? "تسجيل الخروج" : "Sign Out",
   }
 
-  const handleSignOut = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push("/auth/login")
+  const handleSignOut = () => {
+    // Simply navigate to the logout route - let the server handle everything
+    window.location.href = "/fr/auth/logout"
   }
 
   if (!isLoaded || !userData.email) {
