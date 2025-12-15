@@ -494,7 +494,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
                     </td>
                     <td className={`px-4 py-2 w-32 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
                       {editingSanctionIndex === index ? (
-                        <I18nProvider locale="fr-FR">
+                        <I18nProvider  locale="fr-FR">
                           <DateField
                             value={sanction.date_sanction ? parseDate(sanction.date_sanction) : null}
                             onChange={(date) => {
