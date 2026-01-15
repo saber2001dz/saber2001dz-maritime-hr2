@@ -1,6 +1,6 @@
 "use client"
 import * as React from "react"
-import { BadgeCheck, CreditCard, LogOut } from "lucide-react"
+import { User, Settings, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -137,7 +137,7 @@ export function UserNav() {
         <DropdownMenuGroup>
           <DropdownMenuItem className={`cursor-pointer p-0 `} onClick={() => router.push("/dashboard/profile")}>
             <div className={`flex items-center w-full px-2 py-2.5 ${isRTL ? "justify-between" : ""}`}>
-              <BadgeCheck className="h-4 w-4" />
+              <User className="h-4 w-4" />
               <span className={`flex-1 ${isRTL ? "text-start pr-2 font-noto-naskh-arabic" : "pl-2"}`}>
                 {translations.profile}
               </span>
@@ -145,7 +145,7 @@ export function UserNav() {
           </DropdownMenuItem>
           <DropdownMenuItem className={`cursor-pointer p-0`} onClick={() => router.push("/dashboard/settings")}>
             <div className={`flex items-center w-full px-2 py-2.5 ${isRTL ? "justify-between" : ""}`}>
-              <CreditCard className="h-4 w-4" />
+              <Settings className="h-4 w-4" />
               <span className={`flex-1 ${isRTL ? "text-start pr-2 font-noto-naskh-arabic" : "pl-2"}`}>
                 {translations.settings}
               </span>

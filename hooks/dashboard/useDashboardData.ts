@@ -412,27 +412,60 @@ const fetchGenderStatistics = async (): Promise<GenderStatistics> => {
   }
 }
 
-const fetchEmployeeMonthlyStatistics = async (year: number, periodType: 'monthly' | 'yearly' = 'monthly') => {
+const fetchEmployeeMonthlyStatistics = async (monthsLimit?: number, periodType: 'monthly' | 'yearly' = 'monthly') => {
   const supabase = createClient()
-  
+
+  // Si monthsLimit est spécifié, récupérer seulement les N derniers mois
+  if (monthsLimit && periodType === 'monthly') {
+    const { data, error } = await supabase
+      .from("employee_statistics")
+      .select("period_date, total_employees, period_type")
+      .eq("period_type", periodType)
+      .order("period_date", { ascending: false })
+      .limit(monthsLimit)
+
+    if (error) {
+      throw error
+    }
+
+    // Retourner les données dans l'ordre chronologique (du plus ancien au plus récent)
+    return (data || []).reverse()
+  }
+
+  // Comportement original : récupérer tous les mois d'une année
+  // Si aucune année n'est spécifiée, récupérer l'année la plus récente avec des données
+  const { data: latestData, error: latestError } = await supabase
+    .from("employee_statistics")
+    .select("period_date")
+    .eq("period_type", periodType)
+    .order("period_date", { ascending: false })
+    .limit(1)
+    .single()
+
+  if (latestError || !latestData) {
+    return []
+  }
+
+  const year = new Date(latestData.period_date).getFullYear()
+
   let query = supabase
     .from("employee_statistics")
     .select("period_date, total_employees, period_type")
     .eq("period_type", periodType)
     .order("period_date", { ascending: true })
-  
+
   if (periodType === 'monthly') {
     const startDate = `${year}-01-01`
     const endDate = `${year}-12-31`
     query = query.gte("period_date", startDate).lte("period_date", endDate)
   }
-  
+
   const { data, error } = await query
-  
+
   if (error) {
     throw error
   }
-  
+
   return data || []
 }
 
@@ -620,9 +653,9 @@ export function useDashboardData(params: UseDashboardDataParams = {}): UseDashbo
   const [error, setError] = useState<string | null>(null)
 
   const { addDashboardRefreshCallback, removeDashboardRefreshCallback } = useRealtimeStore()
-  
+
   // Paramètres par défaut
-  const { isRTL = false, t = (key: string) => key } = params
+  const { isRTL = false, t = (key: string) => key, monthsLimit } = params
 
   const fetchAllData = useCallback(async () => {
     try {
@@ -649,7 +682,7 @@ export function useDashboardData(params: UseDashboardDataParams = {}): UseDashbo
         fetchCongesData(),
         fetchOfficerGradesDistribution(),
         fetchNCOGradesDistribution(),
-        fetchEmployeeMonthlyStatistics(new Date().getFullYear(), 'monthly'),
+        fetchEmployeeMonthlyStatistics(monthsLimit, 'monthly'),
         fetchRecentUnites(3),
         fetchRecentEmployees(3),
         fetchEmployeeTrends(isRTL, t),
@@ -681,7 +714,7 @@ export function useDashboardData(params: UseDashboardDataParams = {}): UseDashbo
     } finally {
       setIsLoading(false)
     }
-  }, [isRTL, t])
+  }, [isRTL, t, monthsLimit])
 
   const refresh = useCallback(() => {
     fetchAllData()

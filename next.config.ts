@@ -11,9 +11,6 @@ const nextConfig: NextConfig = {
   compress: true,
   
   // Optimisations des builds (à réactiver progressivement)
-  eslint: {
-    ignoreDuringBuilds: true, // Temporaire
-  },
   typescript: {
     ignoreBuildErrors: true, // Temporaire
   },

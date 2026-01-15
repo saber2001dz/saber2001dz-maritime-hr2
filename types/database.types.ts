@@ -1195,13 +1195,14 @@ export type Database = {
         | "District Maritime Centre"
         | "District Maritime Sud"
       employee_status:
-        | "Actif"
-        | "Inactif"
-        | "Conges"
-        | "Maladie"
-        | "Formation"
-        | "Mission"
-        | "Abscent"
+        | "مباشر"
+        | "غير مباشر"
+        | "إجازة"
+        | "مرض"
+        | "تدريب"
+        | "مهمة"
+        | "متغيب"
+        | "موقوف"
       type_conge_enum:
         | "Annuel"
         | "Maladie"
@@ -1365,13 +1366,14 @@ export const Constants = {
         "District Maritime Sud",
       ],
       employee_status: [
-        "Actif",
-        "Inactif",
-        "Conges",
-        "Maladie",
-        "Formation",
-        "Mission",
-        "Abscent",
+        "مباشر",
+        "غير مباشر",
+        "إجازة",
+        "مرض",
+        "تدريب",
+        "مهمة",
+        "متغيب",
+        "موقوف",
       ],
       type_conge_enum: [
         "Annuel",

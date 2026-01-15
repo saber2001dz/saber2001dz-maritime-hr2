@@ -12,7 +12,7 @@ const DashboardPage = () => {
   const t = useTranslations()
   const params = useParams()
   const isRTL = params.locale === "ar"
-  
+
   const { dashboardData, isLoading, error } = useDashboardData({ isRTL, t })
 
   if (isLoading) {

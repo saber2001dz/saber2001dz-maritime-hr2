@@ -151,7 +151,7 @@ function LogoHeader() {
         isCollapsed ? "justify-center p-2" : "gap-3 px-2 py-2"
       }`}
     >
-      <div className="flex aspect-square size-8 items-center justify-center rounded-lg flex-shrink-0">
+      <div className="flex aspect-square size-8 items-center justify-center rounded-lg shrink-0">
         <Image
           src="/images/logo.png"
           alt="Maritime HR Logo"

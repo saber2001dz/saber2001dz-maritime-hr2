@@ -110,7 +110,7 @@ export function Notifications() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80" align={isRTL ? "end" : "end"} sideOffset={10} forceMount dir={isRTL ? "rtl" : "ltr"}>
+      <DropdownMenuContent className="w-80" align="end" sideOffset={10} forceMount>
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>{t("notifications.title")}</span>
           {unreadCount > 0 && (
@@ -138,7 +138,7 @@ export function Notifications() {
                         {notification.title}
                       </p>
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{notification.message}</p>
+                    <p className="text-xs text-muted-foreground text-start line-clamp-2">{notification.message}</p>
                     <p className="text-xs text-muted-foreground">{notification.time}</p>
                   </div>
                 </div>

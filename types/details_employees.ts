@@ -139,6 +139,9 @@ export interface EmployeeSanctions {
   date_sanction: string
   autorite: string
   motif: string
+  nombre_jour?: number | string
+  date_debut?: string
+  date_fin?: string
   created_at: string
   updated_at: string
 }

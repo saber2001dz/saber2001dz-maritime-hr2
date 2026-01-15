@@ -75,6 +75,7 @@ export interface UseDashboardDataReturn {
 export interface UseDashboardDataParams {
   isRTL?: boolean
   t?: (key: string) => string
+  monthsLimit?: number  // Nombre de mois à récupérer (3, 6, 12)
 }
 
 // Types pour les données de graphiques spécifiques

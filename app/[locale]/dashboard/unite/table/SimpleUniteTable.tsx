@@ -15,22 +15,24 @@ import {
   Ship,
   Building2,
   Search,
+  RotateCcw,
 } from "lucide-react"
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import {
-  RawUniteData,
-  DisplayUnite,
-  processUniteData,
-  UNITE_SELECT_QUERY,
-} from "@/types/unite.types"
+import { RawUniteData, DisplayUnite, processUniteData, UNITE_SELECT_QUERY } from "@/types/unite.types"
 import { useLocale } from "next-intl"
 import { useParams } from "next/navigation"
-import { getTableCellFont, getTitleFont, getCardSubtitleFont, getMainTitleFont, getTableCellNotoFont } from "@/lib/direction"
+import {
+  getTableCellFont,
+  getTitleFont,
+  getCardSubtitleFont,
+  getMainTitleFont,
+  getTableCellNotoFont,
+} from "@/lib/direction"
 import type { Locale } from "@/lib/types"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface SimpleUniteTableProps {
   initialUnites: DisplayUnite[]
@@ -45,7 +47,6 @@ interface SortConfig {
   key: SortKey
   direction: SortDirection
 }
-
 
 export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
   const locale = useLocale()
@@ -63,27 +64,122 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
     direction: "ascending",
   })
   const [searchTerm, setSearchTerm] = useState("")
+  const [natureFilter, setNatureFilter] = useState<string>("")
+  const [categorieFilter, setCategorieFilter] = useState<string>("")
   const [realtimeConnected, setRealtimeConnected] = useState(false)
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const supabase = createClient()
 
-  // Fonction de refresh des données
+  // Liste des catégories d'unités autorisées
+  const ALLOWED_CATEGORIES = [
+    "إدارة حرس السواحل",
+    "إقليم بحري",
+    "منطقة بحرية",
+    "إدارة فرعية",
+    "طوافة سريعة 35 متر",
+    "فرقة بحرية",
+    "فرقة تدخل سريع بحري",
+    "فرقة توقي من الإرهاب",
+    "خافرة 23 متر",
+    "خافرة 20 متر",
+    "خافرة 17 متر",
+    "مصلحة",
+    "مركز بحري",
+    "مركز بحري عملياتي",
+    "مركز إرشاد",
+    "برج مراقبة",
+    "محطة رصد",
+    "زورق سريع 16 متر",
+    "زورق سريع 15 متر",
+    "زورق سريع 14 متر",
+    "زورق سريع 12 متر",
+    "زورق سريع برق",
+    "زورق سريع صقر",
+  ]
+
+  // Fonction de refresh des données avec pagination automatique et filtre de catégorie
   const refreshData = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      // Obtenir le nombre total d'unités avec filtre de catégorie
+      const { count } = await supabase
         .from("unite")
-        .select(UNITE_SELECT_QUERY)
+        .select("*", { count: "exact", head: true })
+        .in("unite_categorie", ALLOWED_CATEGORIES)
 
-      if (error) {
-        console.error("Erreur rechargement unités:", error)
-        return
-      }
+      if (count && count > 0) {
+        const pageSize = 1000
+        const totalPages = Math.ceil(count / pageSize)
+        const allUnites: RawUniteData[] = []
 
-      if (data) {
-        const processedUnites = data.map(processUniteData)
+        // Récupérer toutes les pages en parallèle avec filtre de catégorie
+        const fetchPromises = []
+        for (let page = 0; page < totalPages; page++) {
+          const from = page * pageSize
+          const to = from + pageSize - 1
+          fetchPromises.push(
+            supabase
+              .from("unite")
+              .select(UNITE_SELECT_QUERY)
+              .in("unite_categorie", ALLOWED_CATEGORIES)
+              .order("unite_rang", { ascending: true })
+              .range(from, to)
+          )
+        }
+
+        const results = await Promise.all(fetchPromises)
+
+        // Vérifier les erreurs
+        const hasErrors = results.some((r) => r.error)
+        if (hasErrors) {
+          console.error("Erreur rechargement unités")
+          return
+        }
+
+        // Combiner toutes les données
+        results.forEach((result) => {
+          if (result.data) {
+            allUnites.push(...result.data)
+          }
+        })
+
+        // Récupérer tous les IDs des responsables uniques
+        const responsableIds = [
+          ...new Set(allUnites.map((u) => u.unite_responsable).filter((id) => id !== null)),
+        ] as string[]
+
+        // Récupérer les informations des employés responsables avec leur grade
+        let employeesMap = new Map<string, { nom: string | null; prenom: string | null; grade_actuel: string | null }>()
+
+        if (responsableIds.length > 0) {
+          const { data: employeesData, error: employeesError } = await supabase
+            .from("employees")
+            .select("id, nom, prenom, grade_actuel")
+            .in("id", responsableIds)
+
+          if (!employeesError && employeesData) {
+            employeesData.forEach(
+              (emp: { id: string; nom: string | null; prenom: string | null; grade_actuel: string | null }) => {
+                employeesMap.set(emp.id, {
+                  nom: emp.nom,
+                  prenom: emp.prenom,
+                  grade_actuel: emp.grade_actuel,
+                })
+              }
+            )
+          }
+        }
+
+        // Ajouter les données des responsables aux unités
+        const allUnitesWithResponsable = allUnites.map((unite) => ({
+          ...unite,
+          responsable: unite.unite_responsable ? employeesMap.get(unite.unite_responsable) || null : null,
+        }))
+
+        const processedUnites = allUnitesWithResponsable.map(processUniteData)
         setUnites(processedUnites)
+        console.log(`${processedUnites.length} unités rechargées`)
       }
     } catch (error) {
       console.error("Erreur refresh unités:", error)
@@ -145,7 +241,7 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
       setTimeout(() => {
         window.scrollTo({
           top: parseInt(scrollPosition),
-          behavior: 'smooth'
+          behavior: "smooth",
         })
         sessionStorage.removeItem("scrollPosition")
       }, 100)
@@ -155,11 +251,12 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
   // Simple realtime setup
   useEffect(() => {
     console.log("Initialisation realtime unités...")
-    
+
     const channel = supabase
-      .channel('unites_changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'unite' }, 
+      .channel("unites_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "unite" },
         (payload: RealtimePostgresChangesPayload<RawUniteData>) => {
           console.log("Changement détecté:", payload)
           // Recharger les données complètement pour simplifier
@@ -167,8 +264,8 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
         }
       )
       .subscribe((status: string) => {
-        console.log('Statut realtime unités:', status)
-        setRealtimeConnected(status === 'SUBSCRIBED')
+        console.log("Statut realtime unités:", status)
+        setRealtimeConnected(status === "SUBSCRIBED")
       })
 
     return () => {
@@ -178,10 +275,18 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
 
   // Fonction de normalisation pour la recherche
   const normalize = useCallback((str: string) => {
-    return str
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
+    return (
+      str
+        // Normaliser les différentes formes de Alif en arabe
+        .replace(/[أإآا]/g, "ا")
+        // Normaliser les autres lettres arabes similaires
+        .replace(/[ى]/g, "ي")
+        .replace(/[ة]/g, "ه")
+        // NFD pour les autres langues
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+    )
   }, [])
 
   // Fonction de tri
@@ -206,6 +311,24 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
   const filteredUnites = useMemo(() => {
     let filtered = unites
 
+    // Filtre par nature
+    if (natureFilter !== "") {
+      if (natureFilter === "navigante") {
+        filtered = filtered.filter((unite) => unite.navigante === true)
+      } else if (natureFilter === "terrestre") {
+        filtered = filtered.filter((unite) => unite.navigante === false)
+      }
+    }
+
+    // Filtre par catégorie
+    if (categorieFilter !== "") {
+      filtered = filtered.filter((unite) => {
+        const normalizedCategorie = normalize(unite.unite_categorie || "")
+        return normalizedCategorie === normalize(categorieFilter)
+      })
+    }
+
+    // Filtre par recherche
     if (searchTerm.trim()) {
       const normalizedSearchTerm = normalize(searchTerm)
       filtered = filtered.filter((unite) => {
@@ -213,7 +336,7 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
         const normalizedNiveau = normalize(unite.niveau_1 || "")
         const normalizedType = normalize(unite.unite_type || "")
         const normalizedCategorie = normalize(unite.unite_categorie || "")
-        
+
         return (
           normalizedUnite.includes(normalizedSearchTerm) ||
           normalizedNiveau.includes(normalizedSearchTerm) ||
@@ -224,7 +347,7 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
     }
 
     return filtered
-  }, [unites, searchTerm, normalize])
+  }, [unites, searchTerm, natureFilter, categorieFilter, normalize])
 
   // Tri des unités
   const sortedUnites = useMemo(() => {
@@ -234,11 +357,11 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
         // Tri primaire : par unite_rang (ordre croissant)
         const rankA = a.unite_rang
         const rankB = b.unite_rang
-        
+
         if (rankA !== rankB) {
           return rankA - rankB
         }
-        
+
         // Tri secondaire : par nom d'unité (alphabétique)
         const nameA = a.unite || ""
         const nameB = b.unite || ""
@@ -319,34 +442,38 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
     sessionStorage.setItem("uniteTableParams", params.toString())
   }, [searchTerm, sortConfig, currentPage])
 
-  // Reset page when searching
+  // Reset page when searching or filtering
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, sortConfig])
+  }, [searchTerm, sortConfig, natureFilter, categorieFilter])
 
   // Fonction pour actualiser les données et reconnecter le realtime
   const handleRefresh = useCallback(async () => {
     if (isRefreshing) return
-    
+
     console.log("Actualisation manuelle déclenchée...")
-    
+
     // Activer l'état de chargement
     setIsRefreshing(true)
-    
+
     try {
       // Déconnecter temporairement le realtime
       setRealtimeConnected(false)
-      
+
       // Recharger les données
       await refreshData()
-      
+
       // Reconnecter le realtime en recréant le channel
       supabase
         .channel("unites_changes_" + Date.now()) // Nouveau nom pour forcer la reconnexion
-        .on("postgres_changes", { event: "*", schema: "public", table: "unite" }, (payload: RealtimePostgresChangesPayload<RawUniteData>) => {
-          console.log("Changement détecté:", payload)
-          refreshData()
-        })
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "unite" },
+          (payload: RealtimePostgresChangesPayload<RawUniteData>) => {
+            console.log("Changement détecté:", payload)
+            refreshData()
+          }
+        )
         .subscribe((status: string) => {
           console.log("Statut realtime après refresh:", status)
           setRealtimeConnected(status === "SUBSCRIBED")
@@ -362,7 +489,8 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
   // Icône de tri
   const getSortIcon = (columnKey: SortKey) => {
     const spacingClass = isRTL ? "mr-2" : "ml-2"
-    if (sortConfig.key !== columnKey) return <ArrowUpDown className={`${spacingClass} h-4 w-4 text-gray-400 dark:text-gray-500`} />
+    if (sortConfig.key !== columnKey)
+      return <ArrowUpDown className={`${spacingClass} h-4 w-4 text-gray-400 dark:text-gray-500`} />
     return sortConfig.direction === "ascending" ? (
       <ArrowUp className={`${spacingClass} h-4 w-4`} />
     ) : (
@@ -376,8 +504,12 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
       <div className="mb-6">
         <div className="bg-white dark:bg-card rounded-sm p-8 text-center">
           <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">○</div>
-          <h3 className={`text-lg font-medium text-gray-900 dark:text-white mb-2 ${getTitleFont(locale as any)}`}>{isRTL ? "لا توجد وحدات" : "Aucune unité trouvée"}</h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">{isRTL ? "ابدأ بإضافة وحدة جديدة" : "Commencez par ajouter une nouvelle unité"}</p>
+          <h3 className={`text-lg font-medium text-gray-900 dark:text-white mb-2 ${getTitleFont(locale as any)}`}>
+            {isRTL ? "لا توجد وحدات" : "Aucune unité trouvée"}
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">
+            {isRTL ? "ابدأ بإضافة وحدة جديدة" : "Commencez par ajouter une nouvelle unité"}
+          </p>
           <Link
             href="/dashboard/unite/nouveau"
             className="inline-flex items-center gap-2 text-white px-5 py-2 rounded font-medium transition-colors hover:opacity-90"
@@ -397,7 +529,7 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className={`text-2xl ${mainTitleFontClass} text-foreground`}>
-              {isRTL ? "قائمة الوحدات" : "Liste des unités"}
+              {isRTL ? "قائمــة الـوحـــدات" : "Liste des unités"}
             </h1>
             <div className="flex items-center gap-4 mt-2">
               <span
@@ -405,20 +537,23 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                   isRTL ? titleFontClass : ""
                 }`}
               >
-                {unites.length} {unites.length === 1 ? (isRTL ? "وحدة" : "unité") : (isRTL ? "وحدة" : "unités")}
+                {filteredUnites.length}{" "}
+                {filteredUnites.length === 1 ? (isRTL ? "وحدة" : "unité") : isRTL ? "وحدة" : "unités"}
               </span>
               <div className="flex items-center gap-2">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    realtimeConnected ? "bg-green-500" : "bg-red-500"
-                  }`}
-                />
+                <div className={`w-2 h-2 rounded-full ${realtimeConnected ? "bg-green-500" : "bg-red-500"}`} />
                 <span
                   className={`${isRTL ? "text-sm" : "text-xs"} text-gray-500 dark:text-gray-400 ${
                     isRTL ? titleFontClass : ""
                   }`}
                 >
-                  {realtimeConnected ? (isRTL ? "الربط المباشر نشط" : "Actif") : (isRTL ? "الربط المباشر غير نشط" : "Inactif")}
+                  {realtimeConnected
+                    ? isRTL
+                      ? "الربط المباشر نشط"
+                      : "Actif"
+                    : isRTL
+                    ? "الربط المباشر غير نشط"
+                    : "Inactif"}
                 </span>
               </div>
             </div>
@@ -432,16 +567,16 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
               isRTL ? titleFontClass : ""
             }`}
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
             {isRTL ? "تحديث" : "Actualiser"}
           </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-card rounded-sm px-8 py-6 border border-gray-200 dark:border-[#393A41] min-h-[600px] flex flex-col">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
-          <div className="w-full sm:max-w-lg">
-            <div className="relative">
+      <div className="bg-white dark:bg-card rounded-sm px-8 py-6 border border-gray-200 dark:border-[#393A41] min-h-150 flex flex-col">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 gap-4">
+          <div className="flex gap-3 items-center flex-wrap">
+            <div className="relative" style={{ width: "350px" }}>
               <input
                 type="text"
                 className={`w-full px-2 py-1.5 ltr:pr-8 rtl:pl-8 border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] text-sm bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#959594] ${
@@ -460,10 +595,78 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                 </button>
               )}
             </div>
+            <div style={{ width: "180px" }}>
+              <Select dir={isRTL ? "rtl" : "ltr"} value={natureFilter} onValueChange={setNatureFilter}>
+                <SelectTrigger
+                  className={`w-full h-8.5! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent ${
+                    isRTL ? titleFontClass : ""
+                  }`}
+                >
+                  <SelectValue placeholder={isRTL ? "طبيعــة الوحــدة" : "Nature"} />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50">
+                  <SelectItem
+                    value="navigante"
+                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
+                      isRTL ? titleFontClass : ""
+                    }`}
+                  >
+                    {isRTL ? "وحدة عائمة" : "Navigante"}
+                  </SelectItem>
+                  <SelectItem
+                    value="terrestre"
+                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
+                      isRTL ? titleFontClass : ""
+                    }`}
+                  >
+                    {isRTL ? "وحدة قارة" : "Terrestre"}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div style={{ width: "180px" }}>
+              <Select dir={isRTL ? "rtl" : "ltr"} value={categorieFilter} onValueChange={setCategorieFilter}>
+                <SelectTrigger
+                  className={`w-full h-8.5! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent ${
+                    isRTL ? "font-noto-naskh-arabic" : ""
+                  }`}
+                >
+                  <SelectValue placeholder={isRTL ? "فـئــة الوحــدة" : "Catégorie"} />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50 max-h-75">
+                  {ALLOWED_CATEGORIES.map((category) => (
+                    <SelectItem
+                      key={category}
+                      value={category}
+                      className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
+                        isRTL ? "font-noto-naskh-arabic" : ""
+                      }`}
+                    >
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <button
+              onClick={() => {
+                setSearchTerm("")
+                setNatureFilter("")
+                setCategorieFilter("")
+                setSortConfig({ key: null, direction: "ascending" })
+              }}
+              disabled={
+                !searchTerm && natureFilter === "" && categorieFilter === "" && !sortConfig.key
+              }
+              className="flex items-center justify-center w-8 h-8 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500"
+              title={isRTL ? "إلغاء جميع الفلاتر" : "Réinitialiser les filtres"}
+            >
+              <RotateCcw size={16} />
+            </button>
           </div>
           <Link
             href="/dashboard/unite/nouveau"
-            className={`bg-[#076784] hover:bg-[#2B778F] text-white px-6 py-2.5 rounded text-[14px] font-medium flex items-center gap-2 transition-colors ${
+            className={`bg-[#076784] hover:bg-[#2B778F] text-white px-6 py-2.5 rounded text-[14px] font-medium flex items-center gap-2 transition-colors whitespace-nowrap shrink-0 ${
               isRTL ? titleFontClass : ""
             }`}
           >
@@ -477,9 +680,11 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
             <table className="w-full table-fixed h-full">
               <thead className="bg-[#D7E7EC] dark:bg-[#17272D] border-b border-gray-200 dark:border-[#393A41]">
                 <tr>
-                  <th className={`px-6 py-4 text-start text-[15px] ${
+                  <th
+                    className={`px-3 py-4 text-start text-[15px] ${
                       isRTL ? "font-semibold" : "font-medium"
-                    } w-14 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}>
+                    } w-10 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                  >
                     {isRTL ? "ع/ر" : "Ordre"}
                   </th>
                   <th
@@ -488,15 +693,10 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                     } cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-48 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                     onClick={() => requestSort("unite")}
                   >
-                    <div className="flex items-center ml-1">{isRTL ? "اسم الوحدة" : "Nom de l'unité"}{getSortIcon("unite")}</div>
-                  </th>
-                  <th
-                    className={`px-6 py-4 text-start text-[15px] ${
-                      isRTL ? "font-semibold" : "font-medium"
-                    } cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-32 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
-                    onClick={() => requestSort("unite_type")}
-                  >
-                    <div className="flex items-center">{isRTL ? "النوع" : "Type"}{getSortIcon("unite_type")}</div>
+                    <div className="flex items-center ml-1">
+                      {isRTL ? "اســم الوحــــــدة" : "Nom de l'unité"}
+                      {getSortIcon("unite")}
+                    </div>
                   </th>
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
@@ -504,7 +704,21 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                     } cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-40 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                     onClick={() => requestSort("niveau_1")}
                   >
-                    <div className="flex items-center">{isRTL ? "الإدارة" : "Direction"}{getSortIcon("niveau_1")}</div>
+                    <div className="flex items-center">
+                      {isRTL ? "الإدارة أو الإقليم" : "Direction"}
+                      {getSortIcon("niveau_1")}
+                    </div>
+                  </th>
+                  <th
+                    className={`px-6 py-4 text-start text-[15px] ${
+                      isRTL ? "font-semibold" : "font-medium"
+                    } cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-32 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                    onClick={() => requestSort("niveau_2")}
+                  >
+                    <div className="flex items-center">
+                      {isRTL ? "الـوحــدة تتبـع" : "Région"}
+                      {getSortIcon("niveau_2")}
+                    </div>
                   </th>
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
@@ -512,7 +726,10 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                     } cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-32 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                     onClick={() => requestSort("unite_categorie")}
                   >
-                    <div className="flex items-center">{isRTL ? "الفئة" : "Catégorie"}{getSortIcon("unite_categorie")}</div>
+                    <div className="flex items-center">
+                      {isRTL ? "فـئـة الوحــدة" : "Catégorie"}
+                      {getSortIcon("unite_categorie")}
+                    </div>
                   </th>
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
@@ -520,11 +737,16 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                     } cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-28 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                     onClick={() => requestSort("navigante")}
                   >
-                    <div className="flex items-center">{isRTL ? "الطبيعة" : "Nature"}{getSortIcon("navigante")}</div>
+                    <div className="flex items-center">
+                      {isRTL ? "طبيعة الوحــدة" : "Nature"}
+                      {getSortIcon("navigante")}
+                    </div>
                   </th>
-                  <th className={`px-6 py-4 text-start text-[15px] ${
+                  <th
+                    className={`px-6 py-4 text-start text-[15px] ${
                       isRTL ? "font-semibold" : "font-medium"
-                    } w-16 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}>
+                    } w-16 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                  >
                     {isRTL ? "الإجراء" : "Action"}
                   </th>
                 </tr>
@@ -534,10 +756,14 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                   <tr>
                     <td colSpan={7} className="px-6 py-10 text-center">
                       <Search className="text-gray-400 dark:text-gray-500 w-8 h-8 mb-4 mx-auto" />
-                      <p className={`text-gray-500 dark:text-gray-400 pt-6 ${isRTL ? titleFontClass : ''}`}>
+                      <p className={`text-gray-500 dark:text-gray-400 pt-6 ${isRTL ? titleFontClass : ""}`}>
                         {searchTerm.trim()
-                          ? (isRTL ? "لا توجد نتائج للبحث" : "Aucun résultat trouvé")
-                          : (isRTL ? "لا توجد بيانات للعرض" : "Aucune donnée à afficher")}
+                          ? isRTL
+                            ? "لا توجد نتائج للبحث"
+                            : "Aucun résultat trouvé"
+                          : isRTL
+                          ? "لا توجد بيانات للعرض"
+                          : "Aucune donnée à afficher"}
                       </p>
                     </td>
                   </tr>
@@ -545,50 +771,91 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                   paginatedData.map((unite, index) => {
                     const overallIndex = (currentPage - 1) * ITEMS_PER_PAGE + index + 1
                     return (
-                      <tr 
-                        key={`data-${unite.id}`}
+                      <tr
+                        key={`unite-${currentPage}-${index}-${unite.id}`}
                         className={`${
-                          highlightedId === unite.id ? 'animate-highlightBlink' : 'hover:bg-gray-50 dark:hover:bg-[#363C44]'
+                          highlightedId === unite.id
+                            ? "animate-highlightBlink"
+                            : "hover:bg-gray-50 dark:hover:bg-[#363C44]"
                         }`}
                       >
-                        <td className="px-6 py-2.5 w-14">
+                        <td className="px-3 py-2.5 w-10">
                           <span className="text-sm font-medium text-gray-900 dark:text-white">{overallIndex}</span>
                         </td>
-                        <td className="px-6 py-2.5 w-48">
+                        <td className="px-3 py-2.5 w-48">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-transparent flex-shrink-0 flex items-center justify-center">
-                              {getUniteIcon(unite.navigante ?? false)}  
+                            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-transparent shrink-0 flex items-center justify-center">
+                              {getUniteIcon(unite.navigante ?? false)}
                             </div>
                             <Link
                               href={`/${params.locale}/dashboard/unite/details/${unite.id}`}
                               className="min-w-0 flex-1 cursor-pointer"
                               onClick={saveCurrentParams}
                             >
-                              <div className={`text-base font-medium text-gray-900 dark:text-white hover:text-[#076784] transition-colors leading-tight truncate ${
-                                isRTL ? tableCellFontClass : ""
-                              }`} title={unite.unite || (isRTL ? "غير محدد" : "Non défini")}>
+                              <div
+                                className={`text-base font-medium text-gray-900 dark:text-white hover:text-[#076784] transition-colors leading-tight truncate ${
+                                  isRTL ? tableCellFontClass : ""
+                                }`}
+                                title={unite.unite || (isRTL ? "غير محدد" : "Non défini")}
+                              >
                                 {unite.unite || (isRTL ? "غير محدد" : "Non défini")}
                               </div>
-                              <div className={`text-[14px] mt-1 text-gray-500 dark:text-gray-400 truncate ${
-                                isRTL ? tableCellNotoFont : ""
-                              }`} title={unite.niveau_2 || (isRTL ? "غير محدد" : "Non défini")}>{unite.niveau_2 || (isRTL ? "غير محدد" : "Non défini")}</div>
+                              <div
+                                className={`text-[14px] mt-1 truncate ${
+                                  isRTL ? tableCellNotoFont : ""
+                                }`}
+                                title={unite.responsable_nom || (isRTL ? "غير محدد" : "Non défini")}
+                              >
+                                {(() => {
+                                  const responsableText = unite.responsable_nom || (isRTL ? "غير محدد" : "Non défini")
+
+                                  // Extraire le grade et le nom complet
+                                  const parts = responsableText.split(' ')
+                                  if (parts.length >= 3) {
+                                    const grade = parts[0] // Premier mot = grade
+                                    const fullName = parts.slice(1).join(' ') // Reste = prénom + nom
+                                    return (
+                                      <>
+                                        <span style={{ color: '#076784' }}>ال{grade}</span>
+                                        <span className="text-gray-500 dark:text-gray-400"> {fullName}</span>
+                                      </>
+                                    )
+                                  }
+
+                                  // Si le format n'est pas celui attendu, afficher tel quel
+                                  return <span className="text-gray-500 dark:text-gray-400">{responsableText}</span>
+                                })()}
+                              </div>
                             </Link>
                           </div>
                         </td>
-                        <td className="px-6 py-2.5 w-32">
-                          <span className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
-                            isRTL ? tableCellNotoFont : ""
-                          } ${isRTL ? "text-[15px]" : ""}`} title={unite.unite_type || (isRTL ? "غ/م" : "N/A")}>{unite.unite_type || (isRTL ? "غ/م" : "N/A")}</span>
-                        </td>
                         <td className="px-6 py-2.5 w-40">
-                          <span className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
-                            isRTL ? tableCellNotoFont : ""
-                          } ${isRTL ? "text-[15px]" : ""}`} title={unite.niveau_1 || (isRTL ? "غير محدد" : "Non défini")}>{unite.niveau_1 || (isRTL ? "غير محدد" : "Non défini")}</span>
+                          <span
+                            className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
+                              isRTL ? tableCellNotoFont : ""
+                            } ${isRTL ? "text-[15px]" : ""}`}
+                            title={unite.niveau_1 || (isRTL ? "غير محدد" : "Non défini")}
+                          >
+                            {unite.niveau_1 || (isRTL ? "غير محدد" : "Non défini")}
+                          </span>
                         </td>
                         <td className="px-6 py-2.5 w-32">
-                          <span className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
-                            isRTL ? tableCellNotoFont : ""
-                          } ${isRTL ? "text-[15px]" : ""}`} title={unite.unite_categorie || (isRTL ? "غير محدد" : "Non défini")}>
+                          <span
+                            className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
+                              isRTL ? tableCellNotoFont : ""
+                            } ${isRTL ? "text-[15px]" : ""}`}
+                            title={unite.niveau_2 || (isRTL ? "غ/م" : "N/A")}
+                          >
+                            {unite.niveau_2 || (isRTL ? "غ/م" : "N/A")}
+                          </span>
+                        </td>
+                        <td className="px-6 py-2.5 w-32">
+                          <span
+                            className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
+                              isRTL ? tableCellNotoFont : ""
+                            } ${isRTL ? "text-[15px]" : ""}`}
+                            title={unite.unite_categorie || (isRTL ? "غير محدد" : "Non défini")}
+                          >
                             {unite.unite_categorie || (isRTL ? "غير محدد" : "Non défini")}
                           </span>
                         </td>
@@ -597,7 +864,9 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                             className={`inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium ${
                               isRTL ? tableCellFontClass : ""
                             } ${isRTL ? "text-[10px]" : ""} ${
-                              unite.navigante ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                              unite.navigante
+                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                                : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                             }`}
                           >
                             <span
@@ -605,7 +874,7 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                                 unite.navigante ? "bg-blue-500" : "bg-green-500"
                               }`}
                             />
-                            {unite.navigante ? (isRTL ? "بحرية" : "Navigante") : (isRTL ? "برية" : "Terrestre")}
+                            {unite.navigante ? (isRTL ? "وحدة عائمة" : "Navigante") : isRTL ? "وحدة قارة" : "Terrestre"}
                           </span>
                         </td>
                         <td className="px-6 py-2.5 w-16">
@@ -630,12 +899,18 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
         {totalPages > 1 && (
           <div className="flex items-center justify-end ltr:space-x-6 rtl:space-x-reverse ltr:lg:space-x-8 rtl:lg:space-x-reverse px-2 py-2 mt-auto text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center ltr:space-x-2 rtl:space-x-reverse">
-              <p className={`font-medium ${isRTL ? `${titleFontClass} ml-2` : ''}`}>{isRTL ? "صفوف لكل صفحة" : "Lignes par page"}</p>
-              <div className={`px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] ${isRTL ? titleFontClass : ''}`}>
+              <p className={`font-medium ${isRTL ? `${titleFontClass} ml-2` : ""}`}>
+                {isRTL ? "صفوف لكل صفحة" : "Lignes par page"}
+              </p>
+              <div
+                className={`px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] ${
+                  isRTL ? titleFontClass : ""
+                }`}
+              >
                 {ITEMS_PER_PAGE}
               </div>
             </div>
-            <div className={`flex w-[120px] items-center justify-center font-medium ${isRTL ? titleFontClass : ''}`}>
+            <div className={`flex w-30 items-center justify-center font-medium ${isRTL ? titleFontClass : ""}`}>
               {isRTL ? "صفحة" : "Page"} {currentPage} {isRTL ? "من" : "sur"} {totalPages}
             </div>
             <div className="flex items-center ltr:space-x-1 rtl:space-x-reverse">

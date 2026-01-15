@@ -9,18 +9,54 @@ export default async function EmployeesTablePage() {
   const t = await getTranslations()
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from("employees")
-    .select(EMPLOYEE_SELECT_QUERY)
-
   let employees: DisplayEmployee[] = []
   let fetchError: string | null = null
 
-  if (error) {
-    console.error("Server-side error fetching employees:", error)
-    fetchError = t('employeesList.loadingError', { error: error.message })
-  } else if (data) {
-    employees = (data as RawEmployeeData[]).map(processEmployeeData)
+  try {
+    // D'abord, obtenir le nombre total
+    const { count } = await supabase
+      .from("employees")
+      .select("*", { count: 'exact', head: true })
+
+    if (count && count > 0) {
+      const pageSize = 1000
+      const totalPages = Math.ceil(count / pageSize)
+      const allEmployees: RawEmployeeData[] = []
+
+      // Récupérer toutes les pages en parallèle
+      const fetchPromises = []
+      for (let page = 0; page < totalPages; page++) {
+        const from = page * pageSize
+        const to = from + pageSize - 1
+        fetchPromises.push(
+          supabase
+            .from("employees")
+            .select(EMPLOYEE_SELECT_QUERY)
+            .range(from, to)
+        )
+      }
+
+      const results = await Promise.all(fetchPromises)
+
+      // Vérifier les erreurs
+      const errors = results.filter(r => r.error)
+      if (errors.length > 0) {
+        console.error("Erreurs lors de la récupération des employés:", errors)
+        fetchError = t('employeesList.loadingError', { error: errors[0].error?.message || 'Unknown error' })
+      } else {
+        // Combiner toutes les données
+        results.forEach(result => {
+          if (result.data) {
+            allEmployees.push(...(result.data as RawEmployeeData[]))
+          }
+        })
+
+        employees = allEmployees.map(processEmployeeData)
+      }
+    }
+  } catch (err) {
+    console.error("Erreur lors de la récupération des employés:", err)
+    fetchError = t('employeesList.loadingError', { error: String(err) })
   }
 
   return (

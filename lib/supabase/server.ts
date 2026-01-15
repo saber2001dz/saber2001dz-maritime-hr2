@@ -9,14 +9,18 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
+        getAll() {
+          return cookieStore.getAll()
         },
-        set(name: string, value: string, options: Record<string, unknown>) {
-          cookieStore.set({ name, value, ...options })
-        },
-        remove(name: string, options: Record<string, unknown>) {
-          cookieStore.delete({ name, ...options })
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options)
+            })
+          } catch (error) {
+            // Handle cases where cookies can't be set (e.g., Server Components)
+            // The error will be caught silently to prevent build failures
+          }
         },
       },
     }

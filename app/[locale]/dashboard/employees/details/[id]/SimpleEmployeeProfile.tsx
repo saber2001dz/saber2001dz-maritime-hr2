@@ -20,10 +20,25 @@ import { useParams } from "next/navigation"
 import { getDirection, getFont, getTitleFont, getMainTitleFont, getCardSubtitleFont } from "@/lib/direction"
 import { getGradeLabel } from "@/lib/selectOptions"
 import type { Locale } from "@/lib/types"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface SimpleEmployeeProfileProps {
   initialData: EmployeeCompleteData
   employeeId: string
+}
+
+// Fonction utilitaire pour formater la date en DD-MM-YYYY
+const formatDateDDMMYYYY = (dateString: string): string => {
+  if (!dateString) return "-"
+
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return "-"
+
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0")
+  const day = String(date.getUTCDate()).padStart(2, "0")
+
+  return `${day}-${month}-${year}`
 }
 
 const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialData, employeeId }) => {
@@ -440,171 +455,144 @@ const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialDa
     return isRTL ? t("common.notAvailable") : "N/A"
   }
 
-  // Fonction pour obtenir le statut et la couleur appropriée
-  const getEmployeeStatus = () => {
-    const currentStatus = employeeData?.employee?.actif
+  // Fonction pour vérifier si une sanction "إيقاف عن العمل" est en cours
+  const getActiveSuspension = useMemo(() => {
+    if (!employeeData?.sanctions || employeeData.sanctions.length === 0) {
+      return null
+    }
 
-    // Convertir le statut en string pour la comparaison
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    // Trouver une sanction "إيقاف عن العمل" dont la période est en cours
+    const activeSuspension = employeeData.sanctions.find((sanction) => {
+      if (sanction.type_sanction !== "إيقاف عن العمل") return false
+      if (!sanction.date_debut || !sanction.date_fin) return false
+
+      const dateDebut = new Date(sanction.date_debut)
+      const dateFin = new Date(sanction.date_fin)
+      dateDebut.setHours(0, 0, 0, 0)
+      dateFin.setHours(0, 0, 0, 0)
+
+      return dateDebut <= today && dateFin >= today
+    })
+
+    if (activeSuspension) {
+      return {
+        dateDebut: activeSuspension.date_debut,
+        dateFin: activeSuspension.date_fin,
+        nombreJour: activeSuspension.nombre_jour,
+      }
+    }
+
+    return null
+  }, [employeeData?.sanctions])
+
+  // Fonction pour obtenir les dates du congé ou maladie actif
+  const getActiveLeaveDates = useMemo(() => {
+    const currentStatus = employeeData?.employee?.actif
     const statusKey = String(currentStatus)
 
-    // Mapping des statuts vers leurs couleurs et labels avec support RTL/LTR
+    // Vérifier si le statut est "إجازة" (Congés) ou "مرض" (Maladie)
+    const isLeaveStatus = ["إجازة", "مرض"].includes(statusKey)
+
+    if (!isLeaveStatus || !employeeData?.conges || employeeData.conges.length === 0) {
+      return null
+    }
+
+    // Trouver le congé actif (dont la date de fin est dans le futur ou aujourd'hui)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const activeLeave = employeeData.conges.find((conge) => {
+      const dateFin = new Date(conge.date_fin)
+      dateFin.setHours(0, 0, 0, 0)
+      return dateFin >= today && conge.statut !== "Refusé"
+    })
+
+    if (activeLeave) {
+      return {
+        dateDebut: activeLeave.date_debut,
+        dateFin: activeLeave.date_fin,
+        type: activeLeave.type_conge,
+      }
+    }
+
+    return null
+  }, [employeeData?.employee?.actif, employeeData?.conges])
+
+  // Fonction pour obtenir le statut et la couleur appropriée
+  const getEmployeeStatus = () => {
+    // Mapping des statuts arabes uniquement avec labels formatés
     const statusMap: {
       [key: string]: { label: string; color: string; textColor: string; dotColor: string; borderColor: string }
     } = {
-      // Statuts arabes de la base de données
       مباشر: {
-        label: isRTL ? t(`dashboard.employeeStatus.مباشر`) || "مباشر" : "Actif",
+        label: "مبـاشــر",
         color: "bg-green-100",
         textColor: "text-green-800",
         dotColor: "bg-green-500",
         borderColor: "border-green-800",
       },
       "غير مباشر": {
-        label: isRTL ? t(`dashboard.employeeStatus.غير مباشر`) || "غير مباشر" : "Inactif",
-        color: "bg-red-100",
-        textColor: "text-red-800",
-        dotColor: "bg-red-500",
-        borderColor: "border-red-800",
+        label: "غير مباشر",
+        color: "bg-gray-100",
+        textColor: "text-gray-800",
+        dotColor: "bg-gray-500",
+        borderColor: "border-gray-800",
       },
       إجازة: {
-        label: isRTL ? t(`dashboard.employeeStatus.إجازة`) || "إجازة" : "Congés",
+        label: "في إجازة",
         color: "bg-blue-100",
         textColor: "text-blue-800",
         dotColor: "bg-blue-500",
         borderColor: "border-blue-800",
       },
-      // Statuts ENUM anglais/français
-      Actif: {
-        label: "مباشر",
-        color: "bg-green-100",
-        textColor: "text-green-800",
-        dotColor: "bg-green-500",
-        borderColor: "border-green-800",
-      },
-      Inactif: {
-        label: "غير مباشر",
-        color: "bg-red-100",
-        textColor: "text-red-800",
-        dotColor: "bg-red-500",
-        borderColor: "border-red-800",
-      },
-      Conges: {
-        label: "إجازة",
-        color: "bg-blue-100",
-        textColor: "text-blue-800",
-        dotColor: "bg-blue-500",
-        borderColor: "border-blue-800",
-      },
-      Maladie: {
-        label: "مرض",
+      مرض: {
+        label: "مــــرض",
         color: "bg-orange-100",
         textColor: "text-orange-800",
         dotColor: "bg-orange-500",
         borderColor: "border-orange-800",
       },
-      Formation: {
-        label: "تدريب",
+      تدريب: {
+        label: "تكــويــن",
         color: "bg-purple-100",
         textColor: "text-purple-800",
         dotColor: "bg-purple-500",
         borderColor: "border-purple-800",
       },
-      Mission: {
-        label: "مهمة",
+      مهمة: {
+        label: "في مهمــة",
         color: "bg-indigo-100",
         textColor: "text-indigo-800",
         dotColor: "bg-indigo-500",
         borderColor: "border-indigo-800",
       },
-      Abscent: {
-        label: "غائب",
+      متغيب: {
+        label: "غائــب",
         color: "bg-yellow-100",
         textColor: "text-yellow-800",
         dotColor: "bg-yellow-500",
         borderColor: "border-yellow-800",
       },
-
-      // Compatibilité avec anciennes valeurs booléennes
-      true: {
-        label: "مباشر",
-        color: "bg-green-100",
-        textColor: "text-green-800",
-        dotColor: "bg-green-500",
-        borderColor: "border-green-800",
-      },
-      false: {
-        label: "غير مباشر",
+      موقوف: {
+        label: "موقــوف",
         color: "bg-red-100",
         textColor: "text-red-800",
         dotColor: "bg-red-500",
         borderColor: "border-red-800",
       },
-
-      // Anciens statuts pour compatibilité descendante
-      "Conges Annuel": {
-        label: "إجازة",
-        color: "bg-blue-100",
-        textColor: "text-blue-800",
-        dotColor: "bg-blue-500",
-        borderColor: "border-blue-800",
-      },
-      "Conges Maladie": {
-        label: "مرض",
-        color: "bg-orange-100",
-        textColor: "text-orange-800",
-        dotColor: "bg-orange-500",
-        borderColor: "border-orange-800",
-      },
-      Maternite: {
-        label: "إجازة",
-        color: "bg-blue-100",
-        textColor: "text-blue-800",
-        dotColor: "bg-blue-500",
-        borderColor: "border-blue-800",
-      },
-      "Conges Exceptionnel": {
-        label: "إجازة",
-        color: "bg-blue-100",
-        textColor: "text-blue-800",
-        dotColor: "bg-blue-500",
-        borderColor: "border-blue-800",
-      },
-      "Conges Mariage": {
-        label: "إجازة",
-        color: "bg-blue-100",
-        textColor: "text-blue-800",
-        dotColor: "bg-blue-500",
-        borderColor: "border-blue-800",
-      },
-      "Conges sans Solde": {
-        label: "إجازة",
-        color: "bg-blue-100",
-        textColor: "text-blue-800",
-        dotColor: "bg-blue-500",
-        borderColor: "border-blue-800",
-      },
-      "En Formation": {
-        label: "تدريب",
-        color: "bg-purple-100",
-        textColor: "text-purple-800",
-        dotColor: "bg-purple-500",
-        borderColor: "border-purple-800",
-      },
-      Detachement: {
-        label: "غائب",
-        color: "bg-yellow-100",
-        textColor: "text-yellow-800",
-        dotColor: "bg-yellow-500",
-        borderColor: "border-yellow-800",
-      },
-      متغيب: {
-        label: isRTL ? "متغيب" : "Absent",
-        color: "bg-orange-100",
-        textColor: "text-orange-800",
-        dotColor: "bg-orange-500",
-        borderColor: "border-orange-800",
-      },
     }
+
+    // Si une sanction "إيقاف عن العمل" est en cours, retourner le statut "موقوف"
+    if (getActiveSuspension) {
+      return statusMap["موقوف"]
+    }
+
+    const currentStatus = employeeData?.employee?.actif
+    // Convertir le statut en string pour la comparaison
+    const statusKey = String(currentStatus)
 
     // Retourner le statut correspondant ou un statut par défaut
     return (
@@ -664,7 +652,7 @@ const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialDa
                     )}
                     width={120}
                     height={120}
-                    className={`rounded-full object-cover w-[120px] h-[120px] transition-opacity duration-300 ${
+                    className={`rounded-full object-cover w-30 h-30 transition-opacity duration-300 ${
                       imageLoading ? "opacity-0" : "opacity-100"
                     }`}
                     priority={hasCustomPhoto}
@@ -687,23 +675,89 @@ const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialDa
                         employeeData?.employee?.nom
                       )}
                     </h1>
-                    <div
-                      className={`${getEmployeeStatus().color} ${getEmployeeStatus().textColor} ${
-                        getEmployeeStatus().borderColor
-                      } font-medium ${
-                        isRTL ? "text-[11px]" : "text-xs"
-                      } px-3 py-1.5 border rounded-full inline-flex items-center justify-center leading-none gap-1.5 ${
-                        isRTL ? "font-jazeera-bold" : ""
-                      }`}
-                    >
-                      <span className={`w-1.5 h-1.5 ${getEmployeeStatus().dotColor} rounded-full`}></span>
-                      {getEmployeeStatus().label}
-                    </div>
+                    {getActiveSuspension ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div
+                            className={`${getEmployeeStatus().color} ${getEmployeeStatus().textColor} ${
+                              getEmployeeStatus().borderColor
+                            } font-medium ${
+                              isRTL ? "text-[11px]" : "text-xs"
+                            } px-3 py-1.5 border rounded-full inline-flex items-center justify-center leading-none gap-1.5 ${
+                              isRTL ? "font-jazeera-bold" : ""
+                            } cursor-help`}
+                          >
+                            <span className={`w-1.5 h-1.5 ${getEmployeeStatus().dotColor} rounded-full`}></span>
+                            {getEmployeeStatus().label}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="bottom"
+                          className="font-noto-naskh-arabic bg-gray-900 text-white border-none"
+                        >
+                          <div className="flex flex-col gap-2" dir="rtl">
+                            <div className="text-xs">
+                              <span className="font-semibold">من:</span>{" "}
+                              {formatDateDDMMYYYY(getActiveSuspension.dateDebut || "")}
+                            </div>
+                            <div className="text-xs">
+                              <span className="font-semibold">إلى:</span>{" "}
+                              {formatDateDDMMYYYY(getActiveSuspension.dateFin || "")}
+                            </div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : getActiveLeaveDates ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div
+                            className={`${getEmployeeStatus().color} ${getEmployeeStatus().textColor} ${
+                              getEmployeeStatus().borderColor
+                            } font-medium ${
+                              isRTL ? "text-[11px]" : "text-xs"
+                            } px-3 py-1.5 border rounded-full inline-flex items-center justify-center leading-none gap-1.5 ${
+                              isRTL ? "font-jazeera-bold" : ""
+                            } cursor-help`}
+                          >
+                            <span className={`w-1.5 h-1.5 ${getEmployeeStatus().dotColor} rounded-full`}></span>
+                            {getEmployeeStatus().label}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="bottom"
+                          className="font-noto-naskh-arabic bg-gray-900 text-white border-none"
+                        >
+                          <div className="flex flex-col gap-2" dir="rtl">
+                            <div className="text-xs">
+                              <span className="font-semibold">من:</span>{" "}
+                              {formatDateDDMMYYYY(getActiveLeaveDates.dateDebut)}
+                            </div>
+                            <div className="text-xs">
+                              <span className="font-semibold">إلى:</span>{" "}
+                              {formatDateDDMMYYYY(getActiveLeaveDates.dateFin)}
+                            </div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <div
+                        className={`${getEmployeeStatus().color} ${getEmployeeStatus().textColor} ${
+                          getEmployeeStatus().borderColor
+                        } font-medium ${
+                          isRTL ? "text-[11px]" : "text-xs"
+                        } px-3 py-1.5 border rounded-full inline-flex items-center justify-center leading-none gap-1.5 ${
+                          isRTL ? "font-jazeera-bold" : ""
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 ${getEmployeeStatus().dotColor} rounded-full`}></span>
+                        {getEmployeeStatus().label}
+                      </div>
+                    )}
                   </div>
 
                   <div className={`text-gray-900 dark:text-gray-300 font-medium ${cardSubtitleFontClass} ${isRTL ? "-mt-1 text-md" : ""}`}>{getCurrentGrade}</div>
                 </div>
-                <hr className="border-gray-200 dark:border-gray-600 bg-gray-200 dark:bg-gray-600 border-none w-[3px] h-[50px] mt-2" />
+                <hr className="border-gray-200 dark:border-gray-600 bg-gray-200 dark:bg-gray-600 border-none w-0.75 h-12.5 mt-2" />
                 <div className={`flex mt-2 ${isRTL ? "gap-16 mr-2" : "gap-10 ml-2"}`}>
                   <div>
                     <div className={`text-gray-500 dark:text-gray-400 text-sm mb-2.5 ${cardSubtitleFontClass}`}>

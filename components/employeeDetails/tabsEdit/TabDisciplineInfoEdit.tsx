@@ -8,7 +8,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DateField, DateInput } from "@/components/ui/datefield"
 import { parseDate } from "@internationalized/date"
 import { I18nProvider } from "react-aria"
-import { sanctionOptions, recompenseOptions } from "@/lib/selectOptions"
+import { recompenseOptions } from "@/lib/selectOptions"
+import { updateEmployeeStatusBasedOnSanctions } from "@/utils/employee-status.utils"
+
+// Options de sanctions avec les valeurs demandées
+const sanctionTypeOptions = [
+  { value: "لفت نظر", label: "لفت نظر" },
+  { value: "توبيخ", label: "توبيخ" },
+  { value: "إنذار", label: "إنذار" },
+  { value: "إبقاف بسيط", label: "إبقاف بسيط" },
+  { value: "إيقاف شديد", label: "إيقاف شديد" },
+  { value: "إيقاف عن العمل", label: "إيقاف عن العمل" },
+  { value: "العزل", label: "العزل" },
+]
+
+// Types qui nécessitent le nombre de jours
+const typesWithDays = ["إبقاف بسيط", "إيقاف شديد", "إيقاف عن العمل"]
+
+// Type qui nécessite la date de début
+const typeWithDateDebut = "العزل"
 import { useParams } from "next/navigation"
 import { getTitleFont, getCardSubtitleFont, getJazzeraFontDetailsEmployee } from "@/lib/direction"
 import type { Locale } from "@/lib/types"
@@ -32,20 +50,27 @@ interface DialogProps {
 }
 
 // Composant Dialog générique
-function Dialog({ isOpen, onClose, title, icon: Icon, children, maxWidth = "max-w-6xl", isClosing = false, isRTL = false }: DialogProps) {
+function Dialog({
+  isOpen,
+  onClose,
+  title,
+  icon: Icon,
+  children,
+  maxWidth = "max-w-6xl",
+  isClosing = false,
+  isRTL = false,
+}: DialogProps) {
   if (!isOpen) return null
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center z-50 duration-300 ${
+      className={`fixed inset-0 top-0 left-0 right-0 bottom-0 w-full h-full min-h-screen flex items-center justify-center z-50 duration-300 ${
         isClosing ? "animate-out fade-out-0" : "animate-in fade-in-0"
       }`}
-      style={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.3)", position: "fixed" }}
     >
       <div
         className={`bg-white dark:bg-[#1C1C1C] rounded-lg shadow-2xl w-full ${maxWidth} mx-4 max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-600 duration-300 ${
-          isClosing
-            ? "animate-out slide-out-to-bottom-4 zoom-out-95"
-            : "animate-in slide-in-from-bottom-4 zoom-in-95"
+          isClosing ? "animate-out slide-out-to-bottom-4 zoom-out-95" : "animate-in slide-in-from-bottom-4 zoom-in-95"
         }`}
         dir={isRTL ? "rtl" : "ltr"}
       >
@@ -64,6 +89,232 @@ function Dialog({ isOpen, onClose, title, icon: Icon, children, maxWidth = "max-
         </div>
         {/* Content */}
         <div className="p-6">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+// Interface pour le dialogue de sélection de sanction
+interface SanctionTypeDialogProps {
+  isOpen: boolean
+  onClose: () => void
+  onSave: (data: {
+    type_sanction: string
+    nombre_jour: string
+    date_debut: string
+    date_fin: string
+  }) => void
+  initialData: {
+    type_sanction: string
+    nombre_jour: string
+    date_debut: string
+    date_fin: string
+  }
+  isRTL: boolean
+}
+
+// Composant Dialog pour la sélection du type de sanction
+function SanctionTypeDialog({
+  isOpen,
+  onClose,
+  onSave,
+  initialData,
+  isRTL,
+}: SanctionTypeDialogProps) {
+  const [typeSanction, setTypeSanction] = useState(initialData.type_sanction || "")
+  const [nombreJour, setNombreJour] = useState(initialData.nombre_jour || "")
+  const [dateDebut, setDateDebut] = useState(initialData.date_debut || "")
+  const [dateFin, setDateFin] = useState(initialData.date_fin || "")
+
+  useEffect(() => {
+    if (isOpen) {
+      setTypeSanction(initialData.type_sanction || "")
+      setNombreJour(initialData.nombre_jour || "")
+      setDateDebut(initialData.date_debut || "")
+      setDateFin(initialData.date_fin || "")
+    }
+  }, [isOpen, initialData])
+
+  // Calculer automatiquement la date de fin
+  useEffect(() => {
+    if (dateDebut && nombreJour && typesWithDays.includes(typeSanction)) {
+      const date = new Date(dateDebut)
+      date.setDate(date.getDate() + parseInt(nombreJour))
+      setDateFin(date.toISOString().split("T")[0])
+    }
+  }, [dateDebut, nombreJour, typeSanction])
+
+  const handleSave = () => {
+    onSave({
+      type_sanction: typeSanction,
+      nombre_jour: nombreJour,
+      date_debut: dateDebut,
+      date_fin: dateFin,
+    })
+    onClose()
+  }
+
+  const handleCancel = () => {
+    onClose()
+  }
+
+  // Vérifier si le type nécessite le nombre de jours
+  const showNombreJours = typesWithDays.includes(typeSanction)
+  // Vérifier si le type nécessite les dates (uniquement إيقاف عن العمل)
+  const showDates = typeSanction === "إيقاف عن العمل"
+
+  // Validation: si le type nécessite le nombre de jours, vérifier qu'il n'est pas vide ou 0
+  const isNombreJoursValid = !showNombreJours || (nombreJour && parseInt(nombreJour) > 0)
+
+  if (!isOpen) return null
+
+  return (
+    <div
+      className="fixed inset-0 flex items-center justify-center z-60 duration-300 animate-in fade-in-0"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.4)", position: "fixed" }}
+    >
+      <div
+        className="bg-white dark:bg-[#1C1C1C] rounded-lg shadow-2xl w-full max-w-md mx-4 border border-gray-200 dark:border-gray-600 duration-300 animate-in slide-in-from-bottom-4 zoom-in-95"
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
+          <div className={`flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"}`}>
+            <AlertTriangle className="h-5 w-5 text-[#076784]" />
+            <h2 className={`text-lg font-semibold text-[#076784] ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+              {isRTL ? "تحديد نوع العقوبة" : "Sélectionner le type de sanction"}
+            </h2>
+          </div>
+          <button
+            onClick={handleCancel}
+            className="text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors duration-200 hover:scale-110"
+          >
+            <X className="h-5 w-5 cursor-pointer" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-4 space-y-4">
+          {/* Type de sanction */}
+          <div>
+            <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+              {isRTL ? "نوع العقوبة" : "Type de sanction"}
+            </label>
+            <Select
+              value={typeSanction}
+              onValueChange={(value) => {
+                setTypeSanction(value)
+                if (!typesWithDays.includes(value)) {
+                  setNombreJour("")
+                  setDateFin("")
+                }
+                if (value !== typeWithDateDebut) {
+                  setDateDebut("")
+                  setDateFin("")
+                }
+              }}
+              dir={isRTL ? "rtl" : "ltr"}
+            >
+              <SelectTrigger className={`w-full h-10 text-sm border-gray-300 dark:border-gray-600 ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+                <SelectValue placeholder={isRTL ? "اختر نوع العقوبة..." : "Choisir le type..."} />
+              </SelectTrigger>
+              <SelectContent className="bg-white dark:bg-[#1C1C1C] border-gray-300 dark:border-gray-600 z-70">
+                {sanctionTypeOptions.map((option) => (
+                  <SelectItem
+                    key={option.value}
+                    value={option.value}
+                    className={`text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-gray-700 cursor-pointer ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+                  >
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Nombre de jours - affiché uniquement pour certains types */}
+          {showNombreJours && (
+            <div>
+              <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+                {isRTL ? "عدد الأيام" : "Nombre de jours"}
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={nombreJour}
+                onChange={(e) => setNombreJour(e.target.value)}
+                placeholder={isRTL ? "أدخل عدد الأيام" : "Entrer le nombre de jours"}
+                className={`w-full h-10 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+                dir={isRTL ? "rtl" : "ltr"}
+              />
+            </div>
+          )}
+
+          {/* Date début - affiché uniquement pour إيقاف عن العمل */}
+          {showDates && (
+            <div>
+              <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+                {isRTL ? "تاريخ البداية" : "Date de début"}
+              </label>
+              <I18nProvider locale="fr-FR">
+                <DateField
+                  value={dateDebut ? parseDate(dateDebut) : null}
+                  onChange={(date) => {
+                    const dateStr = date ? date.toString() : ""
+                    setDateDebut(dateStr)
+                  }}
+                >
+                  <DateInput
+                    focusColor="rgb(7,103,132)"
+                    className={`w-full h-10 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] flex items-center ${isRTL ? "text-right font-geist-sans" : ""}`}
+                  />
+                </DateField>
+              </I18nProvider>
+            </div>
+          )}
+
+          {/* Date fin - affiché uniquement pour إيقاف عن العمل */}
+          {showDates && (
+            <div>
+              <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+                {isRTL ? "تاريخ النهاية" : "Date de fin"}
+              </label>
+              <I18nProvider locale="fr-FR">
+                <DateField
+                  value={dateFin ? parseDate(dateFin) : null}
+                  onChange={(date) => {
+                    const dateStr = date ? date.toString() : ""
+                    setDateFin(dateStr)
+                  }}
+                >
+                  <DateInput
+                    focusColor="rgb(7,103,132)"
+                    className={`w-full h-10 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] flex items-center ${isRTL ? "text-right font-geist-sans" : ""}`}
+                  />
+                </DateField>
+              </I18nProvider>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className={`flex justify-end gap-3 p-4 border-t border-gray-200 dark:border-gray-600`}>
+          
+          
+          <button
+            onClick={handleCancel}
+            className={`px-6 py-2 text-sm text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+          >
+            {isRTL ? "إلغــاء" : "Annuler"}
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!typeSanction || !isNombreJoursValid}
+            className={`px-8 py-2 text-sm text-white bg-[#076784] hover:bg-[#065a72] rounded-md transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+          >
+            {isRTL ? "تسجيــل" : "Enregistrer"}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -90,6 +341,11 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
   // États pour les indicateurs de chargement
   const [isLoading, setIsLoading] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
+
+  // État pour le dialogue de sélection du type de sanction
+  const [sanctionTypeDialogOpen, setSanctionTypeDialogOpen] = useState(false)
+  const [sanctionTypeDialogIndex, setSanctionTypeDialogIndex] = useState<number | null>(null)
+
 
   // Fonction pour formater les dates pour les inputs
   const formatDateForInput = (dateString: string) => {
@@ -122,6 +378,43 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
     }
   }
 
+  // Fonction pour calculer la date de fin
+  const calculateDateFin = (dateDebut: string, nombreJours: number): string => {
+    if (!dateDebut || !nombreJours) return ""
+    const date = new Date(dateDebut)
+    date.setDate(date.getDate() + nombreJours)
+    return date.toISOString().split("T")[0]
+  }
+
+  // Fonction pour vérifier si le type de sanction nécessite le nombre de jours
+  const needsNombreJours = (typeSanction: string): boolean => {
+    return typesWithDays.includes(typeSanction)
+  }
+
+  // Fonction pour vérifier si le type de sanction nécessite la date de début
+  const needsDateDebut = (typeSanction: string): boolean => {
+    return typeSanction === typeWithDateDebut
+  }
+
+  // Fonction pour formater le texte d'affichage de la sanction
+  const formatSanctionDisplay = (sanction: any): string => {
+    if (!sanction.type_sanction) return ""
+
+    // Types qui nécessitent l'affichage du nombre de jours
+    const typesWithDaysDisplay = ["إبقاف بسيط", "إيقاف شديد", "إيقاف عن العمل", "العزل"]
+
+    if (typesWithDaysDisplay.includes(sanction.type_sanction) && sanction.nombre_jour) {
+      const nombreJour = parseInt(sanction.nombre_jour.toString())
+      if (nombreJour > 0) {
+        // Utiliser "أيام" pour les nombres de 3 à 10, "يوم" pour les autres
+        const jourWord = (nombreJour >= 3 && nombreJour <= 10) ? "أيام" : "يوم"
+        return `${nombreJour} ${jourWord} ${sanction.type_sanction}`
+      }
+    }
+
+    return sanction.type_sanction
+  }
+
   // Fonction pour vérifier si les données d'une sanction sont vides
   const isEmptySanction = (sanction: any) => {
     return !sanction.type_sanction && !sanction.date_sanction && !sanction.motif && !sanction.autorite
@@ -137,7 +430,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
     if (editingSanctionIndex !== null) {
       return true
     }
-    return sanctionsList.some(sanction => sanction.id.toString().startsWith("temp-"))
+    return sanctionsList.some((sanction) => sanction.id.toString().startsWith("temp-"))
   }
 
   // Fonction pour vérifier s'il y a une récompense non sauvegardée
@@ -145,7 +438,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
     if (editingRecompenseIndex !== null) {
       return true
     }
-    return recompensesList.some(recompense => recompense.id.toString().startsWith("temp-"))
+    return recompensesList.some((recompense) => recompense.id.toString().startsWith("temp-"))
   }
 
   // Fonction pour réinitialiser les données lors de l'annulation
@@ -172,6 +465,9 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
       date_sanction: "",
       motif: "",
       autorite: "",
+      nombre_jour: "",
+      date_debut: "",
+      date_fin: "",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
@@ -195,7 +491,20 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
           return
         }
 
-        setSanctionsList(sanctionsList.filter((_, i) => i !== index))
+        const remainingSanctions = sanctionsList.filter((_, i) => i !== index)
+        setSanctionsList(remainingSanctions)
+
+        // Mettre à jour le statut de l'employé après la suppression
+        await updateEmployeeStatusBasedOnSanctions(
+          data.employee.id,
+          remainingSanctions.map(s => ({
+            type_sanction: s.type_sanction,
+            date_debut: s.date_debut || null,
+            date_fin: s.date_fin || null,
+            nombre_jour: s.nombre_jour ? parseInt(s.nombre_jour.toString()) : null,
+          })),
+          supabase
+        )
       } catch (error) {
         console.error("Erreur:", error)
       }
@@ -232,6 +541,9 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
             date_sanction: sanction.date_sanction,
             motif: sanction.motif,
             autorite: sanction.autorite,
+            nombre_jour: sanction.nombre_jour ? parseInt(sanction.nombre_jour.toString()) : null,
+            date_debut: sanction.date_debut || null,
+            date_fin: sanction.date_fin || null,
           })
           .select()
           .single()
@@ -250,11 +562,26 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
             date_sanction: sanction.date_sanction,
             motif: sanction.motif,
             autorite: sanction.autorite,
+            nombre_jour: sanction.nombre_jour ? parseInt(sanction.nombre_jour.toString()) : null,
+            date_debut: sanction.date_debut || null,
+            date_fin: sanction.date_fin || null,
           })
           .eq("id", sanction.id)
 
         if (error) throw error
       }
+
+      // Mettre à jour le statut de l'employé basé sur les sanctions
+      await updateEmployeeStatusBasedOnSanctions(
+        data.employee.id,
+        updatedSanctions.map(s => ({
+          type_sanction: s.type_sanction,
+          date_debut: s.date_debut || null,
+          date_fin: s.date_fin || null,
+          nombre_jour: s.nombre_jour ? parseInt(s.nombre_jour.toString()) : null,
+        })),
+        supabase
+      )
 
       // Appel onSave APRÈS la mise à jour
       onSave("sanctions", updatedSanctions)
@@ -392,21 +719,27 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
       >
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className={`text-md font-medium text-gray-900 dark:text-gray-300 ${isRTL ? cardSubtitleFontClass : ""}`}>
+            <h3
+              className={`text-md font-medium text-gray-900 dark:text-gray-300 ${isRTL ? cardSubtitleFontClass : ""}`}
+            >
               {isRTL ? "قائمة العقوبات" : "Liste des Sanctions"}
             </h3>
             <button
               onClick={addSanction}
               disabled={hasUnsavedSanction()}
               className={`group p-1 transition-all duration-200 hover:shadow-sm rounded ${
-                hasUnsavedSanction() 
-                  ? "text-gray-400 cursor-not-allowed opacity-50" 
+                hasUnsavedSanction()
+                  ? "text-gray-400 cursor-not-allowed opacity-50"
                   : "text-[#076784] hover:text-[#065a72] cursor-pointer"
               }`}
               title={
-                hasUnsavedSanction() 
-                  ? (isRTL ? "يرجى حفظ أو إلغاء العقوبة الحالية أولاً" : "Veuillez sauvegarder ou annuler la sanction actuelle d'abord")
-                  : (isRTL ? "إضافة عقوبة" : "Ajouter une sanction")
+                hasUnsavedSanction()
+                  ? isRTL
+                    ? "يرجى حفظ أو إلغاء العقوبة الحالية أولاً"
+                    : "Veuillez sauvegarder ou annuler la sanction actuelle d'abord"
+                  : isRTL
+                  ? "إضافة عقوبة"
+                  : "Ajouter une sanction"
               }
             >
               <Plus className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -414,30 +747,60 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
           </div>
 
           <div className="overflow-x-auto max-h-96 mb-1">
-            <table className="w-full text-sm min-w-[800px] table-fixed">
-              <thead className="bg-gray-100 dark:bg-gray-800 h-[48px]">
+            <table className="w-full text-sm min-w-200 table-fixed">
+              <thead className="bg-gray-100 dark:bg-gray-800 h-12">
                 <tr>
-                  <th className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? cardSubtitleFontClass : ""}`} style={{width: '250px'}}>
-                    {isRTL ? "النوع" : "Type"}
+                  <th
+                    className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
+                      isRTL ? cardSubtitleFontClass : ""
+                    }`}
+                    style={{ width: "250px" }}
+                  >
+                    {isRTL ? "العقـــوبـــــة" : "Type"}
                   </th>
-                  <th className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? cardSubtitleFontClass : ""}`} style={{width: '140px'}}>
-                    {isRTL ? "التاريخ" : "Date"}
+                  <th
+                    className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
+                      isRTL ? cardSubtitleFontClass : ""
+                    }`}
+                    style={{ width: "140px" }}
+                  >
+                    {isRTL ? "التـــاريخ" : "Date"}
                   </th>
-                  <th className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? cardSubtitleFontClass : ""}`} style={{width: '200px'}}>
-                    {isRTL ? "السبب" : "Motif"}
+                  <th
+                    className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
+                      isRTL ? cardSubtitleFontClass : ""
+                    }`}
+                    style={{ width: "200px" }}
+                  >
+                    {isRTL ? "الســـــبب" : "Motif"}
                   </th>
-                  <th className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? cardSubtitleFontClass : ""}`} style={{width: '200px'}}>
-                    {isRTL ? "السلطة" : "Autorité"}
+                  <th
+                    className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
+                      isRTL ? cardSubtitleFontClass : ""
+                    }`}
+                    style={{ width: "200px" }}
+                  >
+                    {isRTL ? "السلطــــة" : "Autorité"}
                   </th>
-                  <th className={`px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? cardSubtitleFontClass : ""}`} style={{width: '120px'}}>
-                    {isRTL ? "الإجراءات" : "Actions"}
+                  <th
+                    className={`px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
+                      isRTL ? cardSubtitleFontClass : ""
+                    }`}
+                    style={{ width: "120px" }}
+                  >
+                    {isRTL ? "الإجــراءات" : "Actions"}
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                 {sanctionsList.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className={`px-4 py-8 text-center text-gray-500 dark:text-gray-400 ${isRTL ? cardSubtitleFontClass : ""}`}>
+                    <td
+                      colSpan={5}
+                      className={`px-4 py-8 text-center text-gray-500 dark:text-gray-400 ${
+                        isRTL ? cardSubtitleFontClass : ""
+                      }`}
+                    >
                       <div className="flex flex-col items-center">
                         <AlertTriangle className="w-8 h-8 text-gray-300 dark:text-gray-600 mb-2" />
                         <span>{isRTL ? "لا توجد عقوبات مسجلة" : "Aucune sanction enregistrée"}</span>
@@ -451,7 +814,9 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
                           } ${isRTL ? cardSubtitleFontClass : ""}`}
                           title={
                             hasUnsavedSanction()
-                              ? (isRTL ? "يرجى حفظ أو إلغاء العقوبة الحالية أولاً" : "Veuillez sauvegarder ou annuler la sanction actuelle d'abord")
+                              ? isRTL
+                                ? "يرجى حفظ أو إلغاء العقوبة الحالية أولاً"
+                                : "Veuillez sauvegarder ou annuler la sanction actuelle d'abord"
                               : ""
                           }
                         >
@@ -462,145 +827,157 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
                   </tr>
                 ) : (
                   sanctionsList.map((sanction, index) => (
-                  <tr key={sanction.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-[48px]">
-                    <td className={`px-4 py-2 w-64 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                      {editingSanctionIndex === index ? (
-                        <Select
-                          value={sanction.type_sanction}
-                          onValueChange={(value) => updateSanction(index, "type_sanction", value)}
-                          dir={isRTL ? "rtl" : "ltr"}
-                        >
-                          <SelectTrigger className={`w-full px-3 py-1 text-xs !h-[32px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                            <SelectValue placeholder={isRTL ? "النوع..." : "Type..."} />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white dark:bg-[#1C1C1C] border-gray-300 dark:border-gray-600">
-                            {sanctionOptions.map((option) => (
-                              <SelectItem
-                                className={`px-3 py-2 text-xs hover:bg-[rgb(236,243,245)] dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-gray-700 focus:text-[rgb(14,102,129)] dark:focus:text-gray-300 ${isRTL ? "font-noto-naskh-arabic" : ""}`}
-                                key={option.value}
-                                value={option.value}
-                              >
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        <div className="truncate h-[32px] flex items-center" title={sanction.type_sanction || (isRTL ? "غير محدد" : "Non défini")}>
-                          <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mr-2" />
-                          {sanction.type_sanction || (isRTL ? "غير محدد" : "Non défini")}
-                        </div>
-                      )}
-                    </td>
-                    <td className={`px-4 py-2 w-32 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                      {editingSanctionIndex === index ? (
-                        <I18nProvider  locale="fr-FR">
-                          <DateField
-                            value={sanction.date_sanction ? parseDate(sanction.date_sanction) : null}
-                            onChange={(date) => {
-                              const dateStr = date ? date.toString() : ""
-                              updateSanction(index, "date_sanction", dateStr)
-                            }}
-                          >
-                            <DateInput
-                              focusColor="rgb(7,103,132)"
-                              className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
-                                isRTL ? "text-right font-geist-sans text-[15px]" : ""
-                              } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
-                            />
-                          </DateField>
-                        </I18nProvider>
-                      ) : (
-                        <div className="h-[32px] flex items-center">
-                          {formatDateRTL(sanction.date_sanction, isRTL)}
-                        </div>
-                      )}
-                    </td>
-                    <td className={`px-4 py-2 w-48 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                      {editingSanctionIndex === index ? (
-                        <input
-                          value={sanction.motif || ""}
-                          onChange={(e) => updateSanction(index, "motif", e.target.value)}
-                          placeholder={isRTL ? "سبب العقوبة" : "Motif de la sanction"}
-                          className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${isRTL ? "font-noto-naskh-arabic" : ""}`}
-                          dir={isRTL ? "rtl" : "ltr"}
-                        />
-                      ) : (
-                        <div className="truncate h-[32px] flex items-center" title={sanction.motif || (isRTL ? "غير محدد" : "Non défini")}>
-                          {sanction.motif || (isRTL ? "غير محدد" : "Non défini")}
-                        </div>
-                      )}
-                    </td>
-                    <td className={`px-4 py-2 w-48 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                      {editingSanctionIndex === index ? (
-                        <input
-                          type="text"
-                          value={sanction.autorite || ""}
-                          onChange={(e) => updateSanction(index, "autorite", e.target.value)}
-                          placeholder={isRTL ? "السلطة" : "Autorité"}
-                          className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${isRTL ? "font-noto-naskh-arabic" : ""}`}
-                          dir={isRTL ? "rtl" : "ltr"}
-                        />
-                      ) : (
-                        <div className="truncate h-[32px] flex items-center" title={sanction.autorite || (isRTL ? "غير محدد" : "Non défini")}>
-                          {sanction.autorite || (isRTL ? "غير محدد" : "Non défini")}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-2 w-24 align-middle">
-                      <div className="flex items-center justify-center space-x-2">
+                    <tr key={sanction.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-12">
+                      <td className={`px-4 py-2 w-64 align-top ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
                         {editingSanctionIndex === index ? (
-                          <>
+                          <div className="flex flex-row-reverse items-center gap-1">
                             <button
-                              onClick={() => saveSanction(index)}
-                              className="text-green-600 hover:text-green-800 cursor-pointer"
-                              title={isRTL ? "حفظ" : "Sauvegarder"}
-                            >
-                              <Save className="h-4 w-4" />
-                            </button>
-                            <button
+                              type="button"
                               onClick={() => {
-                                const sanction = sanctionsList[index]
-                                if (isEmptySanction(sanction) && sanction.id.startsWith("temp-")) {
-                                  setSanctionsList(sanctionsList.filter((_, i) => i !== index))
-                                } else {
-                                  // Restaurer les valeurs originales
-                                  const originalSanction = originalSanctionsList.find((s) => s.id === sanction.id)
-                                  if (originalSanction) {
-                                    const updatedSanctions = [...sanctionsList]
-                                    updatedSanctions[index] = originalSanction
-                                    setSanctionsList(updatedSanctions)
-                                  }
-                                }
-                                setEditingSanctionIndex(null)
+                                setSanctionTypeDialogIndex(index)
+                                setSanctionTypeDialogOpen(true)
                               }}
-                              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 cursor-pointer"
-                              title={isRTL ? "إلـغــــاء" : "Annuler"}
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => setEditingSanctionIndex(index)}
-                              className="text-[#076784] hover:text-[#065a72] cursor-pointer"
-                              title={isRTL ? "تعديل" : "Modifier"}
+                              className="h-8 w-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 text-[#076784] hover:text-[#065a72] transition-all duration-200 cursor-pointer shrink-0"
+                              title={isRTL ? "تحديد نوع العقوبة" : "Sélectionner le type"}
                             >
                               <Edit className="h-4 w-4" />
                             </button>
-                            <button
-                              onClick={() => deleteSanction(index)}
-                              className="text-red-600 hover:text-red-800 cursor-pointer"
-                              title={isRTL ? "حذف" : "Supprimer"}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </>
+                            <input
+                              type="text"
+                              value={formatSanctionDisplay(sanction)}
+                              readOnly
+                              placeholder={isRTL ? "اختر نوع العقوبة..." : "Choisir le type..."}
+                              className={`flex-1 h-8 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-300 cursor-default ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+                              dir={isRTL ? "rtl" : "ltr"}
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className="truncate h-8 flex items-center"
+                            title={formatSanctionDisplay(sanction) || (isRTL ? "غير محدد" : "Non défini")}
+                          >
+                            <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 ml-2" />
+                            {formatSanctionDisplay(sanction) || (isRTL ? "غير محدد" : "Non défini")}
+                          </div>
                         )}
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className={`px-4 pt-1 w-32 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+                        {editingSanctionIndex === index ? (
+                          <I18nProvider locale="fr-FR">
+                            <DateField
+                              value={sanction.date_sanction ? parseDate(sanction.date_sanction) : null}
+                              onChange={(date) => {
+                                const dateStr = date ? date.toString() : ""
+                                updateSanction(index, "date_sanction", dateStr)
+                              }}
+                            >
+                              <DateInput
+                                focusColor="rgb(7,103,132)"
+                                className={`w-full h-8 px-2 py-0 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm flex items-center ${
+                                  isRTL ? "text-right font-geist-sans text-[15px]" : ""
+                                } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+                              />
+                            </DateField>
+                          </I18nProvider>
+                        ) : (
+                          <div className="h-8 flex items-center text-sm">{formatDateRTL(sanction.date_sanction, isRTL)}</div>
+                        )}
+                      </td>
+                      <td className={`px-4 py-2 w-48 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+                        {editingSanctionIndex === index ? (
+                          <input
+                            value={sanction.motif || ""}
+                            onChange={(e) => updateSanction(index, "motif", e.target.value)}
+                            placeholder={isRTL ? "سبب العقوبة" : "Motif de la sanction"}
+                            className={`w-full h-8 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                              isRTL ? "font-noto-naskh-arabic" : ""
+                            }`}
+                            dir={isRTL ? "rtl" : "ltr"}
+                          />
+                        ) : (
+                          <div
+                            className="truncate h-8 flex items-center"
+                            title={sanction.motif || (isRTL ? "غير محدد" : "Non défini")}
+                          >
+                            {sanction.motif || (isRTL ? "غير محدد" : "Non défini")}
+                          </div>
+                        )}
+                      </td>
+                      <td className={`px-4 py-2 w-48 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+                        {editingSanctionIndex === index ? (
+                          <input
+                            type="text"
+                            value={sanction.autorite || ""}
+                            onChange={(e) => updateSanction(index, "autorite", e.target.value)}
+                            placeholder={isRTL ? "السلطة" : "Autorité"}
+                            className={`w-full h-8 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                              isRTL ? "font-noto-naskh-arabic" : ""
+                            }`}
+                            dir={isRTL ? "rtl" : "ltr"}
+                          />
+                        ) : (
+                          <div
+                            className="truncate h-8 flex items-center"
+                            title={sanction.autorite || (isRTL ? "غير محدد" : "Non défini")}
+                          >
+                            {sanction.autorite || (isRTL ? "غير محدد" : "Non défini")}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 w-24 align-middle">
+                        <div className="flex items-center justify-center space-x-2">
+                          {editingSanctionIndex === index ? (
+                            <>
+                              <button
+                                onClick={() => saveSanction(index)}
+                                className="text-green-600 hover:text-green-800 cursor-pointer"
+                                title={isRTL ? "حفظ" : "Sauvegarder"}
+                              >
+                                <Save className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const sanction = sanctionsList[index]
+                                  if (isEmptySanction(sanction) && sanction.id.startsWith("temp-")) {
+                                    setSanctionsList(sanctionsList.filter((_, i) => i !== index))
+                                  } else {
+                                    // Restaurer les valeurs originales
+                                    const originalSanction = originalSanctionsList.find((s) => s.id === sanction.id)
+                                    if (originalSanction) {
+                                      const updatedSanctions = [...sanctionsList]
+                                      updatedSanctions[index] = originalSanction
+                                      setSanctionsList(updatedSanctions)
+                                    }
+                                  }
+                                  setEditingSanctionIndex(null)
+                                }}
+                                className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 cursor-pointer"
+                                title={isRTL ? "إلـغــــاء" : "Annuler"}
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => setEditingSanctionIndex(index)}
+                                className="text-[#076784] hover:text-[#065a72] cursor-pointer"
+                                title={isRTL ? "تعديل" : "Modifier"}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => deleteSanction(index)}
+                                className="text-red-600 hover:text-red-800 cursor-pointer"
+                                title={isRTL ? "حذف" : "Supprimer"}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
                   ))
                 )}
               </tbody>
@@ -610,7 +987,9 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
           <div className="flex justify-end space-x-3 pt-5 border-t border-gray-200 dark:border-gray-600">
             <button
               onClick={handleDialogClose}
-              className={`group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+              className={`group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm ${
+                isRTL ? "font-noto-naskh-arabic" : ""
+              }`}
             >
               {isRTL ? "إغلاق" : "Fermer"}
             </button>
@@ -630,21 +1009,27 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
       >
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className={`text-md font-medium text-gray-900 dark:text-gray-300 ${isRTL ? cardSubtitleFontClass : ""}`}>
+            <h3
+              className={`text-md font-medium text-gray-900 dark:text-gray-300 ${isRTL ? cardSubtitleFontClass : ""}`}
+            >
               {isRTL ? "قائمة التـشـجيـع والتقديرات" : "Liste des Récompenses"}
             </h3>
             <button
               onClick={addRecompense}
               disabled={hasUnsavedRecompense()}
               className={`group p-1 transition-all duration-200 hover:shadow-sm rounded ${
-                hasUnsavedRecompense() 
-                  ? "text-gray-400 cursor-not-allowed opacity-50" 
+                hasUnsavedRecompense()
+                  ? "text-gray-400 cursor-not-allowed opacity-50"
                   : "text-[#076784] hover:text-[#065a72] cursor-pointer"
               }`}
               title={
-                hasUnsavedRecompense() 
-                  ? (isRTL ? "يرجى حفظ أو إلغاء المكافأة الحالية أولاً" : "Veuillez sauvegarder ou annuler la récompense actuelle d'abord")
-                  : (isRTL ? "إضافة مكافأة" : "Ajouter une récompense")
+                hasUnsavedRecompense()
+                  ? isRTL
+                    ? "يرجى حفظ أو إلغاء المكافأة الحالية أولاً"
+                    : "Veuillez sauvegarder ou annuler la récompense actuelle d'abord"
+                  : isRTL
+                  ? "إضافة مكافأة"
+                  : "Ajouter une récompense"
               }
             >
               <Plus className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -652,22 +1037,47 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
           </div>
 
           <div className="overflow-x-auto max-h-96 mb-1">
-            <table className="w-full text-sm min-w-[800px] table-fixed">
-              <thead className="bg-gray-100 dark:bg-gray-800 h-[48px]">
+            <table className="w-full text-sm min-w-200 table-fixed">
+              <thead className="bg-gray-100 dark:bg-gray-800 h-12">
                 <tr>
-                  <th className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? cardSubtitleFontClass : ""}`} style={{width: '250px'}}>
+                  <th
+                    className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
+                      isRTL ? cardSubtitleFontClass : ""
+                    }`}
+                    style={{ width: "250px" }}
+                  >
                     {isRTL ? "النوع" : "Type"}
                   </th>
-                  <th className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? cardSubtitleFontClass : ""}`} style={{width: '140px'}}>
+                  <th
+                    className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
+                      isRTL ? cardSubtitleFontClass : ""
+                    }`}
+                    style={{ width: "140px" }}
+                  >
                     {isRTL ? "التاريخ" : "Date"}
                   </th>
-                  <th className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? cardSubtitleFontClass : ""}`} style={{width: '200px'}}>
+                  <th
+                    className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
+                      isRTL ? cardSubtitleFontClass : ""
+                    }`}
+                    style={{ width: "200px" }}
+                  >
                     {isRTL ? "السبب" : "Motif"}
                   </th>
-                  <th className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? cardSubtitleFontClass : ""}`} style={{width: '200px'}}>
+                  <th
+                    className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
+                      isRTL ? cardSubtitleFontClass : ""
+                    }`}
+                    style={{ width: "200px" }}
+                  >
                     {isRTL ? "السلطة" : "Autorité"}
                   </th>
-                  <th className={`px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? cardSubtitleFontClass : ""}`} style={{width: '120px'}}>
+                  <th
+                    className={`px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
+                      isRTL ? cardSubtitleFontClass : ""
+                    }`}
+                    style={{ width: "120px" }}
+                  >
                     {isRTL ? "الإجراءات" : "Actions"}
                   </th>
                 </tr>
@@ -675,7 +1085,12 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                 {recompensesList.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className={`px-4 py-8 text-center text-gray-500 dark:text-gray-400 ${isRTL ? cardSubtitleFontClass : ""}`}>
+                    <td
+                      colSpan={5}
+                      className={`px-4 py-8 text-center text-gray-500 dark:text-gray-400 ${
+                        isRTL ? cardSubtitleFontClass : ""
+                      }`}
+                    >
                       <div className="flex flex-col items-center">
                         <Award className="w-8 h-8 text-gray-300 dark:text-gray-600 mb-2" />
                         <span>{isRTL ? "لا توجد مكافآت مسجلة" : "Aucune récompense enregistrée"}</span>
@@ -689,7 +1104,9 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
                           } ${isRTL ? cardSubtitleFontClass : ""}`}
                           title={
                             hasUnsavedRecompense()
-                              ? (isRTL ? "يرجى حفظ أو إلغاء المكافأة الحالية أولاً" : "Veuillez sauvegarder ou annuler la récompense actuelle d'abord")
+                              ? isRTL
+                                ? "يرجى حفظ أو إلغاء المكافأة الحالية أولاً"
+                                : "Veuillez sauvegarder ou annuler la récompense actuelle d'abord"
                               : ""
                           }
                         >
@@ -700,145 +1117,171 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
                   </tr>
                 ) : (
                   recompensesList.map((recompense, index) => (
-                  <tr key={recompense.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-[48px]">
-                    <td className={`px-4 py-2 w-64 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                      {editingRecompenseIndex === index ? (
-                        <Select
-                          value={recompense.type_recompense}
-                          onValueChange={(value) => updateRecompense(index, "type_recompense", value)}
-                          dir={isRTL ? "rtl" : "ltr"}
-                        >
-                          <SelectTrigger className={`w-full px-3 py-1 text-xs !h-[32px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                            <SelectValue placeholder={isRTL ? "النوع..." : "Type..."} />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white dark:bg-[#1C1C1C] border-gray-300 dark:border-gray-600">
-                            {recompenseOptions.map((option) => (
-                              <SelectItem
-                                className={`px-3 py-2 text-xs hover:bg-[rgb(236,243,245)] dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-gray-700 focus:text-[rgb(14,102,129)] dark:focus:text-gray-300 ${isRTL ? "font-noto-naskh-arabic" : ""}`}
-                                key={option.value}
-                                value={option.value}
-                              >
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        <div className="truncate h-[32px] flex items-center" title={recompense.type_recompense || (isRTL ? "غير محدد" : "Non défini")}>
-                          <Award className="w-4 h-4 text-green-600 flex-shrink-0 mr-2" />
-                          {recompense.type_recompense || (isRTL ? "غير محدد" : "Non défini")}
-                        </div>
-                      )}
-                    </td>
-                    <td className={`px-4 py-2 w-32 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                      {editingRecompenseIndex === index ? (
-                        <I18nProvider locale="fr-FR">
-                          <DateField
-                            value={recompense.date_recompense ? parseDate(recompense.date_recompense) : null}
-                            onChange={(date) => {
-                              const dateStr = date ? date.toString() : ""
-                              updateRecompense(index, "date_recompense", dateStr)
-                            }}
-                          >
-                            <DateInput
-                              focusColor="rgb(7,103,132)"
-                              className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
-                                isRTL ? "text-right font-geist-sans text-[15px]" : ""
-                              } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
-                            />
-                          </DateField>
-                        </I18nProvider>
-                      ) : (
-                        <div className="h-[32px] flex items-center">
-                          {formatDateRTL(recompense.date_recompense, isRTL)}
-                        </div>
-                      )}
-                    </td>
-                    <td className={`px-4 py-2 w-48 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                      {editingRecompenseIndex === index ? (
-                        <input
-                          value={recompense.motif || ""}
-                          onChange={(e) => updateRecompense(index, "motif", e.target.value)}
-                          placeholder={isRTL ? "سبب المكافأة" : "Motif de la récompense"}
-                          className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${isRTL ? "font-noto-naskh-arabic" : ""}`}
-                          dir={isRTL ? "rtl" : "ltr"}
-                        />
-                      ) : (
-                        <div className="truncate h-[32px] flex items-center" title={recompense.motif || (isRTL ? "غير محدد" : "Non défini")}>
-                          {recompense.motif || (isRTL ? "غير محدد" : "Non défini")}
-                        </div>
-                      )}
-                    </td>
-                    <td className={`px-4 py-2 w-48 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                      {editingRecompenseIndex === index ? (
-                        <input
-                          type="text"
-                          value={recompense.autorite || ""}
-                          onChange={(e) => updateRecompense(index, "autorite", e.target.value)}
-                          placeholder={isRTL ? "السلطة" : "Autorité"}
-                          className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${isRTL ? "font-noto-naskh-arabic" : ""}`}
-                          dir={isRTL ? "rtl" : "ltr"}
-                        />
-                      ) : (
-                        <div className="truncate h-[32px] flex items-center" title={recompense.autorite || (isRTL ? "غير محدد" : "Non défini")}>
-                          {recompense.autorite || (isRTL ? "غير محدد" : "Non défini")}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-2 w-24 align-middle">
-                      <div className="flex items-center justify-center space-x-2">
+                    <tr
+                      key={recompense.id}
+                      className={`hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                        editingRecompenseIndex === index ? "h-16" : "h-12"
+                      }`}
+                    >
+                      <td className={`px-4 py-2 w-64 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
                         {editingRecompenseIndex === index ? (
-                          <>
-                            <button
-                              onClick={() => saveRecompense(index)}
-                              className="text-green-600 hover:text-green-800 cursor-pointer"
-                              title={isRTL ? "حفظ" : "Sauvegarder"}
+                          <Select
+                            value={recompense.type_recompense}
+                            onValueChange={(value) => updateRecompense(index, "type_recompense", value)}
+                            dir={isRTL ? "rtl" : "ltr"}
+                          >
+                            <SelectTrigger
+                              className={`w-full px-3 py-1 text-sm h-8! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                isRTL ? "font-noto-naskh-arabic" : ""
+                              }`}
                             >
-                              <Save className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                const recompense = recompensesList[index]
-                                if (isEmptyRecompense(recompense) && recompense.id.startsWith("temp-")) {
-                                  setRecompensesList(recompensesList.filter((_, i) => i !== index))
-                                } else {
-                                  // Restaurer les valeurs originales
-                                  const originalRecompense = originalRecompensesList.find((r) => r.id === recompense.id)
-                                  if (originalRecompense) {
-                                    const updatedRecompenses = [...recompensesList]
-                                    updatedRecompenses[index] = originalRecompense
-                                    setRecompensesList(updatedRecompenses)
-                                  }
-                                }
-                                setEditingRecompenseIndex(null)
-                              }}
-                              className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 cursor-pointer"
-                              title={isRTL ? "إلـغــــاء" : "Annuler"}
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </>
+                              <SelectValue placeholder={isRTL ? "النوع..." : "Type..."} />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white dark:bg-[#1C1C1C] border-gray-300 dark:border-gray-600">
+                              {recompenseOptions.map((option) => (
+                                <SelectItem
+                                  className={`px-3 py-2 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-gray-700 cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-gray-700 focus:text-[rgb(14,102,129)] dark:focus:text-gray-300 ${
+                                    isRTL ? "font-noto-naskh-arabic" : ""
+                                  }`}
+                                  key={option.value}
+                                  value={option.value}
+                                >
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         ) : (
-                          <>
-                            <button
-                              onClick={() => setEditingRecompenseIndex(index)}
-                              className="text-[#076784] hover:text-[#065a72] cursor-pointer"
-                              title={isRTL ? "تعديل" : "Modifier"}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => deleteRecompense(index)}
-                              className="text-red-600 hover:text-red-800 cursor-pointer"
-                              title={isRTL ? "حذف" : "Supprimer"}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </>
+                          <div
+                            className="truncate h-8 flex items-center"
+                            title={recompense.type_recompense || (isRTL ? "غير محدد" : "Non défini")}
+                          >
+                            <Award className="w-4 h-4 text-green-600 shrink-0 ml-2" />
+                            {recompense.type_recompense || (isRTL ? "غير محدد" : "Non défini")}
+                          </div>
                         )}
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className={`px-4 py-2 w-32 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+                        {editingRecompenseIndex === index ? (
+                          <I18nProvider locale="fr-FR">
+                            <DateField
+                              value={recompense.date_recompense ? parseDate(recompense.date_recompense) : null}
+                              onChange={(date) => {
+                                const dateStr = date ? date.toString() : ""
+                                updateRecompense(index, "date_recompense", dateStr)
+                              }}
+                            >
+                              <DateInput
+                                focusColor="rgb(7,103,132)"
+                                className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                  isRTL ? "text-right font-geist-sans text-[15px]" : ""
+                                } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+                              />
+                            </DateField>
+                          </I18nProvider>
+                        ) : (
+                          <div className="h-8 flex items-center">
+                            {formatDateRTL(recompense.date_recompense, isRTL)}
+                          </div>
+                        )}
+                      </td>
+                      <td className={`px-4 py-2 w-48 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+                        {editingRecompenseIndex === index ? (
+                          <input
+                            value={recompense.motif || ""}
+                            onChange={(e) => updateRecompense(index, "motif", e.target.value)}
+                            placeholder={isRTL ? "سبب المكافأة" : "Motif de la récompense"}
+                            className={`w-full h-8 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                              isRTL ? "font-noto-naskh-arabic" : ""
+                            }`}
+                            dir={isRTL ? "rtl" : "ltr"}
+                          />
+                        ) : (
+                          <div
+                            className="truncate h-8 flex items-center"
+                            title={recompense.motif || (isRTL ? "غير محدد" : "Non défini")}
+                          >
+                            {recompense.motif || (isRTL ? "غير محدد" : "Non défini")}
+                          </div>
+                        )}
+                      </td>
+                      <td className={`px-4 py-2 w-48 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
+                        {editingRecompenseIndex === index ? (
+                          <input
+                            type="text"
+                            value={recompense.autorite || ""}
+                            onChange={(e) => updateRecompense(index, "autorite", e.target.value)}
+                            placeholder={isRTL ? "السلطة" : "Autorité"}
+                            className={`w-full h-8 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                              isRTL ? "font-noto-naskh-arabic" : ""
+                            }`}
+                            dir={isRTL ? "rtl" : "ltr"}
+                          />
+                        ) : (
+                          <div
+                            className="truncate h-8 flex items-center"
+                            title={recompense.autorite || (isRTL ? "غير محدد" : "Non défini")}
+                          >
+                            {recompense.autorite || (isRTL ? "غير محدد" : "Non défini")}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 w-24 align-middle">
+                        <div className="flex items-center justify-center space-x-2">
+                          {editingRecompenseIndex === index ? (
+                            <>
+                              <button
+                                onClick={() => saveRecompense(index)}
+                                className="text-green-600 hover:text-green-800 cursor-pointer"
+                                title={isRTL ? "حفظ" : "Sauvegarder"}
+                              >
+                                <Save className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const recompense = recompensesList[index]
+                                  if (isEmptyRecompense(recompense) && recompense.id.startsWith("temp-")) {
+                                    setRecompensesList(recompensesList.filter((_, i) => i !== index))
+                                  } else {
+                                    // Restaurer les valeurs originales
+                                    const originalRecompense = originalRecompensesList.find(
+                                      (r) => r.id === recompense.id
+                                    )
+                                    if (originalRecompense) {
+                                      const updatedRecompenses = [...recompensesList]
+                                      updatedRecompenses[index] = originalRecompense
+                                      setRecompensesList(updatedRecompenses)
+                                    }
+                                  }
+                                  setEditingRecompenseIndex(null)
+                                }}
+                                className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 cursor-pointer"
+                                title={isRTL ? "إلـغــــاء" : "Annuler"}
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => setEditingRecompenseIndex(index)}
+                                className="text-[#076784] hover:text-[#065a72] cursor-pointer"
+                                title={isRTL ? "تعديل" : "Modifier"}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => deleteRecompense(index)}
+                                className="text-red-600 hover:text-red-800 cursor-pointer"
+                                title={isRTL ? "حذف" : "Supprimer"}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
                   ))
                 )}
               </tbody>
@@ -848,13 +1291,56 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
           <div className="flex justify-end space-x-3 pt-5 border-t border-gray-200 dark:border-gray-600">
             <button
               onClick={handleDialogClose}
-              className={`group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+              className={`group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm ${
+                isRTL ? "font-noto-naskh-arabic" : ""
+              }`}
             >
               {isRTL ? "إغلاق" : "Fermer"}
             </button>
           </div>
         </div>
       </Dialog>
+
+      {/* Dialog pour la sélection du type de sanction */}
+      <SanctionTypeDialog
+        isOpen={sanctionTypeDialogOpen}
+        onClose={() => {
+          setSanctionTypeDialogOpen(false)
+          setSanctionTypeDialogIndex(null)
+        }}
+        onSave={(data) => {
+          if (sanctionTypeDialogIndex !== null) {
+            // Mise à jour en une seule opération pour éviter les problèmes de state
+            const updatedSanctions = [...sanctionsList]
+            updatedSanctions[sanctionTypeDialogIndex] = {
+              ...updatedSanctions[sanctionTypeDialogIndex],
+              type_sanction: data.type_sanction,
+              nombre_jour: data.nombre_jour,
+              date_debut: data.date_debut,
+              date_fin: data.date_fin,
+            }
+            setSanctionsList(updatedSanctions)
+          }
+          setSanctionTypeDialogOpen(false)
+          setSanctionTypeDialogIndex(null)
+        }}
+        initialData={
+          sanctionTypeDialogIndex !== null
+            ? {
+                type_sanction: sanctionsList[sanctionTypeDialogIndex]?.type_sanction || "",
+                nombre_jour: sanctionsList[sanctionTypeDialogIndex]?.nombre_jour?.toString() || "",
+                date_debut: sanctionsList[sanctionTypeDialogIndex]?.date_debut || "",
+                date_fin: sanctionsList[sanctionTypeDialogIndex]?.date_fin || "",
+              }
+            : {
+                type_sanction: "",
+                nombre_jour: "",
+                date_debut: "",
+                date_fin: "",
+              }
+        }
+        isRTL={isRTL}
+      />
     </>
   )
 }

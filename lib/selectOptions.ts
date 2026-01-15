@@ -263,23 +263,21 @@ export const niveauScolaireParcourOptions: SelectOption[] = [
 
 // Options pour les sanctions et récompenses
 export const sanctionOptions: SelectOption[] = [
-  { value: "Avertissement", label: "Avertissement" },
-  { value: "Blâme", label: "Blâme" },
-  { value: "Réprimande", label: "Réprimande" },
-  { value: "Retenue sur salaire", label: "Retenue sur salaire" },
-  { value: "Suspension", label: "Suspension" },
-  { value: "Rétrogradation", label: "Rétrogradation" },
-  { value: "Licenciement", label: "Licenciement" },
+  { value: "لفت نظر", label: "لفت نظر", labelAr: "لفت نظر" },
+  { value: "إنذار", label: "إنذار", labelAr: "إنذار" },
+  { value: "توبيخ", label: "توبيخ", labelAr: "توبيخ" },
+  { value: "إيقاف بسيط", label: "إيقاف بسيط", labelAr: "إيقاف بسيط" },
+  { value: "إيقاف شديد", label: "إيقاف شديد", labelAr: "إيقاف شديد" },
+  { value: "إيقاف عن العمل", label: "إيقاف عن العمل", labelAr: "إيقاف عن العمل" },
+  { value: "الحط من الرتبة", label: "الحط من الرتبة", labelAr: "الحط من الرتبة" },
+  { value: "العزل", label: "العزل", labelAr: "العزل" },
 ];
 
 export const recompenseOptions: SelectOption[] = [
-  { value: "Félicitations", label: "Félicitations" },
-  { value: "Lettre de félicitations", label: "Lettre de félicitations" },
-  { value: "Médaille", label: "Médaille" },
-  { value: "Prime", label: "Prime" },
-  { value: "Promotion", label: "Promotion" },
-  { value: "Témoignage de satisfaction", label: "Témoignage de satisfaction" },
-  { value: "Autre", label: "Autre" },
+  { value: "معلقة شرف", label: "معلقة شرف", labelAr: "معلقة شرف" },
+  { value: "شهادة رضا", label: "شهادة رضا", labelAr: "شهادة رضا" },
+  { value: "رسالة تشجيع", label: "رسالة تشجيع", labelAr: "رسالة تشجيع" },
+  { value: "رسالة استحسان", label: "رسالة استحسان", labelAr: "رسالة استحسان" },
 ];
 
 // Options pour les congés (basées sur l'ENUM type_conge_enum de la base de données)
@@ -320,13 +318,14 @@ export const directionValues: string[] = [
 
 // Options pour le statut des employés (basées sur l'ENUM employee_status de la base de données)
 export const employeeStatusOptions: SelectOption[] = [
-  { value: "مباشر", label: "Actif" },
-  { value: "غير مباشر", label: "Inactif" },
-  { value: "إجازة", label: "Congés" },
-  { value: "مرض", label: "Maladie" },
-  { value: "تكوين", label: "Formation" },
-  { value: "في مهمة", label: "Mission" },
-  { value: "متغيب", label: "Absent" },
+  { value: "مباشر", label: "مباشر" },
+  { value: "غير مباشر", label: "غير مباشر" },
+  { value: "إجازة", label: "إجازة" },
+  { value: "مرض", label: "مرض" },
+  { value: "تدريب", label: "تدريب" },
+  { value: "مهمة", label: "مهمة" },
+  { value: "متغيب", label: "متغيب" },
+  { value: "موقوف", label: "موقوف" },
 ];
 
 // Fonction pour obtenir le label formaté d'un grade à partir de sa valeur

@@ -14,7 +14,6 @@ import {
   RefreshCw,
   RotateCcw,
   Search,
-  FileText,
 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useEffect, useState, useCallback, useMemo } from "react"
@@ -22,7 +21,7 @@ import { createClient } from "@/lib/supabase/client"
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import Link from "next/link"
 import Image from "next/image"
-import { DisplayEmployee } from "@/types/employeeTable.types"
+import { DisplayEmployee, RawEmployeeData } from "@/types/employeeTable.types"
 import { processEmployeeData, EMPLOYEE_SELECT_QUERY, sortEmployeesByHierarchy } from "@/utils/employee.utils"
 import { formatDateForRTL, formatDateForLTR } from "@/utils/dateUtils"
 import { useTranslations } from "next-intl"
@@ -46,31 +45,17 @@ const ITEMS_PER_PAGE = 10
 type SortKey = keyof DisplayEmployee | null
 type SortDirection = "ascending" | "descending"
 
-// Fonction utilitaire pour les statuts employés en français
-const getStatusFrench = (status: string): string => {
-  const statusMap: Record<string, string> = {
-    "مباشر": "Actif",
-    "غير مباشر": "Inactif", 
-    "إجازة": "En congés",
-    "Maladie": "Maladie",
-    "Formation": "Formation",
-    "Mission": "Mission",
-    "Abscent": "Absent",
-    "متغيب": "Absent"
-  }
-  return statusMap[status] || status || "Non défini"
-}
-
+// Fonction utilitaire pour les statuts employés en arabe uniquement
 const getStatusArabic = (status: string): string => {
   const statusMap: Record<string, string> = {
     "مباشر": "مبـاشــر",
     "غير مباشر": "غير مباشر",
     "إجازة": "في إجازة",
-    "Maladie": "مــــرض",
-    "Formation": "تكــويــن",
-    "Mission": "في مهمــة",
-    "Abscent": "غائــب",
-    "متغيب": "غائــب"
+    "مرض": "مــــرض",
+    "تدريب": "تكــويــن",
+    "مهمة": "في مهمــة",
+    "متغيب": "غائــب",
+    "موقوف": "موقــوف"
   }
   return statusMap[status] || status || "غير محدد"
 }
@@ -182,19 +167,51 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
     if (!supabase) return
 
     try {
-      const { data, error } = await supabase.from("employees").select(EMPLOYEE_SELECT_QUERY)
+      // Obtenir le nombre total d'employés
+      const { count } = await supabase
+        .from("employees")
+        .select("*", { count: 'exact', head: true })
 
-      if (error) {
-        console.error("Erreur rechargement:", error)
-        return
-      }
+      if (count && count > 0) {
+        const pageSize = 1000
+        const totalPages = Math.ceil(count / pageSize)
+        const allEmployees: RawEmployeeData[] = []
 
-      if (data) {
-        const processedEmployees = data.map(processEmployeeData)
+        // Récupérer toutes les pages en parallèle
+        const fetchPromises = []
+        for (let page = 0; page < totalPages; page++) {
+          const from = page * pageSize
+          const to = from + pageSize - 1
+          fetchPromises.push(
+            supabase
+              .from("employees")
+              .select(EMPLOYEE_SELECT_QUERY)
+              .range(from, to)
+          )
+        }
+
+        const results = await Promise.all(fetchPromises)
+
+        // Vérifier les erreurs
+        const hasErrors = results.some(r => r.error)
+        if (hasErrors) {
+          console.error("Erreur rechargement employés")
+          return
+        }
+
+        // Combiner toutes les données
+        results.forEach(result => {
+          if (result.data) {
+            allEmployees.push(...(result.data as RawEmployeeData[]))
+          }
+        })
+
+        const processedEmployees = allEmployees.map(processEmployeeData)
         setEmployees(processedEmployees)
+        console.log(`${processedEmployees.length} employés rechargés`)
       }
     } catch (error) {
-      console.error("Erreur refresh:", error)
+      console.error("Erreur refresh employés:", error)
     }
   }, [supabase])
 
@@ -236,6 +253,12 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
   // Fonction de normalisation pour la recherche
   const normalize = useCallback((str: string) => {
     return str
+      // Normaliser les différentes formes de Alif en arabe
+      .replace(/[أإآا]/g, 'ا')
+      // Normaliser les autres lettres arabes similaires
+      .replace(/[ى]/g, 'ي')
+      .replace(/[ة]/g, 'ه')
+      // NFD pour les autres langues
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
@@ -389,16 +412,6 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
     )
   }, [searchTerm, matriculeSearchTerm, statusFilter, sortConfig])
 
-  // Fonction pour générer l'URL Print avec les filtres actuels
-  const getPrintUrl = useCallback(() => {
-    const urlParams = new URLSearchParams()
-    if (searchTerm) urlParams.set("search", searchTerm)
-    if (matriculeSearchTerm) urlParams.set("matricule", matriculeSearchTerm)
-    if (statusFilter && statusFilter !== "") urlParams.set("status", statusFilter)
-    
-    const baseUrl = `/${params.locale}/dashboard/employees/print`
-    return urlParams.toString() ? `${baseUrl}?${urlParams.toString()}` : baseUrl
-  }, [searchTerm, matriculeSearchTerm, statusFilter, params.locale])
 
   // Fonction pour actualiser les données et reconnecter le realtime
   const handleRefresh = useCallback(async () => {
@@ -535,7 +548,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
           </button>
         </div>
       </div>
-      <div className="bg-white dark:bg-card rounded-sm px-8 py-6 border border-gray-200 dark:border-[#393A41] min-h-[600px] flex flex-col">
+      <div className="bg-white dark:bg-card rounded-sm px-8 py-6 border border-gray-200 dark:border-[#393A41] min-h-150 flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
           <div className="w-full sm:max-w-4xl flex gap-3">
             <div className="relative w-70">
@@ -596,7 +609,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                 }}
               >
                 <SelectTrigger
-                  className={`w-full !h-[34px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
+                  className={`w-full h-8.5! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent ${
                     isRTL ? titleFontClass : ""
                   }`}
                 >
@@ -628,59 +641,58 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                     {isRTL ? t("dashboard.employeeStatus.إجازة") : "Congés"}
                   </SelectItem>
                   <SelectItem
-                    value="Maladie"
+                    value="مرض"
                     className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
                       isRTL ? titleFontClass : ""
                     }`}
                   >
-                    {isRTL ? t("dashboard.employeeStatus.Maladie") : "Maladie"}
+                    {isRTL ? t("dashboard.employeeStatus.مرض") : "Maladie"}
                   </SelectItem>
                   <SelectItem
-                    value="Formation"
+                    value="تدريب"
                     className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
                       isRTL ? titleFontClass : ""
                     }`}
                   >
-                    {isRTL ? t("dashboard.employeeStatus.Formation") : "Formation"}
+                    {isRTL ? t("dashboard.employeeStatus.تدريب") : "Formation"}
                   </SelectItem>
                   <SelectItem
-                    value="Mission"
+                    value="مهمة"
                     className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
                       isRTL ? titleFontClass : ""
                     }`}
                   >
-                    {isRTL ? t("dashboard.employeeStatus.Mission") : "Mission"}
+                    {isRTL ? t("dashboard.employeeStatus.مهمة") : "Mission"}
                   </SelectItem>
                   <SelectItem
-                    value="Abscent"
+                    value="متغيب"
                     className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
                       isRTL ? titleFontClass : ""
                     }`}
                   >
-                    {isRTL ? t("dashboard.employeeStatus.Abscent") : "Absent"}
+                    {isRTL ? t("dashboard.employeeStatus.متغيب") : "Absent"}
+                  </SelectItem>
+                  <SelectItem
+                    value="موقوف"
+                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
+                      isRTL ? titleFontClass : ""
+                    }`}
+                  >
+                    {isRTL ? t("dashboard.employeeStatus.موقوف") : "Suspendu"}
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            {hasActiveFilters && (
-              <button
-                onClick={handleClearFilters}
-                className="flex items-center justify-center w-8 h-8 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer"
-                title={isRTL ? t("employeesList.buttons.clearFilters") : "Réinitialiser les filtres"}
-              >
-                <RotateCcw size={16} />
-              </button>
-            )}
+            <button
+              onClick={handleClearFilters}
+              disabled={!hasActiveFilters}
+              className="flex items-center justify-center w-8 h-8 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500"
+              title={isRTL ? t("employeesList.buttons.clearFilters") : "Réinitialiser les filtres"}
+            >
+              <RotateCcw size={16} />
+            </button>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href={getPrintUrl()}
-              className="flex items-center gap-2 px-3 py-2.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-              title={isRTL ? "عرض وتحميل قائمة الموظفين كـ PDF" : "Voir et télécharger la liste des employés en PDF"}
-            >
-              <FileText className="w-4 h-4" />
-              {isRTL ? "PDF" : "PDF"}
-            </Link>
             <Link
               href={`/${params.locale}/dashboard/employees/nouveau`}
               className={`bg-[#076784] hover:bg-[#2B778F] text-white px-6 py-2.5 rounded text-[14px] font-medium flex items-center gap-2 transition-colors ${
@@ -800,7 +812,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                         </td>
                         <td className="px-6 py-2.5 w-48">
                           <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-full bg-gray-200 dark:bg-transparent flex-shrink-0 overflow-hidden flex items-center justify-center relative">
+                            <div className="w-11 h-11 rounded-full bg-gray-200 dark:bg-transparent shrink-0 overflow-hidden flex items-center justify-center relative">
                               <Image
                                 src={employee.displayImage || "/images/default-avatar.png"}
                                 alt={`${employee.prenom || ""} ${employee.nom || ""}`}
@@ -851,17 +863,19 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                               employee.actif === "مباشر"
                                 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                                 : employee.actif === "غير مباشر"
-                                ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                                ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
                                 : employee.actif === "إجازة"
                                 ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                                : employee.actif === "Maladie"
+                                : employee.actif === "مرض"
                                 ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300"
-                                : employee.actif === "Formation"
+                                : employee.actif === "تدريب"
                                 ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-                                : employee.actif === "Mission"
+                                : employee.actif === "مهمة"
                                 ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300"
-                                : employee.actif === "Abscent"
+                                : employee.actif === "متغيب"
                                 ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                : employee.actif === "موقوف"
+                                ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                                 : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
                             }`}
                           >
@@ -870,21 +884,23 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                                 employee.actif === "مباشر"
                                   ? "bg-green-500"
                                   : employee.actif === "غير مباشر"
-                                  ? "bg-red-500"
+                                  ? "bg-gray-500"
                                   : employee.actif === "إجازة"
                                   ? "bg-blue-500"
-                                  : employee.actif === "Maladie"
+                                  : employee.actif === "مرض"
                                   ? "bg-orange-500"
-                                  : employee.actif === "Formation"
+                                  : employee.actif === "تدريب"
                                   ? "bg-purple-500"
-                                  : employee.actif === "Mission"
+                                  : employee.actif === "مهمة"
                                   ? "bg-indigo-500"
-                                  : employee.actif === "Abscent"
+                                  : employee.actif === "متغيب"
                                   ? "bg-yellow-500"
+                                  : employee.actif === "موقوف"
+                                  ? "bg-red-500"
                                   : "bg-gray-500"
                               }`}
                             />
-                            {isRTL ? getStatusArabic(employee.actif) : getStatusFrench(employee.actif)}
+                            {getStatusArabic(employee.actif)}
                           </span>
                         </td>
                         <td className="px-6 py-2.5 w-56">
@@ -953,7 +969,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                 {ITEMS_PER_PAGE}
               </div>
             </div>
-            <div className={`flex w-[120px] items-center justify-center font-medium ${isRTL ? titleFontClass : ""}`}>
+            <div className={`flex w-30 items-center justify-center font-medium ${isRTL ? titleFontClass : ""}`}>
               {isRTL ? t("employeesList.pagination.page") : "Page"} {currentPage} {isRTL ? t("employeesList.pagination.of") : "sur"} {totalPages}
             </div>
             <div className="flex items-center ltr:space-x-1 rtl:space-x-reverse">

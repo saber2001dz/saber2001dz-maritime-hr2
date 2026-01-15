@@ -3,18 +3,7 @@
 import React, { useState, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import {
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Users,
-  FileText,
-  Ship,
-  Building2,
-  Calendar,
-  UserCheck,
-  Anchor,
-} from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, FileText, Ship, Building2, Calendar, UserCheck, Anchor } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { GenderRadialChart } from "@/components/dashboard/GenderRadialChart"
 import { EmployeesAreaChart } from "@/components/dashboard/EmployeesAreaChart"
@@ -39,6 +28,7 @@ import {
 } from "@/lib/direction"
 import type { Locale } from "@/lib/types"
 import { sortEmployeesByHierarchy } from "@/utils/employee.utils"
+import { useEmployeeMonthlyStats } from "@/hooks/dashboard/useEmployeeMonthlyStats"
 
 interface DashboardContentProps {
   data: DashboardData
@@ -46,6 +36,7 @@ interface DashboardContentProps {
 
 export function DashboardContent({ data }: DashboardContentProps) {
   const [selectedChart, setSelectedChart] = useState("grade")
+  const [monthsLimit, setMonthsLimit] = useState(6)
   const t = useTranslations()
   const params = useParams()
   const isRTL = params.locale === "ar"
@@ -58,6 +49,9 @@ export function DashboardContent({ data }: DashboardContentProps) {
   const tableCellFontClass = getTableCellFont(params.locale as Locale)
   const tableCellNotoFontClass = getTableCellNotoFont(params.locale as Locale)
 
+  // Charger les statistiques mensuelles selon la période sélectionnée
+  const { data: monthlyStatsData, isLoading: isLoadingMonthlyStats } = useEmployeeMonthlyStats(monthsLimit)
+
   // Fonction pour calculer les totaux des grades
   const calculateGradeTotals = () => {
     const officerTotal = data.officerGradesData?.reduce((sum, item) => sum + item.count, 0) || 0
@@ -65,9 +59,36 @@ export function DashboardContent({ data }: DashboardContentProps) {
     return { officerTotal, ncoTotal }
   }
 
+  // Fonction pour convertir la valeur du select en nombre de mois
+  const periodToMonths = (period: string): number => {
+    switch (period) {
+      case "3months":
+        return 3
+      case "4months":
+        return 4
+      case "6months":
+        return 6
+      case "8months":
+        return 8
+      case "1year":
+        return 12
+      default:
+        return 6
+    }
+  }
+
+  // Fonction pour gérer le changement de période
+  const handlePeriodChange = (value: string) => {
+    const months = periodToMonths(value)
+    setMonthsLimit(months)
+  }
+
   // Fonction pour formatter les données de statistiques d'employés pour le chart
   const formatEmployeeStatsForChart = () => {
-    if (!data.employeeMonthlyStatistics || data.employeeMonthlyStatistics.length === 0) {
+    // Utiliser monthlyStatsData si disponible, sinon fallback sur data.employeeMonthlyStatistics
+    const statsToUse = monthlyStatsData.length > 0 ? monthlyStatsData : data.employeeMonthlyStatistics
+
+    if (!statsToUse || statsToUse.length === 0) {
       return []
     }
 
@@ -102,7 +123,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
       December: isRTL ? t("dashboard.months.abbreviations.Dec") : "Déc",
     }
 
-    return data.employeeMonthlyStatistics.map((stat: any) => {
+    return statsToUse.map((stat: any) => {
       const date = new Date(stat.period_date)
       const monthIndex = date.getMonth()
       const monthInEnglish = monthsInEnglish[monthIndex]
@@ -247,7 +268,9 @@ export function DashboardContent({ data }: DashboardContentProps) {
     const absPercentage = Math.abs(percentageChange).toFixed(1)
 
     return {
-      text: `${trendText} ${isRTL ? "بنسبة" : "de"} ${isRTL ? `%${absPercentage}` : `${absPercentage}%`} ${isRTL ? "مقارنة بـ" : "vs"} ${previousYear}`,
+      text: `${trendText} ${isRTL ? "بنسبة" : "de"} ${isRTL ? `%${absPercentage}` : `${absPercentage}%`} ${
+        isRTL ? "مقارنة بـ" : "vs"
+      } ${previousYear}`,
       period: isRTL
         ? `${t("dashboard.months.full.Janvier")} - ${currentMonthTranslated}`
         : `Janvier - ${currentMonthFrench}`,
@@ -329,9 +352,23 @@ export function DashboardContent({ data }: DashboardContentProps) {
     })
   }, [data.recentUnites])
 
+  // Calculer le total des employés (prendre le dernier mois disponible)
+  const calculateEmployeesTotal = () => {
+    // Utiliser monthlyStatsData si disponible, sinon fallback sur data.employeeMonthlyStatistics
+    const statsToUse = monthlyStatsData.length > 0 ? monthlyStatsData : data.employeeMonthlyStatistics
+
+    if (!statsToUse || statsToUse.length === 0) {
+      return "0"
+    }
+
+    // Prendre le dernier mois de la période (le plus récent)
+    const latestMonth = statsToUse[statsToUse.length - 1]
+    return latestMonth?.total_employees?.toString() || "0"
+  }
+
   // Données dynamiques basées sur les vraies statistiques
   const expensesData = {
-    amount: data.dashboardStats?.total?.toString() || "0",
+    amount: calculateEmployeesTotal(),
     label: isRTL ? t("dashboard.totalEmployees") : "Total des Employées",
   }
 
@@ -415,10 +452,10 @@ export function DashboardContent({ data }: DashboardContentProps) {
         {/* Affiche le nombre total d'employés avec animation et graphique en aire des statistiques mensuelles */}
         <Card className="flex flex-col h-[300px] overflow-hidden pl-1">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between">
               <div>
                 <CardTitle
-                  className={`text-[20px] -mt-1 font-semibold ${titleFontClass} text-gray-700 dark:text-gray-300 pb-1`}
+                  className={`text-[20px] font-semibold ${titleFontClass} text-gray-700 dark:text-gray-300 pb-1`}
                 >
                   {expensesData.label}
                 </CardTitle>
@@ -432,9 +469,30 @@ export function DashboardContent({ data }: DashboardContentProps) {
                 />
               </div>
 
-              <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-md">
-                <Users className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-              </div>
+              <Select dir={isRTL ? "rtl" : "ltr"} defaultValue="6months" onValueChange={handlePeriodChange}>
+                <SelectTrigger
+                  className={`w-[95px] rounded focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 ${selectFontClass}`}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="3months" className={selectFontClass}>
+                    {isRTL ? "3 أشهر" : "3 mois"}
+                  </SelectItem>
+                  <SelectItem value="4months" className={selectFontClass}>
+                    {isRTL ? "4 أشهر" : "4 mois"}
+                  </SelectItem>
+                  <SelectItem value="6months" className={selectFontClass}>
+                    {isRTL ? "6 أشهر" : "6 mois"}
+                  </SelectItem>
+                  <SelectItem value="8months" className={selectFontClass}>
+                    {isRTL ? "8 أشهر" : "8 mois"}
+                  </SelectItem>
+                  <SelectItem value="1year" className={selectFontClass}>
+                    {isRTL ? "سنـــــة" : "1 an"}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardHeader>
           <CardContent className="-mt-5 -ms-6">
@@ -787,22 +845,22 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   <tr>
                     <th
                       className={`px-6 py-4 text-start w-[350] ${
-                          isRTL ? "text-[15px]" : "text-xs"
-                        } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                        isRTL ? "text-[15px]" : "text-xs"
+                      } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                     >
                       {isRTL ? t("dashboard.tables.unitColumns.unitName") : "Nom Unité"}
                     </th>
                     <th
                       className={`px-6 py-4 text-start ${
-                          isRTL ? "text-[15px]" : "text-xs"
-                        } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                        isRTL ? "text-[15px]" : "text-xs"
+                      } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                     >
                       {isRTL ? t("dashboard.tables.unitColumns.type") : "Type"}
                     </th>
                     <th
                       className={`px-6 py-4 text-start ${
-                          isRTL ? "text-[15px]" : "text-xs"
-                        } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                        isRTL ? "text-[15px]" : "text-xs"
+                      } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                     >
                       {isRTL ? t("dashboard.tables.unitColumns.nature") : "Nature"}
                     </th>
@@ -985,14 +1043,16 @@ export function DashboardContent({ data }: DashboardContentProps) {
                                 ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                                 : employee.actif === "إجازة"
                                 ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                                : employee.actif === "Maladie"
+                                : employee.actif === "مرض"
                                 ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300"
-                                : employee.actif === "Formation"
+                                : employee.actif === "تدريب"
                                 ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-                                : employee.actif === "Mission"
+                                : employee.actif === "مهمة"
                                 ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300"
-                                : employee.actif === "Abscent"
+                                : employee.actif === "متغيب"
                                 ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                : employee.actif === "موقوف"
+                                ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
                                 : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
                             }`}
                           >
@@ -1004,14 +1064,16 @@ export function DashboardContent({ data }: DashboardContentProps) {
                                   ? "bg-red-500"
                                   : employee.actif === "إجازة"
                                   ? "bg-blue-500"
-                                  : employee.actif === "Maladie"
+                                  : employee.actif === "مرض"
                                   ? "bg-orange-500"
-                                  : employee.actif === "Formation"
+                                  : employee.actif === "تدريب"
                                   ? "bg-purple-500"
-                                  : employee.actif === "Mission"
+                                  : employee.actif === "مهمة"
                                   ? "bg-indigo-500"
-                                  : employee.actif === "Abscent"
+                                  : employee.actif === "متغيب"
                                   ? "bg-yellow-500"
+                                  : employee.actif === "موقوف"
+                                  ? "bg-gray-500"
                                   : "bg-gray-500"
                               }`}
                             />

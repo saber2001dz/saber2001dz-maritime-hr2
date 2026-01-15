@@ -25,6 +25,11 @@ export interface RawUniteData {
   unite_email: string | null
   unite_description: string | null
   unite_responsable: string | null  // UUID de l'employé responsable de l'unité
+  responsable?: {
+    nom: string | null
+    prenom: string | null
+    grade_actuel: string | null
+  } | null
 }
 
 export interface DisplayUnite {
@@ -50,6 +55,7 @@ export interface DisplayUnite {
   unite_email: string
   unite_description: string
   unite_responsable: string | null  // UUID de l'employé responsable
+  responsable_nom: string  // Nom complet du responsable
   created_at: string
   updated_at: string | null
 }
@@ -60,6 +66,16 @@ export interface UniteTableRealtimeProps {
 
 // Fonction utilitaire pour traiter les données d'unité
 export const processUniteData = (rawData: RawUniteData): DisplayUnite => {
+  // Construire le nom complet du responsable avec grade
+  let responsableNom = "غير محدد"
+  if (rawData.responsable) {
+    const { nom, prenom, grade_actuel } = rawData.responsable
+    if (nom && prenom) {
+      // Format: grade + prenom + nom (les noms sont en arabe dans la DB)
+      responsableNom = grade_actuel ? `${grade_actuel} ${prenom} ${nom}` : `${prenom} ${nom}`
+    }
+  }
+
   return {
     id: rawData.id,
     unite: rawData.unite || "غير محدد",
@@ -83,6 +99,7 @@ export const processUniteData = (rawData: RawUniteData): DisplayUnite => {
     unite_email: rawData.unite_email || "غير محدد",
     unite_description: rawData.unite_description || "لا يوجد وصف متاح",
     unite_responsable: rawData.unite_responsable || null,
+    responsable_nom: responsableNom,
     created_at: rawData.created_at,
     updated_at: rawData.updated_at
   }

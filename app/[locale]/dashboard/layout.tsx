@@ -22,7 +22,10 @@ import { UserNav } from "@/components/user-nav"
 import { Notifications } from "@/components/notifications"
 import { LanguageSelector } from "@/components/language-selector"
 import { useTranslations } from "next-intl"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 const notoNaskhArabic = localFont({
   src: "../../fonts/NotoNaskhArabic.woff2",
@@ -127,8 +130,13 @@ export default function RootLayout({
   const pathname = usePathname()
   const locale = pathname.split('/')[1] as Locale
   const t = useTranslations()
+  const router = useRouter()
 
   useLeaveStatusMonitor()
+
+  const handleSearchClick = () => {
+    router.push(`/${locale}/dashboard/employees/search`)
+  }
 
   // Extraire le chemin sans locale pour la configuration
   const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/dashboard'
@@ -155,7 +163,7 @@ export default function RootLayout({
             <SidebarTrigger className={`-ml-1 cursor-pointer ${isRTL ? "scale-x-[-1]" : ""}`} />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb className={isRTL ? notoNaskhArabic.className : ""}>
-              <BreadcrumbList dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "!text-[15px]" : ""}>
+              <BreadcrumbList dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "text-[15px]!" : ""}>
                 {pageConfig.breadcrumbs.map((breadcrumb: { label: string; href?: string }, index: number) => (
                   <div key={index} className="flex items-center">
                     {index > 0 && (
@@ -185,10 +193,61 @@ export default function RootLayout({
             </Breadcrumb>
           </div>
           <div className="flex items-center justify-center px-4 gap-4">
-            <Notifications />
-            <LanguageSelector />
-            <ModeToggle />
-            <UserNav />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSearchClick}
+                  className="h-9 w-9 cursor-pointer"
+                >
+                  <Search className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className={isRTL ? notoNaskhArabic.className : ""}>
+                <p>{isRTL ? "بـحـث عـن مـوظـف" : "Rechercher un employé"}</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Notifications />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className={isRTL ? notoNaskhArabic.className : ""}>
+                <p>{isRTL ? "الإشـعـارات" : "Notifications"}</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <LanguageSelector />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className={isRTL ? notoNaskhArabic.className : ""}>
+                <p>{isRTL ? "تـغـيـيـر الـلـغـة" : "Changer la langue"}</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <ModeToggle />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className={isRTL ? notoNaskhArabic.className : ""}>
+                <p>{isRTL ? "تـغـيـيـر الـمـظـهـر" : "Changer le thème"}</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <UserNav />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className={isRTL ? notoNaskhArabic.className : ""}>
+                <p>{isRTL ? "حـسـابـي" : "Mon compte"}</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </header>
         <div className="flex-1 overflow-x-hidden bg-background">{children}</div>

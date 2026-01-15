@@ -17,7 +17,7 @@ This is a maritime HR management system built with Next.js 15, focusing on manag
 
 ## Technology Stack
 
-- **Framework**: Next.js 15 with App Router and Turbopack support
+- **Framework**: Next.js 16 with App Router and Turbopack support
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth with SSR
 - **UI Components**: shadcn/ui with Radix UI primitives
@@ -58,6 +58,26 @@ The application uses a comprehensive employee management schema with these key t
 
 All employee-related tables are linked via foreign keys to the main `employees` table. The `unite` table manages hierarchical organizational structure with three levels (niveau_1, niveau_2, niveau_3) and categorizes units by type and navigation status.
 
+## Proxy Configuration (Next.js 16)
+
+The project uses Next.js 16's new `proxy.ts` file convention (replaces deprecated `middleware.ts`):
+
+- **File**: `proxy.ts` - Root-level proxy configuration
+- **Runtime**: Node.js (Edge runtime not supported in Next.js 16 proxy)
+- **Function**: `proxy()` - Named export function for request interception
+- **Internationalization**: Uses `next-intl` v4.7.0 with `createMiddleware` from `i18n/routing.ts`
+- **Authentication**: Integrates Supabase session management via `utils/supabase/middleware.ts`
+- **Execution Order**:
+  1. Force login page to French locale (`/fr/auth/login`)
+  2. Handle internationalization (locale detection and routing)
+  3. Update Supabase authentication session
+- **Matcher Pattern**: Excludes static files, API routes, and Next.js internals
+
+**Key Files:**
+- `proxy.ts` - Main proxy configuration
+- `i18n/routing.ts` - Internationalization routing configuration with `defineRouting`
+- `utils/supabase/middleware.ts` - Supabase session update logic with caching
+
 ## Project Structure
 
 - `app/` - Next.js App Router pages and layouts
@@ -87,7 +107,7 @@ All employee-related tables are linked via foreign keys to the main `employees` 
   - `dateUtils.ts` - Date formatting and manipulation utilities
   - `idUtils.ts` - Client-side detection utilities
   - `leave-status-checker.ts` - Leave status validation utilities
-  - `supabase/middleware.ts` - Supabase middleware utilities
+  - `supabase/middleware.ts` - Supabase proxy utilities (authentication session management)
 - `hooks/` - Custom React hooks
   - `useSupabaseData.ts` - Data fetching hooks
   - `use-realtime.ts` - Real-time data synchronization
@@ -111,14 +131,14 @@ All employee-related tables are linked via foreign keys to the main `employees` 
 - **Unit Management**: Organizational unit listing and management system
 - **OptimizedImage**: Custom image component with fallback handling
 - **Real-time Status**: Connection status indicator for real-time features
-- **Authentication**: Protected routes with middleware
+- **Authentication**: Protected routes with proxy (Next.js 16)
 - **Organizational Chart**: Interactive D3.js-based organizational chart with hierarchical visualization
 - **Dashboard Charts**: Multiple chart components for data visualization (area, bar, radial, radar charts)
 
 ## Database Client Usage
 
 - Use `lib/supabase/client.ts` for client-side operations
-- Use `lib/supabase/server.ts` for server-side operations and middleware
+- Use `lib/supabase/server.ts` for server-side operations and proxy
 - The client includes real-time authentication setup
 - Real-time subscriptions are managed through custom hooks and Zustand stores
 - Materialized views for optimized dashboard data (`dashboard_employee_stats`, `dashboard_unite_stats`, `dashboard_affectation_stats`, `dashboard_conges_monthly`, `dashboard_grades_distribution`)
@@ -148,9 +168,10 @@ The application includes specialized data processing utilities:
 
 ## Authentication Flow
 
-- Middleware handles session management across all routes
+- Proxy (Next.js 16) handles session management across all routes
 - Protected routes redirect to `/auth/login`
 - User context maintained throughout the application
+- Internationalization managed with next-intl v4.7.0 using `createMiddleware`
 
 ## UI Patterns
 

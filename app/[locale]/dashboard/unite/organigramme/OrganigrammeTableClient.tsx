@@ -586,7 +586,7 @@ export function OrganigrammeTableClient({ initialUnites }: OrganigrammeTableClie
             </h1>
             <div className="flex items-center gap-4 mt-2">
               <span className="text-sm text-gray-500 dark:text-gray-400 font-noto-naskh-arabic">
-                {unites.length} وحدة
+                {filteredUnites.length} وحدة
               </span>
               <div className="flex items-center gap-2">
                 <div
@@ -746,7 +746,7 @@ export function OrganigrammeTableClient({ initialUnites }: OrganigrammeTableClie
                                 unite.navigante ? "bg-blue-500" : "bg-green-500"
                               }`}
                             />
-                            {unite.navigante ? "بحرية" : "برية"}
+                            {unite.navigante ? "وحدة عائمة" : "وحدة قارة"}
                           </span>
                         </td>
                         <td className="px-6 py-2.5 w-24">

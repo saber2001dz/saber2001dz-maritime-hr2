@@ -210,10 +210,11 @@
       "مباشر": "Actif",
       "غير مباشر": "Inactif",
       "إجازة": "En congés",
-      "Maladie": "Maladie",
-      "Formation": "Formation",
-      "Mission": "En mission",
-      "Abscent": "Absent"
+      "مرض": "Maladie",
+      "تدريب": "Formation",
+      "مهمة": "En mission",
+      "متغيب": "Absent",
+      "موقوف": "Suspendu"
     }
   },
   "NotFoundPage": {

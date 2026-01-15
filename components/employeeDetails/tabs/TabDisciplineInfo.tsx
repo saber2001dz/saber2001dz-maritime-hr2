@@ -113,6 +113,25 @@ interface SanctionData {
   autorite: string
 }
 
+// Fonction pour formater l'affichage des sanctions avec le nombre de jours
+const formatSanctionDisplay = (sanction: EmployeeSanctions): string => {
+  if (!sanction.type_sanction) return ""
+
+  // Types de sanctions qui nécessitent l'affichage du nombre de jours
+  const typesWithDaysDisplay = ["إبقاف بسيط", "إيقاف شديد", "إيقاف عن العمل", "العزل"]
+
+  if (typesWithDaysDisplay.includes(sanction.type_sanction) && sanction.nombre_jour) {
+    const nombreJour = parseInt(sanction.nombre_jour.toString())
+    if (nombreJour > 0) {
+      // Règle de pluriel arabe: أيام pour 3-10, يوم pour les autres
+      const jourWord = (nombreJour >= 3 && nombreJour <= 10) ? "أيام" : "يوم"
+      return `${nombreJour} ${jourWord} ${sanction.type_sanction}`
+    }
+  }
+
+  return sanction.type_sanction
+}
+
 interface RecompenseData {
   id: string
   description: string
@@ -140,7 +159,7 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
     return (
       employeeData.sanctions?.map((sanction: EmployeeSanctions) => ({
         id: sanction.id,
-        description: sanction.type_sanction,
+        description: formatSanctionDisplay(sanction),
         date: sanction.date_sanction,
         motif: sanction.motif,
         autorite: sanction.autorite,
@@ -246,29 +265,29 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
             isRTL={isRTL}
             titleFontClass={titleFontClass}
           >
-            <div className="h-[320px] overflow-y-auto overflow-x-auto">
+            <div className="h-80 overflow-y-auto overflow-x-auto">
               <table className="w-full table-fixed">
                 <thead className="sticky top-0 bg-red-50 dark:bg-gray-800 z-10">
                   <tr className="border-b border-gray-200 dark:border-gray-600">
                     <th
-                      className={`px-3 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[22%] ${cardSubtitleFontClass}`}
+                      className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[22%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "الوصف" : "Description"}
+                      {isRTL ? "العقـــوبــــة" : "Description"}
                     </th>
                     <th
-                      className={`px-3 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[18%] ${cardSubtitleFontClass}`}
+                      className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[18%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "التاريخ" : "Date"}
+                      {isRTL ? "التـــــاريخ" : "Date"}
                     </th>
                     <th
-                      className={`px-3 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[26%] ${cardSubtitleFontClass}`}
+                      className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[26%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "السبب" : "Motif"}
+                      {isRTL ? "الســـــبب" : "Motif"}
                     </th>
                     <th
-                      className={`px-3 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[34%] ${cardSubtitleFontClass}`}
+                      className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[34%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "السلطة" : "Autorité"}
+                      {isRTL ? "السلطــــــة" : "Autorité"}
                     </th>
                   </tr>
                 </thead>
@@ -280,7 +299,7 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
                           className={`px-3 py-4 text-sm text-gray-900 dark:text-white font-medium w-[22%] truncate ${tableNotoFontClass}`}
                         >
                           <div className="flex items-center gap-2">
-                            <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                            <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
                             <span className="truncate">{sanction.description}</span>
                           </div>
                         </td>
@@ -288,7 +307,7 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
                           className={`px-3 py-4 text-sm text-gray-600 dark:text-gray-400 w-[18%] ${tableNotoFontClass}`}
                         >
                           <div className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                            <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                             {formatDate(sanction.date, isRTL)}
                           </div>
                         </td>
@@ -296,7 +315,7 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
                           className={`px-3 py-4 text-sm text-gray-600 dark:text-gray-400 w-[26%] ${tableNotoFontClass}`}
                         >
                           <div className="flex items-center gap-1">
-                            <FileText className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                            <FileText className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                             <span className="line-clamp-2">{sanction.motif}</span>
                           </div>
                         </td>
@@ -304,7 +323,7 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
                           className={`px-3 py-4 text-sm text-gray-600 dark:text-gray-400 w-[34%] truncate ${tableNotoFontClass}`}
                         >
                           <div className="flex items-center gap-1">
-                            <User className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                            <User className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                             {sanction.autorite}
                           </div>
                         </td>
@@ -337,29 +356,29 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
             isRTL={isRTL}
             titleFontClass={titleFontClass}
           >
-            <div className="h-[320px] overflow-y-auto overflow-x-auto">
+            <div className="h-80 overflow-y-auto overflow-x-auto">
               <table className="w-full table-fixed">
                 <thead className="sticky top-0 bg-green-50 dark:bg-gray-800 z-10">
                   <tr className="border-b border-gray-200 dark:border-gray-600">
                     <th
-                      className={`px-3 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[22%] ${cardSubtitleFontClass}`}
+                      className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[22%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "الوصف" : "Description"}
+                      {isRTL ? "المكــافـئــة" : "Description"}
                     </th>
                     <th
-                      className={`px-3 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[18%] ${cardSubtitleFontClass}`}
+                      className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[18%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "التاريخ" : "Date"}
+                      {isRTL ? "التـــــاريخ" : "Date"}
                     </th>
                     <th
-                      className={`px-3 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[26%] ${cardSubtitleFontClass}`}
+                      className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[26%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "السبب" : "Motif"}
+                      {isRTL ? "الســـــبب" : "Motif"}
                     </th>
                     <th
-                      className={`px-3 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[34%] ${cardSubtitleFontClass}`}
+                      className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-[34%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "السلطة" : "Autorité"}
+                      {isRTL ? "السلطــــــة" : "Autorité"}
                     </th>
                   </tr>
                 </thead>
