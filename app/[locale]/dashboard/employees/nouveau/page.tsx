@@ -796,7 +796,7 @@ export default function NewAgentPage() {
                             type="text"
                             value={formData.prenomGrandPere}
                             onChange={(e) => handleInputChange("prenomGrandPere", e.target.value)}
-                            className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                            className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                               isRTL ? "text-right" : ""
                             } ${isRTL ? tableCellFontClass : ""}`}
                             autoComplete="off"
@@ -942,7 +942,7 @@ export default function NewAgentPage() {
                               const value = e.target.value.replace(/\D/g, "")
                               handleInputChange("matricule", value)
                             }}
-                            className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                            className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                               isRTL ? "text-start font-geist-sans text-[15px]" : ""
                             }`}
                             required
@@ -1123,7 +1123,7 @@ export default function NewAgentPage() {
                             const value = e.target.value.replace(/\D/g, "")
                             handleInputChange("cin", value)
                           }}
-                          className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                          className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                             isRTL ? "text-right font-geist-sans text-[15px]" : ""
                           }`}
                           maxLength={8}
@@ -1246,7 +1246,7 @@ export default function NewAgentPage() {
                         <SelectTrigger
                           id="gouvernorat"
                           name="gouvernorat"
-                          className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
+                          className={`w-full h-9! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent ${
                             isRTL ? "text-right font-noto-naskh-arabic font-medium" : ""
                           }`}
                         >

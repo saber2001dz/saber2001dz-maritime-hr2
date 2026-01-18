@@ -96,7 +96,7 @@ export default function NewUnitePage() {
     niveau_1: "",
     niveau_2: "",
     niveau_3: "",
-    navigante: false,
+    navigante: "",
   })
 
   const [secteurOptions, setSecteurOptions] = useState<string[]>([])
@@ -565,16 +565,16 @@ export default function NewUnitePage() {
 
     return (
       <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-2 duration-300">
-        <div className="bg-white dark:bg-[#1C1C1C] border border-amber-200 dark:border-gray-600 rounded-lg shadow-lg p-4 min-w-[320px] max-w-[400px]">
+        <div className="bg-white dark:bg-[#1C1C1C] border border-amber-200 dark:border-gray-600 rounded-lg shadow-lg p-4 min-w-[320px] max-w-100">
           <div className="flex items-start gap-3">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <AlertCircle className="w-5 h-5 text-amber-500" />
             </div>
             <div className="flex-1">
               <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1">{getTitle(message)}</h4>
               <p className="text-sm text-gray-600 dark:text-gray-300">{message}</p>
             </div>
-            <button onClick={onClose} className="flex-shrink-0 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+            <button onClick={onClose} className="shrink-0 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
               <X className="w-4 h-4 text-gray-400" />
             </button>
           </div>
@@ -725,7 +725,7 @@ export default function NewUnitePage() {
                           value={formData.unite}
                           onChange={(e) => handleInputChange("unite", e.target.value)}
                           onBlur={handleUniteNameBlur}
-                          className={`w-full h-[36px] px-2 py-1.5 text-sm border rounded focus:outline-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white ${
+                          className={`w-full h-9 px-2 py-1.5 text-sm border rounded focus:outline-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white ${
                             uniteNameError
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-300 dark:border-[#565656] focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)]"
@@ -753,7 +753,7 @@ export default function NewUnitePage() {
                           autoComplete="off"
                           value={formData.unite_matricule}
                           onChange={(e) => handleInputChange("unite_matricule", e.target.value)}
-                          className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
+                          className="w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
                           placeholder={isRTL ? "مثال : 3501" : "Ex: UNI-001"}
                         />
                         <div className="h-2 mt-0.5"></div>
@@ -774,7 +774,7 @@ export default function NewUnitePage() {
                           <SelectTrigger
                             id="unite_categorie"
                             name="unite_categorie"
-                            className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
+                            className={`w-full h-9! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent ${
                               isRTL ? "text-start" : ""
                             } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
                           >
@@ -806,7 +806,7 @@ export default function NewUnitePage() {
                           <SelectTrigger
                             id="unite_type"
                             name="unite_type"
-                            className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
+                            className={`w-full h-9! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent ${
                               isRTL ? "text-start" : ""
                             } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
                           >
@@ -814,16 +814,16 @@ export default function NewUnitePage() {
                           </SelectTrigger>
                           <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50">
                             <SelectItem
-                              value="Opérationnelle"
+                              value="وحدة نشيطة"
                               className={`px-2 py-1.5 text-[13px] hover:bg-[rgb(236,243,245)] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${isRTL ? 'font-noto-naskh-arabic font-medium' : ''}`}
                             >
-                              {isRTL ? 'عملياتية' : 'Opérationnelle'}
+                              {isRTL ? 'وحدة نشيطة' : 'Opérationnelle'}
                             </SelectItem>
                             <SelectItem
-                              value="Administrative"
+                              value="وحدة إدارية"
                               className={`px-2 py-1.5 text-[13px] hover:bg-[rgb(236,243,245)] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${isRTL ? 'font-noto-naskh-arabic font-medium' : ''}`}
                             >
-                              {isRTL ? 'إدارية' : 'Administrative'}
+                              {isRTL ? 'وحدة إدارية' : 'Administrative'}
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -843,7 +843,7 @@ export default function NewUnitePage() {
                           autoComplete="off"
                           value={formData.unite_classe}
                           onChange={(e) => handleInputChange("unite_classe", e.target.value)}
-                          className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
+                          className="w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
                           placeholder={isRTL ? "مثال : صنف أ" : "Ex: Classe A"}
                         />
                         <div className="h-2 mt-0.5"></div>
@@ -854,13 +854,13 @@ export default function NewUnitePage() {
                         </label>
                         <Select
                           dir={isRTL ? "rtl" : "ltr"}
-                          value={formData.navigante ? "true" : "false"}
-                          onValueChange={(value) => handleInputChange("navigante", value === "true")}
+                          value={formData.navigante}
+                          onValueChange={(value) => handleInputChange("navigante", value)}
                         >
                           <SelectTrigger
                             id="navigante"
                             name="navigante"
-                            className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
+                            className={`w-full h-9! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent ${
                               isRTL ? "text-start" : ""
                             } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
                           >
@@ -882,7 +882,7 @@ export default function NewUnitePage() {
                           </SelectContent>
                         </Select>
                         <p className={`text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>
-                          {isRTL ? 'حدد إذا كانت هذه الوحدة تعمل في البحر' : 'Sélectionnez si cette unité opère en mer'}
+                          {isRTL ? 'حدد إذا كانت هذه الوحدة تعمل في البحر أم لا' : 'Sélectionnez si cette unité opère en mer'}
                         </p>
                       </div>
                     </div>
@@ -899,7 +899,7 @@ export default function NewUnitePage() {
                         autoComplete="off"
                         value={formData.unite_description}
                         onChange={(e) => handleInputChange("unite_description", e.target.value)}
-                        className="w-full h-[60px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] resize-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
+                        className="w-full h-15 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] resize-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
                         placeholder={isRTL ? "وصف تفصيلي للوحدة..." : "Description détaillée de l'unité..."}
                       />
                       <div className="h-4 mt-0.5"></div>
@@ -924,7 +924,7 @@ export default function NewUnitePage() {
                           <SelectTrigger
                             id="niveau_1"
                             name="niveau_1"
-                            className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
+                            className={`w-full h-9! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent ${
                               isRTL ? "text-start" : ""
                             } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
                           >
@@ -956,13 +956,13 @@ export default function NewUnitePage() {
                           <SelectTrigger
                             id="niveau_2"
                             name="niveau_2"
-                            className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
+                            className={`w-full h-9! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent ${
                               isRTL ? "text-start" : ""
                             } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
                           >
                             <SelectValue placeholder={isRTL ? "اختر المستوى الثاني" : "Sélectionnez un secteur/sous direction"} />
                           </SelectTrigger>
-                          <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50 max-h-[300px] overflow-y-auto">
+                          <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50 max-h-75 overflow-y-auto">
                             {secteurOptions.map((secteur) => (
                               <SelectItem
                                 key={secteur}
@@ -992,13 +992,13 @@ export default function NewUnitePage() {
                           <SelectTrigger
                             id="niveau_3"
                             name="niveau_3"
-                            className={`w-full !h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-[placeholder]:text-gray-400 dark:data-[placeholder]:text-[#959594] dark:hover:bg-transparent ${
+                            className={`w-full h-9! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] dark:focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent ${
                               isRTL ? "text-start" : ""
                             } ${isRTL ? "font-noto-naskh-arabic font-medium" : ""}`}
                           >
                             <SelectValue placeholder={isRTL ? "اختر المستوى الثالث" : "Sélectionnez une brigade/service"} />
                           </SelectTrigger>
-                          <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50 max-h-[300px] overflow-y-auto">
+                          <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50 max-h-75 overflow-y-auto">
                             {brigadeOptions.map((brigade) => (
                               <SelectItem
                                 key={brigade}
@@ -1034,7 +1034,7 @@ export default function NewUnitePage() {
                           value={formData.unite_telephone1}
                           onChange={(e) => handleInputChange("unite_telephone1", e.target.value)}
                           onBlur={(e) => handlePhoneBlur("unite_telephone1", e.target.value)}
-                          className={`w-full h-[36px] px-2 py-1.5 text-sm border rounded focus:outline-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white ${
+                          className={`w-full h-9 px-2 py-1.5 text-sm border rounded focus:outline-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white ${
                             phoneErrors.unite_telephone1
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-300 dark:border-[#565656] focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)]"
@@ -1064,7 +1064,7 @@ export default function NewUnitePage() {
                           value={formData.unite_telephone2}
                           onChange={(e) => handleInputChange("unite_telephone2", e.target.value)}
                           onBlur={(e) => handlePhoneBlur("unite_telephone2", e.target.value)}
-                          className={`w-full h-[36px] px-2 py-1.5 text-sm border rounded focus:outline-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white ${
+                          className={`w-full h-9 px-2 py-1.5 text-sm border rounded focus:outline-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white ${
                             phoneErrors.unite_telephone2
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-300 dark:border-[#565656] focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)]"
@@ -1097,7 +1097,7 @@ export default function NewUnitePage() {
                           value={formData.unite_telephone3}
                           onChange={(e) => handleInputChange("unite_telephone3", e.target.value)}
                           onBlur={(e) => handlePhoneBlur("unite_telephone3", e.target.value)}
-                          className={`w-full h-[36px] px-2 py-1.5 text-sm border rounded focus:outline-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white ${
+                          className={`w-full h-9 px-2 py-1.5 text-sm border rounded focus:outline-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white ${
                             phoneErrors.unite_telephone3
                               ? "border-red-500 focus:border-red-500"
                               : "border-gray-300 dark:border-[#565656] focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)]"
@@ -1126,7 +1126,7 @@ export default function NewUnitePage() {
                           autoComplete="off"
                           value={formData.unite_indicatif}
                           onChange={(e) => handleInputChange("unite_indicatif", e.target.value)}
-                          className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
+                          className="w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
                           placeholder={isRTL ? "مثال: TUN-001" : "Ex: TUN-001"}
                         />
                         <div className="h-2 mt-0.5"></div>
@@ -1144,7 +1144,7 @@ export default function NewUnitePage() {
                         autoComplete="off"
                         value={formData.unite_email}
                         onChange={(e) => handleInputChange("unite_email", e.target.value)}
-                        className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
+                        className="w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
                         placeholder={isRTL ? "مثال: unite@garde-cotes.tn" : "Ex: unite@garde-cotes.tn"}
                       />
                       <div className="h-4 mt-0.5"></div>
@@ -1168,7 +1168,7 @@ export default function NewUnitePage() {
                           autoFocus
                           value={formData.unite_batiment}
                           onChange={(e) => handleInputChange("unite_batiment", e.target.value)}
-                          className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
+                          className="w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
                           placeholder={isRTL ? "" : "Ex: Base navale de Bizerte"}
                         />
                         <div className="h-2 mt-0.5"></div>
@@ -1184,7 +1184,7 @@ export default function NewUnitePage() {
                           autoComplete="off"
                           value={formData.unite_port}
                           onChange={(e) => handleInputChange("unite_port", e.target.value)}
-                          className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
+                          className="w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
                           placeholder={isRTL ? "مثال: ميناء بنزرت" : "Ex: Port de Bizerte"}
                         />
                         <div className="h-2 mt-0.5"></div>
@@ -1202,7 +1202,7 @@ export default function NewUnitePage() {
                         autoComplete="off"
                         value={formData.unite_adresse}
                         onChange={(e) => handleInputChange("unite_adresse", e.target.value)}
-                        className="w-full h-[60px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] resize-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
+                        className="w-full h-15 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] resize-none bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
                         placeholder={isRTL ? "العنوان الكامل للوحدة..." : "Adresse complète de l'unité..."}
                       />
                       <div className="h-4 mt-0.5"></div>
@@ -1219,7 +1219,7 @@ export default function NewUnitePage() {
                         autoComplete="off"
                         value={formData.unite_gps}
                         onChange={(e) => handleInputChange("unite_gps", e.target.value)}
-                        className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
+                        className="w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white"
                         placeholder={isRTL ? "مثال: 36.8065,10.1815 (خط العرض،خط الطول)" : "Ex: 36.8065,10.1815 (latitude,longitude)"}
                       />
                       <p className={`text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 ${isRTL ? 'font-noto-naskh-arabic' : ""}`}>

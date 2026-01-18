@@ -99,7 +99,7 @@ const getPageConfig = (t: (key: string) => string) => ({
   },
 })
 
-// Fonction pour générer la configuration des pages dynamiques  
+// Fonction pour générer la configuration des pages dynamiques
 const getDynamicPageConfig = (pathWithoutLocale: string, t: (key: string) => string) => {
   // Gestion de la route /dashboard/employees/details/{id}
   const employeeDetailMatch = pathWithoutLocale.match(/^\/dashboard\/employees\/details\/([^\/]+)$/)
@@ -111,6 +111,20 @@ const getDynamicPageConfig = (pathWithoutLocale: string, t: (key: string) => str
         { label: t('breadcrumbs.personnel'), href: "/dashboard/employees" },
         { label: t('breadcrumbs.personnelList'), href: "/dashboard/employees/table" },
         { label: t('breadcrumbs.agentProfile') },
+      ],
+    }
+  }
+
+  // Gestion de la route /dashboard/unite/details/{id}
+  const uniteDetailMatch = pathWithoutLocale.match(/^\/dashboard\/unite\/details\/([^\/]+)$/)
+  if (uniteDetailMatch) {
+    return {
+      title: t('breadcrumbs.unitProfile'),
+      breadcrumbs: [
+        { label: t('breadcrumbs.maritimeHR'), href: "/dashboard" },
+        { label: t('breadcrumbs.marineUnits'), href: "/dashboard/unite" },
+        { label: t('breadcrumbs.unitsList'), href: "/dashboard/unite/table" },
+        { label: t('breadcrumbs.unitProfile') },
       ],
     }
   }

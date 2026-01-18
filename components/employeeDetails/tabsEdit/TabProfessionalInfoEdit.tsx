@@ -1966,8 +1966,8 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
             </div>
 
             <div className="overflow-x-auto max-h-96 mb-1">
-              <table className="w-full text-sm min-w-[800px] table-fixed">
-                <thead className="bg-gray-100 dark:bg-gray-800 h-[48px]">
+              <table className="w-full text-sm min-w-200 table-fixed">
+                <thead className="bg-gray-100 dark:bg-gray-800 h-12">
                   <tr>
                     <th
                       className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2039,12 +2039,12 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                     </tr>
                   ) : (
                     grades.map((grade, index) => (
-                      <tr key={grade.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-[48px]">
+                      <tr key={grade.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-12">
                         <td className={`px-4 py-2 w-48 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
                           {editingGradeIndex === index ? (
                             <Select value={grade.grade} onValueChange={(value) => updateGrade(index, "grade", value)}>
                               <SelectTrigger
-                                className={`w-full px-3 py-1 text-xs !h-[32px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                className={`w-full px-3 py-1 text-xs h-8! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                   isRTL ? "font-noto-naskh-arabic" : ""
                                 }`}
                               >
@@ -2070,10 +2070,10 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             </Select>
                           ) : (
                             <div
-                              className="truncate h-[32px] flex items-center"
+                              className="truncate h-8 flex items-center"
                               title={grade.grade || (isRTL ? "غير محدد" : "Non défini")}
                             >
-                              <Award className="w-4 h-4 text-blue-600 flex-shrink-0 mr-2" />
+                              <Award className="w-4 h-4 text-blue-600 shrink-0 mr-2" />
                               {grade.grade || (isRTL ? "غير محدد" : "Non défini")}
                             </div>
                           )}
@@ -2090,14 +2090,14 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               >
                                 <DateInput
                                   focusColor="rgb(7,103,132)"
-                                  className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                  className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                     isRTL ? "text-right font-geist-sans text-[15px]" : ""
                                   } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                                 />
                               </DateField>
                             </I18nProvider>
                           ) : (
-                            <div className="h-[32px] flex items-center">{formatDateRTL(grade.date_grade, isRTL)}</div>
+                            <div className="h-8 flex items-center">{formatDateRTL(grade.date_grade, isRTL)}</div>
                           )}
                         </td>
                         <td className={`px-4 py-2 w-32 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
@@ -2112,14 +2112,14 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               >
                                 <DateInput
                                   focusColor="rgb(7,103,132)"
-                                  className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                  className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                     isRTL ? "text-right font-geist-sans text-[15px]" : ""
                                   } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                                 />
                               </DateField>
                             </I18nProvider>
                           ) : (
-                            <div className="h-[32px] flex items-center">{formatDateRTL(grade.date_fin, isRTL)}</div>
+                            <div className="h-8 flex items-center">{formatDateRTL(grade.date_fin, isRTL)}</div>
                           )}
                         </td>
                         <td className={`px-4 py-2 w-36 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
@@ -2128,12 +2128,12 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               type="text"
                               value={grade.reference || ""}
                               onChange={(e) => updateGrade(index, "reference", e.target.value)}
-                              className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                              className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                               placeholder={isRTL ? "المرجع..." : "Référence..."}
                             />
                           ) : (
                             <div
-                              className="truncate h-[32px] flex items-center"
+                              className="truncate h-8 flex items-center"
                               title={grade.reference || (isRTL ? "غير محددة" : isRTL ? "غير محددة" : "Non définie")}
                             >
                               {grade.reference || (isRTL ? "غير محددة" : isRTL ? "غير محددة" : "Non définie")}
@@ -2252,8 +2252,8 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
             </div>
 
             <div className="overflow-x-auto max-h-96 mb-1">
-              <table className="w-full text-sm min-w-[800px] table-fixed">
-                <thead className="bg-gray-100 dark:bg-gray-800 h-[48px]">
+              <table className="w-full text-sm min-w-200 table-fixed">
+                <thead className="bg-gray-100 dark:bg-gray-800 h-12">
                   <tr>
                     <th
                       className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2328,7 +2328,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       .map((fonction, index) => ({ fonction, originalIndex: index }))
                       .map(({ fonction, originalIndex }) => {
                         return (
-                          <tr key={fonction.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-[48px]">
+                          <tr key={fonction.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-12">
                             <td className={`px-4 py-2 w-44 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
                               {editingFonctionIndex === originalIndex ? (
                                 <Select
@@ -2336,7 +2336,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                                   onValueChange={(value) => updateFonction(originalIndex, "fonction", value)}
                                 >
                                   <SelectTrigger
-                                    className={`w-full px-3 py-1 text-xs !h-[32px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                    className={`w-full px-3 py-1 text-xs h-8! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                       isRTL ? "font-noto-naskh-arabic" : ""
                                     }`}
                                   >
@@ -2364,12 +2364,12 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                                 </Select>
                               ) : (
                                 <div
-                                  className="truncate h-[32px] flex items-center"
+                                  className="truncate h-8 flex items-center"
                                   title={
                                     fonction.fonction || (isRTL ? "غير محددة" : isRTL ? "غير محددة" : "Non définie")
                                   }
                                 >
-                                  <Briefcase className="w-4 h-4 text-blue-600 flex-shrink-0 mr-2" />
+                                  <Briefcase className="w-4 h-4 text-blue-600 shrink-0 mr-2" />
                                   {fonction.fonction || (isRTL ? "غير محددة" : isRTL ? "غير محددة" : "Non définie")}
                                 </div>
                               )}
@@ -2390,14 +2390,14 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                                   >
                                     <DateInput
                                       focusColor="rgb(7,103,132)"
-                                      className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                      className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                         isRTL ? "text-right font-geist-sans text-[15px]" : ""
                                       } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                                     />
                                   </DateField>
                                 </I18nProvider>
                               ) : (
-                                <div className="h-[32px] flex items-center">
+                                <div className="h-8 flex items-center">
                                   {formatDateRTL(fonction.date_obtention_fonction, isRTL)}
                                 </div>
                               )}
@@ -2414,14 +2414,14 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                                   >
                                     <DateInput
                                       focusColor="rgb(7,103,132)"
-                                      className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                      className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                         isRTL ? "text-right font-geist-sans text-[15px]" : ""
                                       } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                                     />
                                   </DateField>
                                 </I18nProvider>
                               ) : (
-                                <div className="h-[32px] flex items-center">
+                                <div className="h-8 flex items-center">
                                   {formatDateRTL(fonction.date_fin, isRTL)}
                                 </div>
                               )}
@@ -2432,12 +2432,12 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                                   type="text"
                                   value={fonction.reference || ""}
                                   onChange={(e) => updateFonction(originalIndex, "reference", e.target.value)}
-                                  className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                                  className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                                   placeholder={isRTL ? "المرجع..." : "Référence..."}
                                 />
                               ) : (
                                 <div
-                                  className="truncate h-[32px] flex items-center"
+                                  className="truncate h-8 flex items-center"
                                   title={
                                     fonction.reference || (isRTL ? "غير محددة" : isRTL ? "غير محددة" : "Non définie")
                                   }
@@ -2549,8 +2549,8 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
             </div>
 
             <div className="overflow-x-auto max-h-96 mb-1">
-              <table className="w-full text-sm min-w-[1000px] table-fixed">
-                <thead className="bg-gray-100 dark:bg-gray-800 h-[48px]">
+              <table className="w-full text-sm min-w-250 table-fixed">
+                <thead className="bg-gray-100 dark:bg-gray-800 h-12">
                   <tr>
                     <th
                       className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2620,7 +2620,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                     </tr>
                   ) : (
                     affectations.map((affectation, index) => (
-                      <tr key={affectation.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-[48px]">
+                      <tr key={affectation.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-12">
                         <td className={`px-4 py-2 w-60 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
                           {editingAffectationIndex === index ? (
                             <SearchableSelect
@@ -2638,10 +2638,10 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             />
                           ) : (
                             <div
-                              className="truncate h-[32px] flex items-center"
+                              className="truncate h-8 flex items-center"
                               title={affectation.unite || (isRTL ? "غير محددة" : isRTL ? "غير محددة" : "Non définie")}
                             >
-                              <ClipboardList className="w-4 h-4 text-blue-600 flex-shrink-0 ml-2" />
+                              <ClipboardList className="w-4 h-4 text-blue-600 shrink-0 ml-2" />
                               {affectation.unite || (isRTL ? "غير محددة" : isRTL ? "غير محددة" : "Non définie")}
                             </div>
                           )}
@@ -2649,11 +2649,12 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                         <td className={`px-4 py-2 w-36 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
                           {editingAffectationIndex === index ? (
                             <Select
+                              dir={isRTL ? "rtl" : "ltr"}
                               value={affectation.responsibility}
                               onValueChange={(value) => updateAffectation(index, "responsibility", value)}
                             >
                               <SelectTrigger
-                                className={`w-full px-3 py-1 text-xs !h-[32px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                className={`w-full px-3 py-1 text-xs h-8! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                   isRTL ? "font-noto-naskh-arabic" : ""
                                 }`}
                               >
@@ -2698,7 +2699,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               </SelectContent>
                             </Select>
                           ) : (
-                            <div className="h-[32px] flex items-center">
+                            <div className="h-8 flex items-center">
                               {affectation.responsibility ||
                                 (isRTL ? "غير محددة" : isRTL ? "غير محددة" : "Non définie")}
                             </div>
@@ -2718,14 +2719,14 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               >
                                 <DateInput
                                   focusColor="rgb(7,103,132)"
-                                  className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                  className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                     isRTL ? "text-right font-geist-sans text-[15px]" : ""
                                   } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                                 />
                               </DateField>
                             </I18nProvider>
                           ) : (
-                            <div className="h-[32px] flex items-center">
+                            <div className="h-8 flex items-center">
                               {formatDateRTL(affectation.date_responsabilite, isRTL)}
                             </div>
                           )}
@@ -2742,14 +2743,14 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               >
                                 <DateInput
                                   focusColor="rgb(7,103,132)"
-                                  className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                  className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                     isRTL ? "text-right font-geist-sans text-[15px]" : ""
                                   } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                                 />
                               </DateField>
                             </I18nProvider>
                           ) : (
-                            <div className="h-[32px] flex items-center">
+                            <div className="h-8 flex items-center">
                               {formatDateRTL(affectation.date_fin, isRTL)}
                             </div>
                           )}
@@ -2760,12 +2761,12 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               type="text"
                               value={affectation.telex_debut || ""}
                               onChange={(e) => updateAffectation(index, "telex_debut", e.target.value)}
-                              className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                              className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                               placeholder={isRTL ? "التلكس..." : "Télex..."}
                             />
                           ) : (
                             <div
-                              className="truncate h-[32px] flex items-center"
+                              className="truncate h-8 flex items-center"
                               title={affectation.telex_debut || (isRTL ? "غير محدد" : "Non défini")}
                             >
                               {affectation.telex_debut || (isRTL ? "غير محدد" : "Non défini")}
@@ -2876,8 +2877,8 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
             </div>
 
             <div className="overflow-x-auto max-h-96 mb-1">
-              <table className="w-full text-sm min-w-[1000px] table-fixed">
-                <thead className="bg-gray-100 dark:bg-gray-800 h-[48px]">
+              <table className="w-full text-sm min-w-250 table-fixed">
+                <thead className="bg-gray-100 dark:bg-gray-800 h-12">
                   <tr>
                     <th
                       className={`px-4 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2956,18 +2957,18 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                     banques.map((banque, index) => (
                       <tr
                         key={banque.id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors h-[48px]"
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors h-12"
                       >
                         <td className="px-4 py-2 w-20 align-middle">
                           {(() => {
                             const selectedBank = banquesList.find((bank) => bank.banque_nom === banque.banque)
                             if (selectedBank?.banque_logo) {
                               return (
-                                <div className="h-[32px] flex items-center justify-center">
+                                <div className="h-8 flex items-center justify-center">
                                   <img
                                     src={selectedBank.banque_logo}
                                     alt={banque.banque || "Logo banque"}
-                                    className="h-6 w-auto max-w-[60px] object-contain"
+                                    className="h-6 w-auto max-w-15 object-contain"
                                     onError={(e) => {
                                       e.currentTarget.style.display = "none"
                                     }}
@@ -2976,7 +2977,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               )
                             }
                             return (
-                              <div className="h-[32px] flex items-center justify-center">
+                              <div className="h-8 flex items-center justify-center">
                                 <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center">
                                   <CreditCard className="w-3 h-3 text-gray-400 dark:text-gray-500" />
                                 </div>
@@ -2991,7 +2992,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               onValueChange={(value) => updateBanque(index, "banque", value)}
                             >
                               <SelectTrigger
-                                className={`w-full px-3 py-1 text-xs !h-[32px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                className={`w-full px-3 py-1 text-xs h-8! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                   isRTL ? "font-noto-naskh-arabic" : ""
                                 }`}
                               >
@@ -3017,10 +3018,10 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             </Select>
                           ) : (
                             <div
-                              className="truncate h-[32px] flex items-center gap-2"
+                              className="truncate h-8 flex items-center gap-2"
                               title={banque.banque || (isRTL ? "غير محددة" : "Non définie")}
                             >
-                              <CreditCard className={`w-4 h-4 text-blue-600 flex-shrink-0`} />
+                              <CreditCard className={`w-4 h-4 text-blue-600 shrink-0`} />
                               {banque.banque || (isRTL ? "غير محددة" : "Non définie")}
                             </div>
                           )}
@@ -3031,11 +3032,11 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               type="text"
                               value={banque.agence}
                               onChange={(e) => updateBanque(index, "agence", e.target.value)}
-                              className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                              className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                               placeholder={isRTL ? "الفــــرع..." : "Agence..."}
                             />
                           ) : (
-                            <div className="h-[32px] flex items-center">
+                            <div className="h-8 flex items-center">
                               {banque.agence || (isRTL ? "غير محددة" : "Non définie")}
                             </div>
                           )}
@@ -3046,13 +3047,13 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               type="text"
                               value={banque.rib}
                               onChange={(e) => updateBanque(index, "rib", e.target.value)}
-                              className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                              className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                               placeholder={isRTL ? "رقم الحساب البنكي..." : "Numéro RIB..."}
                               maxLength={20}
                             />
                           ) : (
                             <div
-                              className="h-[32px] flex items-center font-mono text-xs truncate"
+                              className="h-8 flex items-center font-mono text-xs truncate"
                               title={banque.rib || (isRTL ? "غير محدد" : "Non défini")}
                             >
                               {banque.rib || (isRTL ? "غير محدد" : "Non défini")}
@@ -3061,16 +3062,16 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                         </td>
                         <td className="px-4 py-2 w-24 align-middle">
                           {editingBanqueIndex === index ? (
-                            <div className="flex items-center h-[32px]">
+                            <div className="flex items-center h-8">
                               <Switch
                                 isSelected={banque.compte_statut}
                                 onChange={(isSelected: boolean) => updateBanque(index, "compte_statut", isSelected)}
-                                className="flex-shrink-0 scale-75"
+                                className="shrink-0 scale-75"
                                 customColor="#076784"
                               />
                             </div>
                           ) : (
-                            <div className="h-[32px] flex items-center">
+                            <div className="h-8 flex items-center">
                               <span
                                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                                   isRTL ? "font-noto-naskh-arabic" : ""
@@ -3185,8 +3186,8 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
             </div>
 
             <div className="overflow-x-auto max-h-96 mb-1">
-              <table className="w-full text-sm min-w-[600px] table-fixed">
-                <thead className="bg-gray-100 dark:bg-gray-800 h-[48px]">
+              <table className="w-full text-sm min-w-150 table-fixed">
+                <thead className="bg-gray-100 dark:bg-gray-800 h-12">
                   <tr>
                     <th
                       className={`px-4 py-2 text-start text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${cardSubtitleFontClass}`}
@@ -3242,21 +3243,21 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                     rendements
                       .map((rendement, index) => ({ rendement, originalIndex: index }))
                       .map(({ rendement, originalIndex }) => (
-                        <tr key={rendement.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-[48px]">
+                        <tr key={rendement.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-12">
                           <td className={`px-4 py-2 w-30 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
                             {editingRendementIndex === originalIndex ? (
                               <input
                                 type="number"
                                 value={rendement.annee || ""}
                                 onChange={(e) => updateRendement(originalIndex, "annee", parseInt(e.target.value) || 0)}
-                                className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                                className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                                 min="2000"
                                 max="2100"
                                 placeholder="السنة"
                               />
                             ) : (
-                              <div className="h-[32px] flex items-center">
-                                <Calendar className="w-4 h-4 text-blue-600 flex-shrink-0 ml-2" />
+                              <div className="h-8 flex items-center">
+                                <Calendar className="w-4 h-4 text-blue-600 shrink-0 ml-2" />
                                 {rendement.annee || "غير محدد"}
                               </div>
                             )}
@@ -3271,7 +3272,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                                 }
                               >
                                 <SelectTrigger
-                                  className={`w-full px-3 py-1 text-xs !h-[32px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                                  className={`w-full px-3 py-1 text-xs h-8! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                     isRTL ? "font-noto-naskh-arabic" : ""
                                   }`}
                                 >
@@ -3318,7 +3319,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                                 </SelectContent>
                               </Select>
                             ) : (
-                              <div className="h-[32px] flex items-center">
+                              <div className="h-8 flex items-center">
                                 {rendement.trimestre ? `الثلاثية ${rendement.trimestre}` : "غير محدد"}
                               </div>
                             )}
@@ -3334,11 +3335,11 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                                 onChange={(e) =>
                                   updateRendement(originalIndex, "rendement_note", parseInt(e.target.value) || 0)
                                 }
-                                className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                                className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                                 placeholder="العـدد  (0-100)"
                               />
                             ) : (
-                              <div className="h-[32px] flex items-center">
+                              <div className="h-8 flex items-center">
                                 <span
                                   className={`px-2 py-1 rounded-md text-xs font-medium ${cardSubtitleFontClass} ${
                                     (rendement.rendement_note ?? 0) >= 80
@@ -3466,8 +3467,8 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
             </div>
 
             <div className="overflow-x-auto max-h-96 mb-1">
-              <table className="w-full text-sm min-w-[500px] table-fixed">
-                <thead className="bg-gray-100 dark:bg-gray-800 h-[48px]">
+              <table className="w-full text-sm min-w-125 table-fixed">
+                <thead className="bg-gray-100 dark:bg-gray-800 h-12">
                   <tr>
                     <th
                       className={`px-4 py-2 text-start text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${cardSubtitleFontClass}`}
@@ -3520,21 +3521,21 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                     </tr>
                   ) : (
                     notesAnnuelles.map((noteAnnuelle, index) => (
-                      <tr key={noteAnnuelle.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-[48px]">
+                      <tr key={noteAnnuelle.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-12">
                         <td className={`px-4 py-2 w-35 align-middle ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
                           {editingNoteAnnuelleIndex === index ? (
                             <input
                               type="number"
                               value={noteAnnuelle.annee || ""}
                               onChange={(e) => updateNoteAnnuelle(index, "annee", parseInt(e.target.value) || 0)}
-                              className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                              className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                               min="2000"
                               max="2100"
                               placeholder="السنة"
                             />
                           ) : (
-                            <div className="h-[32px] flex items-center">
-                              <Calendar className="w-4 h-4 text-blue-600 flex-shrink-0 ml-2" />
+                            <div className="h-8 flex items-center">
+                              <Calendar className="w-4 h-4 text-blue-600 shrink-0 ml-2" />
                               {noteAnnuelle.annee || "غير محدد"}
                             </div>
                           )}
@@ -3550,11 +3551,11 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                               onChange={(e) =>
                                 updateNoteAnnuelle(index, "note_annuelle", parseInt(e.target.value) || 0)
                               }
-                              className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                              className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                               placeholder="العـدد (0-100)"
                             />
                           ) : (
-                            <div className="h-[32px] flex items-center">
+                            <div className="h-8 flex items-center">
                               <span
                                 className={`px-2 py-1 rounded-md text-xs font-medium ${cardSubtitleFontClass} ${
                                   (noteAnnuelle.note_annuelle || 0) >= 80

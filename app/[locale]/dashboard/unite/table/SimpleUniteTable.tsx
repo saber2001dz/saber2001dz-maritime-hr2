@@ -195,11 +195,15 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
     if (savedParams) {
       const urlParams = new URLSearchParams(savedParams)
       const urlSearchTerm = urlParams.get("search") || ""
+      const urlNatureFilter = urlParams.get("nature") || ""
+      const urlCategorieFilter = urlParams.get("categorie") || ""
       const urlSortKey = urlParams.get("sortKey") as SortKey
       const urlSortDirection = urlParams.get("sortDirection") as SortDirection
       const urlPage = parseInt(urlParams.get("page") || "1")
 
       setSearchTerm(urlSearchTerm)
+      setNatureFilter(urlNatureFilter)
+      setCategorieFilter(urlCategorieFilter)
       setCurrentPage(urlPage)
 
       if (urlSortKey && urlSortDirection) {
@@ -416,6 +420,8 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
 
     const params = new URLSearchParams()
     if (searchTerm) params.set("search", searchTerm)
+    if (natureFilter) params.set("nature", natureFilter)
+    if (categorieFilter) params.set("categorie", categorieFilter)
     if (sortConfig.key && sortConfig.key !== null) {
       params.set("sortKey", sortConfig.key)
       params.set("sortDirection", sortConfig.direction)
@@ -423,7 +429,7 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
     if (currentPage > 1) params.set("page", currentPage.toString())
 
     sessionStorage.setItem("uniteTableParams", params.toString())
-  }, [searchTerm, sortConfig, currentPage])
+  }, [searchTerm, natureFilter, categorieFilter, sortConfig, currentPage])
 
   // Fonction pour sauvegarder l'état actuel avec position de scroll (pour les clics de navigation)
   const saveCurrentParams = useCallback(() => {
@@ -431,6 +437,8 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
 
     const params = new URLSearchParams()
     if (searchTerm) params.set("search", searchTerm)
+    if (natureFilter) params.set("nature", natureFilter)
+    if (categorieFilter) params.set("categorie", categorieFilter)
     if (sortConfig.key && sortConfig.key !== null) {
       params.set("sortKey", sortConfig.key)
       params.set("sortDirection", sortConfig.direction)
@@ -440,7 +448,7 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
     // Sauvegarder la position de scroll
     sessionStorage.setItem("scrollPosition", window.scrollY.toString())
     sessionStorage.setItem("uniteTableParams", params.toString())
-  }, [searchTerm, sortConfig, currentPage])
+  }, [searchTerm, natureFilter, categorieFilter, sortConfig, currentPage])
 
   // Reset page when searching or filtering
   useEffect(() => {

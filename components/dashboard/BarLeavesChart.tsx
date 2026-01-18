@@ -93,14 +93,14 @@ export function BarLeavesChart({ data, isLoading, rtl = false }: BarGraphProps) 
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-[320px] w-full">
+      <div className="flex items-center justify-center h-80 w-full">
         <div className="text-muted-foreground">Chargement des données...</div>
       </div>
     )
   }
 
   return (
-    <ChartContainer config={chartConfig} className="aspect-auto h-[320px] w-full">
+    <ChartContainer config={chartConfig} className="aspect-auto h-80 w-full">
       <BarChart
         data={chartData}
         margin={{

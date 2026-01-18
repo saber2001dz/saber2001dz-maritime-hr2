@@ -61,43 +61,42 @@ export function determineTrendType(percentageChange: number, hasData: boolean): 
  * Formate le texte de changement selon la langue et le type de tendance
  */
 export function formatTrendText(
-  changeType: TrendChangeType, 
-  isRTL: boolean,
-  t: (key: string) => string
+  changeType: TrendChangeType,
+  isRTL: boolean
 ): TrendTextFormat {
   switch (changeType) {
     case 'increase':
       return {
-        changeText: isRTL 
-          ? `${t("dashboard.employeeStatistics.increase")} ${t("dashboard.employeeStatistics.vsLastMonth")}`
+        changeText: isRTL
+          ? "زيادة مقارنة بالشهر الماضي :"
           : "Augmentation de",
         changeTextEnd: isRTL ? "" : "vs mois dernier"
       }
-    
+
     case 'decrease':
       return {
         changeText: isRTL
-          ? `${t("dashboard.employeeStatistics.decrease")} ${t("dashboard.employeeStatistics.vsLastMonth")}`
+          ? "انخفاض مقارنة بالشهر الماضي :"
           : "Diminution de",
         changeTextEnd: isRTL ? "" : "vs mois dernier"
       }
-    
+
     case 'stable':
       return {
         changeText: isRTL
-          ? t("dashboard.employeeStatistics.stableVsLastMonth")
+          ? "مستقر مقارنة بالشهر الماضي"
           : "Stable par rapport",
         changeTextEnd: isRTL ? "" : "au mois dernier"
       }
-    
+
     case 'no_data':
       return {
         changeText: isRTL
-          ? t("dashboard.employeeStatistics.newDataAvailable")
+          ? "بيانات جديدة متاحة"
           : "Nouvelles données",
         changeTextEnd: isRTL ? "" : "disponibles"
       }
-    
+
     default:
       return { changeText: "", changeTextEnd: "" }
   }
@@ -107,15 +106,14 @@ export function formatTrendText(
  * Calcule les données de tendance pour une métrique spécifique
  */
 export function calculateTrendData(
-  currentValue: number, 
+  currentValue: number,
   previousValue: number | null,
-  isRTL: boolean,
-  t: (key: string) => string
+  isRTL: boolean
 ): TrendData {
   const hasData = previousValue !== null
-  
+
   if (!hasData) {
-    const { changeText, changeTextEnd } = formatTrendText('no_data', isRTL, t)
+    const { changeText, changeTextEnd } = formatTrendText('no_data', isRTL)
     return {
       changeType: 'no_data',
       changeValue: '',
@@ -125,11 +123,11 @@ export function calculateTrendData(
       previousValue: null
     }
   }
-  
+
   const percentageChange = calculatePercentageChange(currentValue, previousValue!)
   const changeType = determineTrendType(percentageChange, hasData)
-  const { changeText, changeTextEnd } = formatTrendText(changeType, isRTL, t)
-  
+  const { changeText, changeTextEnd } = formatTrendText(changeType, isRTL)
+
   return {
     changeType,
     changeValue: changeType === 'stable' ? '' : `${Math.abs(percentageChange).toFixed(1)}%`,
@@ -146,27 +144,23 @@ export function calculateTrendData(
 export function calculateEmployeeTrends(
   currentStats: CurrentEmployeeStats,
   previousStats: PreviousEmployeeStats | null,
-  isRTL: boolean,
-  t: (key: string) => string
+  isRTL: boolean
 ): EmployeeTrends {
   return {
     conges: calculateTrendData(
       currentStats.conges,
       previousStats?.conges || null,
-      isRTL,
-      t
+      isRTL
     ),
     administrative: calculateTrendData(
       currentStats.administrative,
       previousStats?.administrative || null,
-      isRTL,
-      t
+      isRTL
     ),
     operational: calculateTrendData(
       currentStats.operational,
       previousStats?.operational || null,
-      isRTL,
-      t
+      isRTL
     )
   }
 }

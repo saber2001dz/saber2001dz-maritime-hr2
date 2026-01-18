@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Read(//private/var/folders/p5/gkr1zwm928x8h_4fsvmvf_400000gn/T/claude/-Users-saberyounes-Downloads-maritime-hr2-copie/tasks/**)"
+      "Read(//private/var/folders/p5/gkr1zwm928x8h_4fsvmvf_400000gn/T/claude/-Users-saberyounes-Downloads-maritime-hr2-copie/tasks/**)",
+      "Bash(git diff:*)"
     ]
   }
 }

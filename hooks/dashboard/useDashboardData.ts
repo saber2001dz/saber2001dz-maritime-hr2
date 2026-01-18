@@ -601,7 +601,7 @@ const fetchEmployeeTrends = async (isRTL: boolean, t: (key: string) => string) =
     }
     
     // Calculer les tendances
-    const trends = calculateEmployeeTrends(currentStats, previousStats, isRTL, t)
+    const trends = calculateEmployeeTrends(currentStats, previousStats, isRTL)
     
     console.log('📊 Tendances calculées:', {
       currentDate: currentDateStr,

@@ -226,7 +226,7 @@ function TabsComponent({
       </div>
 
       {/* Content des onglets */}
-      <div className="h-[320px]">
+      <div className="h-80">
         {activeTab === "grades" && (
           <div className="h-full overflow-y-auto overflow-x-auto">
             {grades.length === 0 ? (
@@ -837,27 +837,13 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
     setActiveDialog(null)
   }
 
-  // Calcul de la date de fin de contrat
-  const calculateEndContractDate = useMemo(() => {
-    if (!employee.date_naissance) return null
-    try {
-      const birthDate = new Date(employee.date_naissance)
-      if (isNaN(birthDate.getTime())) return null
-      const endDate = new Date(birthDate)
-      const prolongationYears = Number(employee.prolongation_retraite) || 0
-      endDate.setFullYear(birthDate.getFullYear() + 57 + prolongationYears)
-      return endDate.toISOString().split("T")[0]
-    } catch {
-      return null
-    }
-  }, [employee.date_naissance, employee.prolongation_retraite])
-
   // Fonction pour calculer le pourcentage du contrat écoulé
+  // Utilise employee.date_retraite calculée automatiquement côté base de données
   const calculateContractProgress = useMemo(() => {
-    if (!employee.date_recrutement || !calculateEndContractDate) return 0
+    if (!employee.date_recrutement || !employee.date_retraite) return 0
     try {
       const startDate = new Date(employee.date_recrutement)
-      const endDate = new Date(calculateEndContractDate)
+      const endDate = new Date(employee.date_retraite)
       const currentDate = new Date()
       if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return 0
       const totalDuration = endDate.getTime() - startDate.getTime()
@@ -867,7 +853,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
     } catch {
       return 0
     }
-  }, [employee.date_recrutement, calculateEndContractDate])
+  }, [employee.date_recrutement, employee.date_retraite])
 
   // Formatage du grade avec la date (inspiré de formatMaritalStatus)
   const formatGradeWithDate = () => {
@@ -910,9 +896,10 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
   }
 
   // Calcul de la durée restante avant expiration du contrat
+  // Utilise employee.date_retraite calculée automatiquement côté base de données
   const calculateRemainingContractDuration = useMemo(() => {
-    return calculateRemainingDuration(calculateEndContractDate, isRTL)
-  }, [calculateEndContractDate, isRTL])
+    return calculateRemainingDuration(employee.date_retraite, isRTL)
+  }, [employee.date_retraite, isRTL])
 
   // Calcul de l'ancienneté totale
   const calculateTotalSeniority = useMemo(() => {
@@ -961,7 +948,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
           <div className="flex justify-between items-center mb-3">
             <div>
               <p className={`text-gray-500 dark:text-gray-400 text-sm ${cardSubtitleFontClass}`}>
-                {isRTL ? "تاريخ الإنتداب" : "Début du contrat"}
+                {isRTL ? "تـاريـخ الإنتــــداب" : "Début du contrat"}
               </p>
               <p className={`text-gray-900 dark:text-gray-300 font-medium mt-2 ${jazeeraFontClass}`}>
                 {formatDate(employee.date_recrutement, isRTL)}
@@ -970,10 +957,10 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
             <span className="text-gray-400">{isRTL ? "←" : "→"}</span>
             <div>
               <p className={`text-gray-500 dark:text-gray-400 text-sm ${cardSubtitleFontClass}`}>
-                {isRTL ? "نهاية العقد" : "Fin du contrat"}
+                {isRTL ? "تـاريـخ الإحـالـة على التقـاعـد" : "Fin du contrat"}
               </p>
               <p className={`text-gray-900 dark:text-gray-300 font-medium mt-2 ${jazeeraFontClass}`}>
-                {formatDate(calculateEndContractDate, isRTL)}
+                {formatDate(employee.date_retraite, isRTL)}
               </p>
             </div>
             <div className="flex space-x-2">
@@ -1122,7 +1109,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                   <PopoverTrigger asChild>
                     <Eye className="w-4 h-4 cursor-pointer text-[#076784]" />
                   </PopoverTrigger>
-                  <PopoverContent className="w-[1000px] bg-white dark:bg-[#1C1C1C]" align="end">
+                  <PopoverContent className="w-250 bg-white dark:bg-[#1C1C1C]" align="end">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className={`text-lg font-semibold text-[#076784] ${titleFontClass}`}>
                         {isRTL ? "جميع التعيينات" : "Toutes les Affectations"}
@@ -1132,7 +1119,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                       </PopoverClose>
                     </div>
 
-                    <div className="max-h-[400px] overflow-y-auto overflow-x-auto">
+                    <div className="max-h-100 overflow-y-auto overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead className="sticky top-0 bg-gray-100 dark:bg-gray-800 z-10">
                           <tr>
@@ -1316,7 +1303,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                   <PopoverTrigger asChild>
                     <Eye className="w-4 h-4 cursor-pointer text-[#076784]" />
                   </PopoverTrigger>
-                  <PopoverContent className="w-[800px] bg-white dark:bg-[#1C1C1C]" align="end">
+                  <PopoverContent className="w-200 bg-white dark:bg-[#1C1C1C]" align="end">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className={`text-lg font-semibold text-[#076784] ${titleFontClass}`}>
                         {isRTL ? "الحسابات المصرفية" : "Comptes Bancaires"}
@@ -1326,7 +1313,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                       </PopoverClose>
                     </div>
 
-                    <div className="max-h-[400px] overflow-y-auto overflow-x-auto">
+                    <div className="max-h-100 overflow-y-auto overflow-x-auto">
                       <table className="w-full text-xs table-fixed">
                         <thead className="sticky top-0 bg-gray-100 dark:bg-gray-800 z-10">
                           <tr>

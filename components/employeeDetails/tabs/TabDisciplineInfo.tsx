@@ -390,7 +390,7 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
                           className={`px-3 py-4 text-sm text-gray-900 dark:text-white font-medium w-[22%] truncate ${tableNotoFontClass}`}
                         >
                           <div className="flex items-center gap-2">
-                            <Award className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <Award className="w-4 h-4 text-green-600 shrink-0" />
                             <span className="truncate">{recompense.description}</span>
                           </div>
                         </td>
@@ -398,7 +398,7 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
                           className={`px-3 py-4 text-sm text-gray-600 dark:text-gray-400 w-[18%] ${tableNotoFontClass}`}
                         >
                           <div className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                            <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                             {formatDate(recompense.date, isRTL)}
                           </div>
                         </td>
@@ -406,7 +406,7 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
                           className={`px-3 py-4 text-sm text-gray-600 dark:text-gray-400 w-[26%] ${tableNotoFontClass}`}
                         >
                           <div className="flex items-center gap-1">
-                            <FileText className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                            <FileText className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                             <span className="line-clamp-2">{recompense.motif}</span>
                           </div>
                         </td>
@@ -414,7 +414,7 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
                           className={`px-3 py-4 text-sm text-gray-600 dark:text-gray-400 w-[34%] truncate ${tableNotoFontClass}`}
                         >
                           <div className="flex items-center gap-1">
-                            <User className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                            <User className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                             {recompense.autorite}
                           </div>
                         </td>

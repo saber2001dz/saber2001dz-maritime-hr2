@@ -34,6 +34,7 @@ export interface Employee {
   etat_civil: string
   date_recrutement: string
   prolongation_retraite: number
+  date_retraite?: string
   unite_actuelle?: string
   affectation_actuel?: string
   grade_actuel?: string

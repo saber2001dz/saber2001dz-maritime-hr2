@@ -43,8 +43,8 @@ function useNavigationData() {
             url: `/${locale}/dashboard/employees/table`,
           },
           {
-            title: "مـوظفــون في مهــام",
-            url: "#",
+            title: "بـــــاب التـقـــاعـــــــد",
+            url: `/${locale}/dashboard/employees/retraite`,
           },
           {
             title: "متابعــة الـوضعيـــات",
@@ -99,16 +99,16 @@ function useNavigationData() {
         ],
       },
       {
-        title: "بـــــــــاب الإجازات",
+        title: "حــركــــة النـقـــــل",
         url: "#",
         icon: Settings2,
         items: [
           {
-            title: t("leaveStatistics"),
+            title: "طلبـــات النـقــل",
             url: "#",
           },
           {
-            title: t("leaveTracking"),
+            title: "قـائمــــة النـقــل",
             url: "#",
           },
         ],

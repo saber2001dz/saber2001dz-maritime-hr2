@@ -107,6 +107,7 @@ export const processEmployeeData = (emp: RawEmployeeData): DisplayEmployee => {
     currentGradeDate: currentGradeDate,
     recruitmentDate: emp.date_recrutement || null,
     hierarchyLevel: hierarchyLevel,
+    dateRetraite: emp.date_retraite || null,
   }
 }
 
@@ -121,7 +122,7 @@ export const EMPLOYEE_FULL_SELECT_QUERY = `
 
 // Requête optimisée pour la liste/table des employés (données essentielles seulement)
 export const EMPLOYEE_LIST_SELECT_QUERY = `
-  id, prenom, nom, sexe, matricule, actif, identifiant_unique, date_recrutement,
+  id, prenom, nom, sexe, matricule, actif, identifiant_unique, date_recrutement, date_retraite,
   grade_actuel, date_grade, unite_actuelle, affectation_actuel, date_affectation, hierarchy_level,
   employee_photos (photo_url)
 `
@@ -141,7 +142,15 @@ interface SortableEmployee {
 // Fonction centralisée de tri hiérarchique des employés selon les critères spécifiés
 export const sortEmployeesByHierarchy = <T extends SortableEmployee>(employees: T[]): T[] => {
   return [...employees].sort((a, b) => {
-    // 1. Tri croissant par hierarchy_level (plus petit = plus haut dans la hiérarchie)
+    // 1. Tri par grade (du plus haut au plus bas)
+    const gradeRankA = getGradeRank(a.latestGradeRaw || "")
+    const gradeRankB = getGradeRank(b.latestGradeRaw || "")
+
+    if (gradeRankA !== gradeRankB) {
+      return gradeRankA - gradeRankB
+    }
+
+    // 2. Si même grade, tri croissant par hierarchy_level (plus petit = plus haut dans la hiérarchie)
     const hierarchyA = a.hierarchyLevel
     const hierarchyB = b.hierarchyLevel
 
@@ -156,15 +165,7 @@ export const sortEmployeesByHierarchy = <T extends SortableEmployee>(employees: 
       return hierarchyA - hierarchyB // Tri croissant : plus petit hierarchy_level en premier
     }
 
-    // 2. Si même hierarchy_level, tri par grade (du plus haut au plus bas)
-    const gradeRankA = getGradeRank(a.latestGradeRaw || "")
-    const gradeRankB = getGradeRank(b.latestGradeRaw || "")
-
-    if (gradeRankA !== gradeRankB) {
-      return gradeRankA - gradeRankB
-    }
-
-    // 3. Si même grade, tri par ancienneté dans le grade (plus ancien en premier)
+    // 3. Si même hierarchy_level, tri par ancienneté dans le grade (plus ancien en premier)
     if (a.currentGradeDate && b.currentGradeDate) {
       const dateA = new Date(a.currentGradeDate).getTime()
       const dateB = new Date(b.currentGradeDate).getTime()

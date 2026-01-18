@@ -1,8 +1,6 @@
 "use client"
 
 import {
-  Plus,
-  Edit,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -15,14 +13,13 @@ import {
   RotateCcw,
   Search,
 } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import Link from "next/link"
 import Image from "next/image"
 import { DisplayEmployee, RawEmployeeData } from "@/types/employeeTable.types"
-import { processEmployeeData, EMPLOYEE_SELECT_QUERY, sortEmployeesByHierarchy } from "@/utils/employee.utils"
+import { processEmployeeData, EMPLOYEE_SELECT_QUERY } from "@/utils/employee.utils"
 import { formatDateForRTL, formatDateForLTR } from "@/utils/dateUtils"
 import { useTranslations } from "next-intl"
 import { useParams } from "next/navigation"
@@ -32,11 +29,17 @@ import {
   getCardSubtitleFont,
   getMainTitleFont,
   getTableCellNotoFont,
-  getTableCellPoppinsFont,
 } from "@/lib/direction"
 import type { Locale } from "@/lib/types"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-interface SimpleEmployeeTableProps {
+interface SimpleRetraiteTableProps {
   initialEmployees: DisplayEmployee[]
 }
 
@@ -45,27 +48,12 @@ const ITEMS_PER_PAGE = 10
 type SortKey = keyof DisplayEmployee | null
 type SortDirection = "ascending" | "descending"
 
-// Fonction utilitaire pour les statuts employés en arabe uniquement
-const getStatusArabic = (status: string): string => {
-  const statusMap: Record<string, string> = {
-    "مباشر": "مبـاشــر",
-    "غير مباشر": "غير مباشر",
-    "إجازة": "في إجازة",
-    "مرض": "مــــرض",
-    "تدريب": "تكــويــن",
-    "مهمة": "في مهمــة",
-    "متغيب": "غائــب",
-    "موقوف": "موقــوف"
-  }
-  return statusMap[status] || status || "غير محدد"
-}
-
 interface SortConfig {
   key: SortKey
   direction: SortDirection
 }
 
-export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTableProps) {
+export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTableProps) {
   const t = useTranslations()
   const params = useParams()
   const isRTL = params.locale === "ar"
@@ -74,7 +62,6 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
   const titleFontClass = getTitleFont(params.locale as Locale)
   const tableCellFontClass = getTableCellFont(params.locale as Locale)
   const tableCellNotoFont = getTableCellNotoFont(params.locale as Locale)
-  const tableCellPoppinsFont = getTableCellPoppinsFont(params.locale as Locale)
   const [mounted, setMounted] = useState(false)
   const [employees, setEmployees] = useState<DisplayEmployee[]>(initialEmployees)
   const [currentPage, setCurrentPage] = useState(1)
@@ -84,8 +71,18 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
   })
   const [searchTerm, setSearchTerm] = useState("")
   const [matriculeSearchTerm, setMatriculeSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("")
+  const [selectedYear, setSelectedYear] = useState<string>("")
   const [realtimeConnected, setRealtimeConnected] = useState(false)
+
+  // Générer les années disponibles (année actuelle + 10 ans)
+  const currentYear = new Date().getFullYear()
+  const yearOptions = useMemo(() => {
+    const years: number[] = []
+    for (let i = 0; i <= 10; i++) {
+      years.push(currentYear + i)
+    }
+    return years
+  }, [currentYear])
   const [highlightedEmployeeId, setHighlightedEmployeeId] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -101,19 +98,17 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
     // Vérifier que nous sommes côté client
     if (typeof window === "undefined") return
 
-    const savedParams = sessionStorage.getItem("tableParams")
+    const savedParams = sessionStorage.getItem("retraiteTableParams")
     if (savedParams) {
       const urlParams = new URLSearchParams(savedParams)
       const urlSearchTerm = urlParams.get("search") || ""
       const urlMatriculeTerm = urlParams.get("matricule") || ""
-      const urlStatusFilter = urlParams.get("status") || ""
       const urlSortKey = urlParams.get("sortKey") as SortKey
       const urlSortDirection = urlParams.get("sortDirection") as SortDirection
       const urlPage = parseInt(urlParams.get("page") || "1")
 
       setSearchTerm(urlSearchTerm)
       setMatriculeSearchTerm(urlMatriculeTerm)
-      setStatusFilter(urlStatusFilter)
       setCurrentPage(urlPage)
 
       if (urlSortKey && urlSortDirection) {
@@ -124,7 +119,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
       }
 
       // Nettoyer le sessionStorage après restauration
-      sessionStorage.removeItem("tableParams")
+      sessionStorage.removeItem("retraiteTableParams")
     }
   }, [])
 
@@ -222,7 +217,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
     console.log("Initialisation realtime simple...")
 
     const channel = supabase
-      .channel("employees_changes")
+      .channel("retraite_employees_changes")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "employees" },
@@ -285,7 +280,25 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
 
   // Filtrage des employés
   const filteredEmployees = useMemo(() => {
-    let filtered = employees
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    // Filtrer d'abord les employés qui n'ont pas encore atteint la retraite
+    let filtered = employees.filter((employee) => {
+      if (!employee.dateRetraite) return false // Exclure ceux sans date de retraite
+      const retraiteDate = new Date(employee.dateRetraite)
+      return retraiteDate > today // Garder seulement ceux dont la date de retraite est dans le futur
+    })
+
+    // Filtrage par année de retraite
+    if (selectedYear !== "") {
+      const year = parseInt(selectedYear)
+      filtered = filtered.filter((employee) => {
+        if (!employee.dateRetraite) return false
+        const retraiteYear = new Date(employee.dateRetraite).getFullYear()
+        return retraiteYear === year
+      })
+    }
 
     // Filtrage par prénom/nom
     if (searchTerm.trim()) {
@@ -306,13 +319,8 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
       })
     }
 
-    // Filtrage par statut
-    if (statusFilter && statusFilter !== "") {
-      filtered = filtered.filter((employee) => employee.actif === statusFilter)
-    }
-
     return filtered
-  }, [employees, searchTerm, matriculeSearchTerm, statusFilter, normalize])
+  }, [employees, searchTerm, matriculeSearchTerm, selectedYear, normalize])
 
   // Tri des employés avec logique complexe par défaut
   const sortedEmployees = useMemo(() => {
@@ -327,9 +335,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
 
         let comparison = 0
 
-        if (sortConfig.key === "latestDateAffectation") {
-          comparison = new Date(valA as string).getTime() - new Date(valB as string).getTime()
-        } else if (typeof valA === "string" && typeof valB === "string") {
+        if (typeof valA === "string" && typeof valB === "string") {
           comparison = valA.localeCompare(valB, "fr", { sensitivity: "base" })
         } else if (typeof valA === "number" && typeof valB === "number") {
           comparison = valA - valB
@@ -341,8 +347,12 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
       })
     }
 
-    // Sinon, utiliser la logique de tri hiérarchique centralisée
-    return sortEmployeesByHierarchy(filteredEmployees)
+    // Par défaut, trier par date de retraite du plus proche au plus lointain (chronologique)
+    return [...filteredEmployees].sort((a, b) => {
+      const dateA = a.dateRetraite ? new Date(a.dateRetraite).getTime() : Infinity
+      const dateB = b.dateRetraite ? new Date(b.dateRetraite).getTime() : Infinity
+      return dateA - dateB // Plus proche en premier
+    })
   }, [filteredEmployees, sortConfig])
 
   // Pagination
@@ -356,27 +366,28 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
   // Reset de la page quand la recherche change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, matriculeSearchTerm, statusFilter])
+  }, [searchTerm, matriculeSearchTerm, selectedYear])
 
   // Fonction pour sauvegarder les paramètres actuels
   const saveCurrentParams = useCallback(() => {
     // Vérifier que nous sommes côté client
     if (typeof window === "undefined") return
 
-    const params = new URLSearchParams()
-    if (searchTerm) params.set("search", searchTerm)
-    if (matriculeSearchTerm) params.set("matricule", matriculeSearchTerm)
-    if (statusFilter && statusFilter !== "") params.set("status", statusFilter)
+    const urlParams = new URLSearchParams()
+    if (searchTerm) urlParams.set("search", searchTerm)
+    if (matriculeSearchTerm) urlParams.set("matricule", matriculeSearchTerm)
     if (sortConfig.key && sortConfig.key !== null) {
-      params.set("sortKey", sortConfig.key)
-      params.set("sortDirection", sortConfig.direction)
+      urlParams.set("sortKey", sortConfig.key)
+      urlParams.set("sortDirection", sortConfig.direction)
     }
-    if (currentPage > 1) params.set("page", currentPage.toString())
+    if (currentPage > 1) urlParams.set("page", currentPage.toString())
 
     // Sauvegarder la position de scroll
     sessionStorage.setItem("scrollPosition", window.scrollY.toString())
-    sessionStorage.setItem("tableParams", params.toString())
-  }, [searchTerm, matriculeSearchTerm, statusFilter, sortConfig, currentPage])
+    sessionStorage.setItem("retraiteTableParams", urlParams.toString())
+    // Sauvegarder la page d'origine pour le retour depuis les détails
+    sessionStorage.setItem("returnToPage", "retraite")
+  }, [searchTerm, matriculeSearchTerm, sortConfig, currentPage])
 
   // Ajuster la pagination pour afficher l'employé mis en évidence
   useEffect(() => {
@@ -393,7 +404,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
   const handleClearFilters = useCallback(() => {
     setSearchTerm("")
     setMatriculeSearchTerm("")
-    setStatusFilter("")
+    setSelectedYear("")
     setSortConfig({
       key: null,
       direction: "ascending",
@@ -406,11 +417,11 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
     return (
       searchTerm.trim() !== "" ||
       matriculeSearchTerm.trim() !== "" ||
-      statusFilter !== "" ||
+      selectedYear !== "" ||
       sortConfig.key !== null ||
       sortConfig.direction !== "ascending"
     )
-  }, [searchTerm, matriculeSearchTerm, statusFilter, sortConfig])
+  }, [searchTerm, matriculeSearchTerm, selectedYear, sortConfig])
 
 
   // Fonction pour actualiser les données et reconnecter le realtime
@@ -431,7 +442,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
 
       // Reconnecter le realtime en recréant le channel
       supabase
-        .channel("employees_changes_" + Date.now()) // Nouveau nom pour forcer la reconnexion
+        .channel("retraite_employees_changes_" + Date.now()) // Nouveau nom pour forcer la reconnexion
         .on(
           "postgres_changes",
           { event: "*", schema: "public", table: "employees" },
@@ -484,21 +495,11 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
         <div className="bg-white dark:bg-card rounded-sm p-8 text-center">
           <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">○</div>
           <h3 className={`text-lg font-medium text-gray-900 dark:text-white mb-2 ${getTitleFont(params.locale as Locale)}`}>
-            {t("employeesList.emptyStates.noEmployees")}
+            {isRTL ? "لا يوجد موظفين" : "Aucun employé"}
           </h3>
           <p className={`text-gray-500 dark:text-gray-400 mb-6 ${isRTL ? titleFontClass : ""}`}>
-            {t("employeesList.emptyStates.startByAdding")}
+            {isRTL ? "لا توجد بيانات للعرض" : "Aucune donnée à afficher"}
           </p>
-          <Link
-            href={`/${params.locale}/dashboard/employees/nouveau`}
-            className={`inline-flex items-center gap-2 text-white px-5 py-2.5 rounded font-medium transition-colors hover:opacity-90 ${
-              isRTL ? titleFontClass : ""
-            }`}
-            style={{ backgroundColor: "rgb(14, 102, 129)" }}
-          >
-            <Plus className="w-4 h-4" />
-            {isRTL ? t("employeesList.buttons.newAgent") : "Nouvel agent"}
-          </Link>
         </div>
       </div>
     )
@@ -510,7 +511,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className={`text-2xl ${mainTitleFontClass} text-foreground`}>
-              {isRTL ? t("employeesList.title") : "Liste des employés"}
+              {isRTL ? "بـــــاب التـقـاعـــد" : "Gestion des retraites"}
             </h1>
             <div className="flex items-center gap-4 mt-2">
               <span
@@ -522,7 +523,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                   // En arabe: موظفيـن pour 0-10, 100-110, 200-210, etc. Sinon مـوظـف
                   (() => {
                     const remainder = sortedEmployees.length % 100
-                    return remainder >= 0 && remainder <= 10 ? "موظفيـن" : "مـوظـف"
+                    return remainder >= 0 && remainder <= 10 ? "موظفيـن" : "مـوظــف"
                   })()
                 ) : "employés"}
               </span>
@@ -605,12 +606,12 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                 </button>
               )}
             </div>
-            <div className="w-54">
+            <div className="w-36">
               <Select
                 dir={isRTL ? "rtl" : "ltr"}
-                value={statusFilter}
+                value={selectedYear}
                 onValueChange={(value) => {
-                  setStatusFilter(value)
+                  setSelectedYear(value)
                   setCurrentPage(1)
                 }}
               >
@@ -619,73 +620,20 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                     isRTL ? titleFontClass : ""
                   }`}
                 >
-                  <SelectValue placeholder={isRTL ? t("employeesList.filters.selectStatus") : "Sélectionner le statut"} />
+                  <SelectValue placeholder={isRTL ? "إختر السنة" : "Sélectionner l'année"} />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50">
-                  <SelectItem
-                    value="مباشر"
-                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
-                      isRTL ? titleFontClass : ""
-                    }`}
-                  >
-                    {isRTL ? t("dashboard.employeeStatus.مباشر") : "Actif"}
-                  </SelectItem>
-                  <SelectItem
-                    value="غير مباشر"
-                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
-                      isRTL ? titleFontClass : ""
-                    }`}
-                  >
-                    {isRTL ? t("dashboard.employeeStatus.غير مباشر") : "Inactif"}
-                  </SelectItem>
-                  <SelectItem
-                    value="إجازة"
-                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
-                      isRTL ? titleFontClass : ""
-                    }`}
-                  >
-                    {isRTL ? t("dashboard.employeeStatus.إجازة") : "Congés"}
-                  </SelectItem>
-                  <SelectItem
-                    value="مرض"
-                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
-                      isRTL ? titleFontClass : ""
-                    }`}
-                  >
-                    {isRTL ? t("dashboard.employeeStatus.مرض") : "Maladie"}
-                  </SelectItem>
-                  <SelectItem
-                    value="تدريب"
-                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
-                      isRTL ? titleFontClass : ""
-                    }`}
-                  >
-                    {isRTL ? t("dashboard.employeeStatus.تدريب") : "Formation"}
-                  </SelectItem>
-                  <SelectItem
-                    value="مهمة"
-                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
-                      isRTL ? titleFontClass : ""
-                    }`}
-                  >
-                    {isRTL ? t("dashboard.employeeStatus.مهمة") : "Mission"}
-                  </SelectItem>
-                  <SelectItem
-                    value="متغيب"
-                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
-                      isRTL ? titleFontClass : ""
-                    }`}
-                  >
-                    {isRTL ? t("dashboard.employeeStatus.متغيب") : "Absent"}
-                  </SelectItem>
-                  <SelectItem
-                    value="موقوف"
-                    className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
-                      isRTL ? titleFontClass : ""
-                    }`}
-                  >
-                    {isRTL ? t("dashboard.employeeStatus.موقوف") : "Suspendu"}
-                  </SelectItem>
+                  {yearOptions.map((year) => (
+                    <SelectItem
+                      key={year}
+                      value={year.toString()}
+                      className={`px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white ${
+                        isRTL ? titleFontClass : ""
+                      }`}
+                    >
+                      {year}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -697,17 +645,6 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
             >
               <RotateCcw size={16} />
             </button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/${params.locale}/dashboard/employees/nouveau`}
-              className={`bg-[#076784] hover:bg-[#2B778F] text-white px-6 py-2.5 rounded text-[14px] font-medium flex items-center gap-2 transition-colors ${
-                isRTL ? titleFontClass : ""
-              }`}
-            >
-              <Plus className="w-4 h-4" />
-              {isRTL ? t("employeesList.buttons.newAgent") : "Nouvel agent"}
-            </Link>
           </div>
         </div>
 
@@ -721,7 +658,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                       isRTL ? "font-semibold" : "font-medium"
                     } w-14 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                   >
-                    {isRTL ? t("employeesList.table.headers.order") : "N°"}
+                    {isRTL ? "العــدد" : "N°"}
                   </th>
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
@@ -730,7 +667,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                     onClick={() => requestSort("nom")}
                   >
                     <div className="flex items-center ml-1">
-                      {isRTL ? t("employeesList.table.headers.identity") : "Identité"}
+                      {isRTL ? "هــويــــة المــوظــــف" : "Identité"}
                       {getSortIcon("nom")}
                     </div>
                   </th>
@@ -739,64 +676,45 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                       isRTL ? "font-semibold" : "font-medium"
                     } w-24 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                   >
-                    {isRTL ? t("employeesList.table.headers.matricule") : "Matricule"}
+                    {isRTL ? "الــرقــــم" : "Matricule"}
                   </th>
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
                       isRTL ? "font-semibold" : "font-medium"
                     } w-28 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                   >
-                    {isRTL ? t("employeesList.table.headers.status") : "Statut"}
+                    {isRTL ? "الــرقم الموحد" : "ID Unique"}
                   </th>
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
                       isRTL ? "font-semibold" : "font-medium"
-                    } cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-56 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
-                    onClick={() => requestSort("latestUnite")}
+                    } w-56 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                   >
-                    <div className="flex items-center">
-                      {isRTL ? t("employeesList.table.headers.unit") : "Unité"}
-                      {getSortIcon("latestUnite")}
-                    </div>
+                    {isRTL ? "الــــــــوحــــــــــــــــدة" : "Unité"}
                   </th>
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
                       isRTL ? "font-semibold" : "font-medium"
-                    } cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-40 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
-                    onClick={() => requestSort("latestResponsibility")}
+                    } w-40 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                   >
-                    <div className="flex items-center">
-                      {isRTL ? t("employeesList.table.headers.responsibility") : "Responsabilité"}
-                      {getSortIcon("latestResponsibility")}
-                    </div>
+                    {isRTL ? "المســــؤوليــــــة" : "Responsabilité"}
                   </th>
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
                       isRTL ? "font-semibold" : "font-medium"
-                    } cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-28 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
-                    onClick={() => requestSort("latestDateAffectation")}
+                    } w-28 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                   >
-                    <div className="flex items-center">
-                      {isRTL ? t("employeesList.table.headers.affectationDate") : "Date affectation"}
-                      {getSortIcon("latestDateAffectation")}
-                    </div>
-                  </th>
-                  <th
-                    className={`px-6 py-4 text-start text-[15px] ${
-                      isRTL ? "font-semibold" : "font-medium"
-                    } w-16 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
-                  >
-                    {isRTL ? t("employeesList.table.headers.action") : "Action"}
+                    {isRTL ? "تاريخ التقاعد" : "Date retraite"}
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-card divide-y divide-gray-200 dark:divide-[#393A41]">
                 {paginatedData.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-10 text-center">
+                    <td colSpan={7} className="px-6 py-10 text-center">
                       <Search className="text-gray-400 dark:text-gray-500 w-8 h-8 mb-4 mx-auto" />
                       <p className={`text-gray-500 dark:text-gray-400 pt-6 ${isRTL ? titleFontClass : ""}`}>
-                        {searchTerm.trim() || matriculeSearchTerm.trim() || (statusFilter && statusFilter !== "")
+                        {searchTerm.trim() || matriculeSearchTerm.trim()
                           ? isRTL ? t("employeesList.emptyStates.noResults") : "Aucun résultat trouvé"
                           : isRTL ? t("employeesList.emptyStates.noDataToShow") : "Aucune donnée à afficher"}
                       </p>
@@ -863,50 +781,11 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                         </td>
                         <td className="px-6 py-2.5 w-28">
                           <span
-                            className={`inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium ${
-                              isRTL ? tableCellFontClass : ""
-                            } ${isRTL ? "text-[10px]" : ""} ${
-                              employee.actif === "مباشر"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                : employee.actif === "غير مباشر"
-                                ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
-                                : employee.actif === "إجازة"
-                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                                : employee.actif === "مرض"
-                                ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300"
-                                : employee.actif === "تدريب"
-                                ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-                                : employee.actif === "مهمة"
-                                ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300"
-                                : employee.actif === "متغيب"
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                : employee.actif === "موقوف"
-                                ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                                : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
-                            }`}
+                            className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
+                              isRTL ? tableCellNotoFont : ""
+                            } ${isRTL ? "text-[15px]" : ""}`}
                           >
-                            <span
-                              className={`w-1.5 h-1.5 me-1.5 rounded-full ${
-                                employee.actif === "مباشر"
-                                  ? "bg-green-500"
-                                  : employee.actif === "غير مباشر"
-                                  ? "bg-gray-500"
-                                  : employee.actif === "إجازة"
-                                  ? "bg-blue-500"
-                                  : employee.actif === "مرض"
-                                  ? "bg-orange-500"
-                                  : employee.actif === "تدريب"
-                                  ? "bg-purple-500"
-                                  : employee.actif === "مهمة"
-                                  ? "bg-indigo-500"
-                                  : employee.actif === "متغيب"
-                                  ? "bg-yellow-500"
-                                  : employee.actif === "موقوف"
-                                  ? "bg-red-500"
-                                  : "bg-gray-500"
-                              }`}
-                            />
-                            {getStatusArabic(employee.actif)}
+                            {employee.identifiant_unique || "-"}
                           </span>
                         </td>
                         <td className="px-6 py-2.5 w-56">
@@ -935,21 +814,12 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                               isRTL ? tableCellNotoFont : ""
                             } ${isRTL ? "text-[15px]" : ""}`}
                           >
-                            {employee.latestDateAffectation
+                            {employee.dateRetraite
                               ? isRTL
-                                ? formatDateForRTL(employee.latestDateAffectation)
-                                : formatDateForLTR(employee.latestDateAffectation)
+                                ? formatDateForRTL(employee.dateRetraite)
+                                : formatDateForLTR(employee.dateRetraite)
                               : "-"}
                           </span>
-                        </td>
-                        <td className="px-6 py-2.5 w-16">
-                          <Link
-                            href={`/${params.locale}/dashboard/employees/details/${employee.id}`}
-                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors inline-block"
-                            onClick={saveCurrentParams}
-                          >
-                            <Edit className="w-4 h-4" style={{ color: "rgb(7, 103, 132)" }} />
-                          </Link>
                         </td>
                       </tr>
                     )

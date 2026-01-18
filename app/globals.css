@@ -121,6 +121,11 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Éviter le décalage de layout causé par la barre de défilement */
+  html {
+    scrollbar-gutter: stable;
+  }
 }
 
 /* Styles personnalisés pour la sidebar */

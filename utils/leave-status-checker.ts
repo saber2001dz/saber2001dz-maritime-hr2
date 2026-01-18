@@ -9,7 +9,7 @@ import {
 /**
  * DEPRECATED: Utilise maintenant la fonction database
  * Fonction combinée pour vérifier et mettre à jour les statuts des employés
- * en fonction de leurs congés expirés - maintenant délégué à la database
+ * en fonction de leurs congés, sanctions, formations et absences expirés - maintenant délégué à la database
  */
 export async function dailyStatusCheck() {
   console.log("Début de la vérification quotidienne des statuts (via database)...")
@@ -48,6 +48,7 @@ export async function checkEmployeeStatus(employeeId: string) {
 /**
  * Force une mise à jour complète des statuts via la database
  * Remplace les anciennes fonctions checkAndUpdateExpiredLeaves et markExpiredLeavesAsCompleted
+ * Met à jour tous les statuts: congés, sanctions, formations et absences
  */
 export async function forceStatusUpdate() {
   try {

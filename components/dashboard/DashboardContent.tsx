@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { TrendingUp, TrendingDown, Minus, FileText, Ship, Building2, Calendar, UserCheck, Anchor } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, FileText, Ship, Building2, Calendar, UserCheck, UserX } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { GenderRadialChart } from "@/components/dashboard/GenderRadialChart"
 import { EmployeesAreaChart } from "@/components/dashboard/EmployeesAreaChart"
@@ -11,10 +11,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BarLeavesChart } from "@/components/dashboard/BarLeavesChart"
 import { ChartRadarOfficier, ChartRadarSousOfficier } from "@/components/dashboard/GradeRadarChart"
 import { CongesByTypePopover } from "@/components/dashboard/CongesByTypePopover"
+import { SuspendedEmployeesPopover } from "@/components/dashboard/SuspendedEmployeesPopover"
+import { AbsentEmployeesPopover } from "@/components/dashboard/AbsentEmployeesPopover"
+import { useSuspendedEmployees } from "@/hooks/dashboard/useSuspendedEmployees"
+import { useSuspendedEmployeesTrend } from "@/hooks/dashboard/useSuspendedEmployeesTrend"
+import { useCongesEmployeesTrend } from "@/hooks/dashboard/useCongesEmployeesTrend"
+import { useAbsentEmployees } from "@/hooks/dashboard/useAbsentEmployees"
+import { useAbsentEmployeesTrend } from "@/hooks/dashboard/useAbsentEmployeesTrend"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { AnimatedNumber } from "@/components/motion-primitives/animated-number"
 import type { DashboardData } from "@/types/dashboard"
-import { useTranslations } from "next-intl"
 import { useParams } from "next/navigation"
 import {
   getTitleFont,
@@ -37,7 +43,6 @@ interface DashboardContentProps {
 export function DashboardContent({ data }: DashboardContentProps) {
   const [selectedChart, setSelectedChart] = useState("grade")
   const [monthsLimit, setMonthsLimit] = useState(6)
-  const t = useTranslations()
   const params = useParams()
   const isRTL = params.locale === "ar"
   const titleFontClass = getTitleFont(params.locale as Locale)
@@ -49,8 +54,20 @@ export function DashboardContent({ data }: DashboardContentProps) {
   const tableCellFontClass = getTableCellFont(params.locale as Locale)
   const tableCellNotoFontClass = getTableCellNotoFont(params.locale as Locale)
 
+
   // Charger les statistiques mensuelles selon la période sélectionnée
   const { data: monthlyStatsData, isLoading: isLoadingMonthlyStats } = useEmployeeMonthlyStats(monthsLimit)
+
+  // Charger les données des employés suspendus
+  const { totalSuspended, isLoading: isLoadingSuspended } = useSuspendedEmployees()
+
+  // Charger les données des employés absents
+  const { totalAbsent, isLoading: isLoadingAbsent } = useAbsentEmployees()
+
+  // Charger les tendances pour les employés suspendus, absents et en congé
+  const { trendData: suspendedTrend, isLoading: isLoadingSuspendedTrend } = useSuspendedEmployeesTrend(isRTL)
+  const { trendData: absentTrend, isLoading: isLoadingAbsentTrend } = useAbsentEmployeesTrend(isRTL)
+  const { trendData: congesTrend, isLoading: isLoadingCongesTrend } = useCongesEmployeesTrend(isRTL)
 
   // Fonction pour calculer les totaux des grades
   const calculateGradeTotals = () => {
@@ -109,18 +126,18 @@ export function DashboardContent({ data }: DashboardContentProps) {
     ]
 
     const monthTranslations = {
-      January: isRTL ? t("dashboard.months.abbreviations.Jan") : "Jan",
-      February: isRTL ? t("dashboard.months.abbreviations.Feb") : "Fév",
-      March: isRTL ? t("dashboard.months.abbreviations.Mar") : "Mar",
-      April: isRTL ? t("dashboard.months.abbreviations.Apr") : "Avr",
-      May: isRTL ? t("dashboard.months.abbreviations.May") : "Mai",
-      June: isRTL ? t("dashboard.months.abbreviations.Jun") : "Juin",
-      July: isRTL ? t("dashboard.months.abbreviations.Jul") : "Juil",
-      August: isRTL ? t("dashboard.months.abbreviations.Aug") : "Août",
-      September: isRTL ? t("dashboard.months.abbreviations.Sep") : "Sep",
-      October: isRTL ? t("dashboard.months.abbreviations.Oct") : "Oct",
-      November: isRTL ? t("dashboard.months.abbreviations.Nov") : "Nov",
-      December: isRTL ? t("dashboard.months.abbreviations.Dec") : "Déc",
+      January: isRTL ? "جانفي" : "Jan",
+      February: isRTL ? "فيفري" : "Fév",
+      March: isRTL ? "مارس" : "Mar",
+      April: isRTL ? "أفريل" : "Avr",
+      May: isRTL ? "ماي" : "Mai",
+      June: isRTL ? "جوان" : "Juin",
+      July: isRTL ? "جويلية" : "Juil",
+      August: isRTL ? "أوت" : "Août",
+      September: isRTL ? "سبتمبر" : "Sep",
+      October: isRTL ? "أكتوبر" : "Oct",
+      November: isRTL ? "نوفمبر" : "Nov",
+      December: isRTL ? "ديسمبر" : "Déc",
     }
 
     return statsToUse.map((stat: any) => {
@@ -140,7 +157,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
   const calculateCongesTrend = (chartData?: any[]) => {
     if (!chartData)
       return {
-        text: isRTL ? t("dashboard.charts.loadingData") : "Chargement des données...",
+        text: isRTL ? "جاري تحميل البيانات..." : "Chargement des données...",
         period: "",
         trend: "loading",
       }
@@ -181,18 +198,18 @@ export function DashboardContent({ data }: DashboardContentProps) {
     }
 
     const monthsInArabic = {
-      January: t("dashboard.months.full.Janvier"),
-      February: t("dashboard.months.full.Février"),
-      March: t("dashboard.months.full.Mars"),
-      April: t("dashboard.months.full.Avril"),
-      May: t("dashboard.months.full.Mai"),
-      June: t("dashboard.months.full.Juin"),
-      July: t("dashboard.months.full.Juillet"),
-      August: t("dashboard.months.full.Août"),
-      September: t("dashboard.months.full.Septembre"),
-      October: t("dashboard.months.full.Octobre"),
-      November: t("dashboard.months.full.Novembre"),
-      December: t("dashboard.months.full.Décembre"),
+      January: "جانفي",
+      February: "فيفري",
+      March: "مارس",
+      April: "أفريل",
+      May: "ماي",
+      June: "جوان",
+      July: "جويلية",
+      August: "أوت",
+      September: "سبتمبر",
+      October: "أكتوبر",
+      November: "نوفمبر",
+      December: "ديسمبر",
     }
 
     let totalCurrentYear = 0
@@ -220,17 +237,17 @@ export function DashboardContent({ data }: DashboardContentProps) {
       if (totalCurrentYear > 0)
         return {
           text: isRTL
-            ? `${t("dashboard.charts.newLeaveActivity")} ${currentYear}`
+            ? `نشاط إجازات جديد في ${currentYear}`
             : `Nouvelle activité de congés en ${currentYear}`,
           period: isRTL
-            ? `${t("dashboard.months.full.Janvier")} - ${currentMonthTranslated}`
+            ? `جانفي - ${currentMonthTranslated}`
             : `Janvier - ${currentMonthFrench}`,
           trend: "up",
         }
       return {
-        text: isRTL ? t("dashboard.charts.noLeaveData") : "Aucune donnée de congés disponible",
+        text: isRTL ? "لا توجد بيانات إجازات متاحة" : "Aucune donnée de congés disponible",
         period: isRTL
-          ? `${t("dashboard.months.full.Janvier")} - ${currentMonthTranslated}`
+          ? `جانفي - ${currentMonthTranslated}`
           : `Janvier - ${currentMonthFrench}`,
         trend: "neutral",
       }
@@ -247,24 +264,17 @@ export function DashboardContent({ data }: DashboardContentProps) {
     if (Math.abs(percentageChange) < 1) {
       return {
         text: isRTL
-          ? `${t("dashboard.charts.stableLeaveLevel")} ${previousYear}`
+          ? `مستوى إجازات مستقر مقارنة بـ ${previousYear}`
           : `Niveau de congés stable par rapport à ${previousYear}`,
         period: isRTL
-          ? `${t("dashboard.months.full.Janvier")} - ${currentMonthTranslated}`
+          ? `جانفي - ${currentMonthTranslated}`
           : `Janvier - ${currentMonthFrench}`,
         trend: "neutral",
       }
     }
 
     const trend = percentageChange > 0 ? "up" : "down"
-    const trendText =
-      percentageChange > 0
-        ? isRTL
-          ? t("dashboard.charts.increase")
-          : "Augmentation"
-        : isRTL
-        ? t("dashboard.charts.decrease")
-        : "Diminution"
+    const trendText = percentageChange > 0 ? (isRTL ? "زيادة" : "Augmentation") : (isRTL ? "انخفاض" : "Diminution")
     const absPercentage = Math.abs(percentageChange).toFixed(1)
 
     return {
@@ -272,7 +282,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
         isRTL ? "مقارنة بـ" : "vs"
       } ${previousYear}`,
       period: isRTL
-        ? `${t("dashboard.months.full.Janvier")} - ${currentMonthTranslated}`
+        ? `جانفي - ${currentMonthTranslated}`
         : `Janvier - ${currentMonthFrench}`,
       trend,
     }
@@ -301,23 +311,23 @@ export function DashboardContent({ data }: DashboardContentProps) {
 
   const chartConfig = {
     conges: {
-      title: isRTL ? t("dashboard.charts.barChart") : "Bar Chart - Jours de Congé",
+      title: isRTL ? "مخــطط - عــدد أيــام الإجــازات" : "Bar Chart - Jours de Congé",
       description: `${previousYear} - ${currentYear}`,
       footer: congesTrendData.text,
       period: congesTrendData.period,
       trend: congesTrendData.trend,
     },
     grade: {
-      title: isRTL ? t("dashboard.charts.radarChart") : "Radar Chart - Répartition par Grade",
-      description: isRTL ? t("dashboard.charts.officersSubOfficers") : "Officiers - Sous-Officiers",
-      footer: isRTL ? t("dashboard.charts.gradeAnalysis") : "Analyse des effectifs par grade",
+      title: isRTL ? "مخــطط - التوزيع حسب الــرتب" : "Radar Chart - Répartition par Grade",
+      description: isRTL ? "ضباط - ضباط صف" : "Officiers - Sous-Officiers",
+      footer: isRTL ? "توزيع الأفراد حسب الرتب" : "Analyse des effectifs par grade",
       period: "",
       trend: "neutral",
     },
     funnel: {
-      title: isRTL ? t("dashboard.charts.funnelChart") : "Funnel Chart - Flux Personnel",
-      description: isRTL ? t("dashboard.charts.recruitmentProcess") : "Processus de recrutement",
-      footer: isRTL ? t("dashboard.charts.chartInDevelopment") : "Chart en développement",
+      title: isRTL ? "مخــطط - تــدفق المــوظفيــن" : "Funnel Chart - Flux Personnel",
+      description: isRTL ? "عملية التوظيف" : "Processus de recrutement",
+      footer: isRTL ? "المخطط قيد التطوير" : "Chart en développement",
       period: "",
       trend: "neutral",
     },
@@ -369,26 +379,26 @@ export function DashboardContent({ data }: DashboardContentProps) {
   // Données dynamiques basées sur les vraies statistiques
   const expensesData = {
     amount: calculateEmployeesTotal(),
-    label: isRTL ? t("dashboard.totalEmployees") : "Total des Employées",
+    label: isRTL ? "إجمــالــي الأفـــــراد" : "Total des Employées",
   }
 
   const orderSectionsData = [
     {
-      title: isRTL ? t("dashboard.unitStatistics.totalUnits") : "Total des unités",
+      title: isRTL ? "إجمـالـي الــوحـــدات" : "Total des unités",
       value: data.uniteStats?.total?.toString() || "0",
       icon: Building2,
       iconColor: "text-green-600 dark:text-green-400",
       bgColor: "bg-green-100 dark:bg-green-900/30",
     },
     {
-      title: isRTL ? t("dashboard.unitStatistics.administrativeUnits") : "Total des unités administratives",
+      title: isRTL ? "الــوحـــدات الإداريــــة" : "Total des unités administratives",
       value: data.uniteStats?.administrative?.toString() || "0",
       icon: FileText,
-      iconColor: "text-indigo-600 dark:text-indigo-400",
-      bgColor: "bg-indigo-100 dark:bg-indigo-900/30",
+      iconColor: "text-purple-600 dark:text-purple-400",
+      bgColor: "bg-purple-100 dark:bg-purple-900/30",
     },
     {
-      title: isRTL ? t("dashboard.unitStatistics.operationalUnits") : "Total des unités opérationnelles",
+      title: isRTL ? "الــوحـــدات النشيطـــــة" : "Total des unités opérationnelles",
       value: data.uniteStats?.operational?.toString() || "0",
       icon: Ship,
       iconColor: "text-blue-600 dark:text-blue-400",
@@ -398,31 +408,44 @@ export function DashboardContent({ data }: DashboardContentProps) {
 
   const bottomStatsData = [
     {
-      title: isRTL ? t("dashboard.employeeStatistics.employeesOnLeave") : "Total Employees en Conges",
+      title: isRTL ? "إجمالي الموظفين في إجازة" : "Total Employees en Conges",
       value: data.employeeStatistics?.conges?.toString() || "0",
-      changeValue: data.employeeTrends?.conges?.changeValue || "",
-      changeText: data.employeeTrends?.conges?.changeText || (isRTL ? "لا توجد بيانات" : "Pas de données"),
+      changeValue: isLoadingCongesTrend
+        ? ""
+        : congesTrend?.changeValue || data.employeeTrends?.conges?.changeValue || "",
+      changeText: isLoadingCongesTrend
+        ? (isRTL ? "جاري التحميل..." : "Chargement...")
+        : congesTrend?.changeText || data.employeeTrends?.conges?.changeText || (isRTL ? "لا توجد بيانات" : "Pas de données"),
       changeTextEnd: "",
-      changeType: data.employeeTrends?.conges?.changeType || ("no_data" as const),
+      changeType: isLoadingCongesTrend
+        ? ("no_data" as const)
+        : congesTrend?.changeType || data.employeeTrends?.conges?.changeType || ("no_data" as const),
       icon: Calendar,
+      iconColor: "text-blue-600 dark:text-blue-400",
     },
     {
-      title: isRTL ? t("dashboard.employeeStatistics.employeesAdministration") : "Total Employees Administration",
-      value: data.employeeStatistics?.administrative?.toString() || "0",
-      changeValue: data.employeeTrends?.administrative?.changeValue || "",
-      changeText: data.employeeTrends?.administrative?.changeText || (isRTL ? "لا توجد بيانات" : "Pas de données"),
+      title: isRTL ? "إجمالي الموظفين الموقوفين عن العمل" : "Total Employés Suspendus",
+      value: isLoadingSuspended ? "..." : totalSuspended.toString(),
+      changeValue: isLoadingSuspendedTrend ? "" : suspendedTrend?.changeValue || "",
+      changeText: isLoadingSuspendedTrend
+        ? (isRTL ? "جاري التحميل..." : "Chargement...")
+        : suspendedTrend?.changeText || (isRTL ? "لا توجد بيانات" : "Pas de données"),
       changeTextEnd: "",
-      changeType: data.employeeTrends?.administrative?.changeType || ("no_data" as const),
+      changeType: isLoadingSuspendedTrend ? ("no_data" as const) : suspendedTrend?.changeType || ("no_data" as const),
+      icon: UserX,
+      iconColor: "text-red-600 dark:text-red-400",
+    },
+    {
+      title: isRTL ? "إجمالي الموظفين المتغيبين" : "Total Employés Absents",
+      value: isLoadingAbsent ? "..." : totalAbsent.toString(),
+      changeValue: isLoadingAbsentTrend ? "" : absentTrend?.changeValue || "",
+      changeText: isLoadingAbsentTrend
+        ? (isRTL ? "جاري التحميل..." : "Chargement...")
+        : absentTrend?.changeText || (isRTL ? "لا توجد بيانات" : "Pas de données"),
+      changeTextEnd: "",
+      changeType: isLoadingAbsentTrend ? ("no_data" as const) : absentTrend?.changeType || ("no_data" as const),
       icon: UserCheck,
-    },
-    {
-      title: isRTL ? t("dashboard.employeeStatistics.employeesOperational") : "Total Employees Operationnels",
-      value: data.employeeStatistics?.operational?.toString() || "0",
-      changeValue: data.employeeTrends?.operational?.changeValue || "",
-      changeText: data.employeeTrends?.operational?.changeText || (isRTL ? "لا توجد بيانات" : "Pas de données"),
-      changeTextEnd: "",
-      changeType: data.employeeTrends?.operational?.changeType || ("no_data" as const),
-      icon: Anchor,
+      iconColor: "text-amber-500 dark:text-amber-400",
     },
   ]
 
@@ -443,14 +466,14 @@ export function DashboardContent({ data }: DashboardContentProps) {
     <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="mb-8">
         <h1 className={`text-2xl ${mainTitleFontClass} text-foreground`}>
-          {isRTL ? t("dashboard.title") : "Tableau de bord"}
+          {isRTL ? "لوحة المعلومات" : "Tableau de bord"}
         </h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[450px_1fr] gap-6 mb-6">
         {/* === CARD : Total des employés avec graphique d'évolution mensuelle === */}
         {/* Affiche le nombre total d'employés avec animation et graphique en aire des statistiques mensuelles */}
-        <Card className="flex flex-col h-[300px] overflow-hidden pl-1">
+        <Card className="flex flex-col h-75 overflow-hidden pl-1">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
@@ -471,7 +494,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
 
               <Select dir={isRTL ? "rtl" : "ltr"} defaultValue="6months" onValueChange={handlePeriodChange}>
                 <SelectTrigger
-                  className={`w-[95px] rounded focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 ${selectFontClass}`}
+                  className={`w-23.75 rounded focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 ${selectFontClass}`}
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -500,7 +523,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
               data={formatEmployeeStatsForChart()}
               config={{
                 employees: {
-                  label: isRTL ? t("dashboard.employees") : "Employés",
+                  label: isRTL ? "الموظفون" : "Employés",
                   color: "#8884d8",
                 },
               }}
@@ -514,9 +537,9 @@ export function DashboardContent({ data }: DashboardContentProps) {
         <div className="grid grid-rows-2 gap-6">
           {/* === CARD : Statistiques des unités === */}
           {/* Affiche les statistiques des unités : total, administratives et opérationnelles avec icônes */}
-          <Card className="p-4 md:p-6 flex flex-col justify-center h-[140px] overflow-hidden bg-card rounded-md shadow-sm border-0">
+          <Card className="p-4 md:p-6 flex flex-col justify-center h-35 overflow-hidden bg-card rounded-md shadow-sm border-0">
             <h3 className={`text-[20px] font-semibold ${titleFontClass} text-gray-700 dark:text-gray-300 pb-3 pl-4`}>
-              {isRTL ? t("dashboard.unitStatistics.title") : "Statistiques des Unités"}
+              {isRTL ? "إحصــائيـــات الــوحــــدات" : "Statistiques des Unités"}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 pl-4 gap-x-4 gap-y-4 w-full">
               {orderSectionsData.map((section) => {
@@ -538,24 +561,28 @@ export function DashboardContent({ data }: DashboardContentProps) {
             </div>
           </Card>
           {/* === CARDS : Statistiques employées individuelles === */}
-          {/* Trois cards affichant les statistiques spécifiques (congés, administration, opérationnel) avec tendances */}
+          {/* Trois cards affichant les statistiques spécifiques (congés, suspendus, opérationnel) avec tendances */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {bottomStatsData.map((stat, index) => {
               const IconComponent = stat.icon
               return (
                 <Card
                   key={index}
-                  className="p-4 md:p-6 flex flex-col h-[135px] overflow-hidden bg-card rounded-md shadow-sm border-0"
+                  className="p-4 md:p-6 flex flex-col h-33.75 overflow-hidden bg-card rounded-md shadow-sm border-0"
                 >
                   <div className="flex items-center justify-between -mt-1">
                     <div className="flex items-center gap-2">
                       <p className={`text-[16px] font-medium text-muted-foreground ${cardSubtitleFontClass}`}>
                         {stat.title}
                       </p>
-                      {/* Ajouter le bouton popover uniquement pour les congés */}
+                      {/* Ajouter le bouton popover pour les congés */}
                       {index === 0 && <CongesByTypePopover />}
+                      {/* Ajouter le bouton popover pour les employés suspendus */}
+                      {index === 1 && <SuspendedEmployeesPopover />}
+                      {/* Ajouter le bouton popover pour les employés absents */}
+                      {index === 2 && <AbsentEmployeesPopover />}
                     </div>
-                    <IconComponent className="w-5 h-5 text-muted-foreground dark:text-muted-foreground" />
+                    <IconComponent className={`w-5 h-5 ${stat.iconColor}`} />
                   </div>
 
                   <div className="mt-auto">
@@ -662,18 +689,18 @@ export function DashboardContent({ data }: DashboardContentProps) {
                 defaultValue="grade"
                 onValueChange={(value) => setSelectedChart(value)}
               >
-                <SelectTrigger className={`w-[120px] rounded ${selectFontClass}`}>
+                <SelectTrigger className={`w-30 rounded ${selectFontClass}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="grade" className={selectFontClass}>
-                    {isRTL ? t("dashboard.select.grade") : "Grade"}
+                    {isRTL ? "الـرتـــــب" : "Grade"}
                   </SelectItem>
                   <SelectItem value="conges" className={selectFontClass}>
-                    {isRTL ? t("dashboard.select.leaves") : "Congés"}
+                    {isRTL ? "الإجــازات" : "Congés"}
                   </SelectItem>
                   <SelectItem value="funnel" className={selectFontClass}>
-                    {isRTL ? t("dashboard.select.funnel") : "Funnel"}
+                    {isRTL ? "قــمــع" : "Funnel"}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -688,9 +715,9 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="flex flex-col h-[330px]"
+                  className="flex flex-col h-82.5"
                 >
-                  <div className="h-[330px]">
+                  <div className="h-82.5">
                     <BarLeavesChart data={data.congesData} isLoading={false} rtl={isRTL} />
                   </div>
                 </motion.div>
@@ -702,9 +729,9 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="flex flex-col h-[330px]"
+                  className="flex flex-col h-82.5"
                 >
-                  <div className="flex items-center justify-center h-[330px]">
+                  <div className="flex items-center justify-center h-82.5">
                     <div className="w-1/2 flex justify-center">
                       <ChartRadarOfficier rtl={isRTL} />
                     </div>
@@ -722,10 +749,10 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="flex flex-col h-[330px]"
+                  className="flex flex-col h-82.5"
                 >
-                  <div className="flex items-center justify-center h-[330px] text-muted-foreground">
-                    <p>{isRTL ? t("dashboard.charts.funnelComingSoon") : "Funnel Chart - Coming Soon"}</p>
+                  <div className="flex items-center justify-center h-82.5 text-muted-foreground">
+                    <p>{isRTL ? "مخــطط القمع - قريباً" : "Funnel Chart - Coming Soon"}</p>
                   </div>
                 </motion.div>
               )}
@@ -742,7 +769,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="flex-col items-start gap-1 text-sm w-full"
                 >
-                  <div className={`flex gap-2 leading-none font-[600] min-h-4 ${cardFooterFontClass}`}>
+                  <div className={`flex gap-2 leading-none font-semibold min-h-4 ${cardFooterFontClass}`}>
                     {chartConfig[selectedChart as keyof typeof chartConfig].footer}
                     {(() => {
                       const currentChart = chartConfig[selectedChart as keyof typeof chartConfig]
@@ -766,25 +793,25 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="flex-col items-start gap-1 text-sm w-full"
                 >
-                  <div className={`flex gap-2 leading-none font-[600] min-h-4 ${cardFooterFontClass}`}>
+                  <div className={`flex gap-2 leading-none font-semibold min-h-4 ${cardFooterFontClass}`}>
                     <div>
-                      {isRTL ? t("dashboard.charts.effectivesByCategory") : "Effectifs par Categorie: "}
+                      {isRTL ? "الموظفين حسب الفئة: " : "Effectifs par Categorie: "}
                       <span className="font-semibold" style={{ color: "#72A8B7" }}>
                         {officerTotal}
                       </span>{" "}
                       <span className="font-normal">
-                        {isRTL ? t("dashboard.charts.officers") + " - " : "officiers - "}
+                        {isRTL ? "الضباط" : "officiers"}{isRTL ? " - " : " - "}
                       </span>
                       <span className="font-semibold" style={{ color: "#9C27B0" }}>
                         {ncoTotal}
                       </span>{" "}
                       <span className="font-normal">
-                        {isRTL ? " " + t("dashboard.charts.subOfficers") : " Sous-Officiers"}
+                        {isRTL ? " " : " "}{isRTL ? "ضباط صف" : "Sous-Officiers"}
                       </span>
                     </div>
                   </div>
                   <div className={`text-[13px] text-muted-foreground pt-1 ${cardFooterFontClass}`}>
-                    {isRTL ? t("dashboard.charts.gradeAnalysis") : "Analyse des effectifs par grade"}
+                    {isRTL ? "توزيع الأفراد حسب الرتب" : "Analyse des effectifs par grade"}
                   </div>
                 </motion.div>
               )}
@@ -797,13 +824,11 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="flex-col items-start gap-1 text-sm w-full"
                 >
-                  <div className={`flex gap-2 leading-none font-[600] min-h-4 ${cardFooterFontClass}`}>
+                  <div className={`flex gap-2 leading-none font-semibold min-h-4 ${cardFooterFontClass}`}>
                     {chartConfig[selectedChart as keyof typeof chartConfig].footer}
                   </div>
                   <div className={`text-[13px] text-muted-foreground pt-1 ${cardFooterFontClass}`}>
-                    {isRTL
-                      ? t("dashboard.charts.functionalityInDevelopment")
-                      : "Fonctionnalité en cours de développement"}
+                    {isRTL ? "الوظيفة قيد التطوير" : "Fonctionnalité en cours de développement"}
                   </div>
                 </motion.div>
               )}
@@ -815,7 +840,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
         {/* Graphique radial affichant la répartition hommes/femmes des employés */}
         <div className={`${cardStyles} p-6`}>
           <h2 className={`text-lg font-semibold text-foreground mb-2 text-center ${cardTitleFontClass}`}>
-            {isRTL ? t("dashboard.charts.genderDistribution") : "Répartition par Genre"}
+            {isRTL ? "التوزيع حسب الجنس" : "Répartition par Genre"}
           </h2>
           <GenderRadialChart />
         </div>
@@ -828,14 +853,14 @@ export function DashboardContent({ data }: DashboardContentProps) {
         <div className={`${cardStyles}`}>
           <div className="px-6 py-4 flex items-center justify-between mb-1">
             <h2 className={`text-base font-semibold text-foreground ${cardTitleFontClass}`}>
-              {isRTL ? t("dashboard.tables.unitsList") : "Liste des Unités"}
+              {isRTL ? "قــائمــــة الــوحــــدات" : "Liste des Unités"}
             </h2>
             <Link
               href={isRTL ? "/ar/dashboard/unite/table" : "/fr/dashboard/unite/table"}
               className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none ${cardSubtitleFontClass}`}
               style={{ color: viewAllButtonTextColor }}
             >
-              {isRTL ? t("dashboard.tables.viewAll") : "View All"}
+              {isRTL ? "عرض الكل" : "View All"}
             </Link>
           </div>
           <div className="px-6 pb-6">
@@ -848,21 +873,21 @@ export function DashboardContent({ data }: DashboardContentProps) {
                         isRTL ? "text-[15px]" : "text-xs"
                       } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? t("dashboard.tables.unitColumns.unitName") : "Nom Unité"}
+                      {isRTL ? "الـــــــوحــــــــدة" : "Nom Unité"}
                     </th>
                     <th
                       className={`px-6 py-4 text-start ${
                         isRTL ? "text-[15px]" : "text-xs"
                       } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? t("dashboard.tables.unitColumns.type") : "Type"}
+                      {isRTL ? "النـــــــــــــوع" : "Type"}
                     </th>
                     <th
                       className={`px-6 py-4 text-start ${
                         isRTL ? "text-[15px]" : "text-xs"
                       } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? t("dashboard.tables.unitColumns.nature") : "Nature"}
+                      {isRTL ? "طبيعــة الوحــــدة" : "Nature"}
                     </th>
                   </tr>
                 </thead>
@@ -873,7 +898,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                         colSpan={3}
                         className={`px-6 py-8 text-center text-muted-foreground ${cardSubtitleFontClass}`}
                       >
-                        {isRTL ? t("dashboard.tables.noData.noUnitsFound") : "Aucune unité trouvée"}
+                        {isRTL ? "لم يتم العثور على وحدات" : "Aucune unité trouvée"}
                       </td>
                     </tr>
                   ) : (
@@ -881,7 +906,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                       <tr key={unite.id} className="hover:bg-gray-50 dark:hover:bg-[#363C44]">
                         <td className="px-6 py-2.5 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-muted flex-shrink-0 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-muted shrink-0 flex items-center justify-center">
                               {getUniteIcon(unite.navigante)}
                             </div>
                             <div className="min-w-0 flex-1">
@@ -893,9 +918,9 @@ export function DashboardContent({ data }: DashboardContentProps) {
                               </div>
                               <div
                                 className={`text-xs mt-1 text-muted-foreground truncate dark:text-gray-400 ${tableCellNotoFontClass}`}
-                                title={unite.niveau_1 || (isRTL ? t("common.notAvailable") : "N/A")}
+                                title={unite.niveau_1 || (isRTL ? "غير متوفر" : "N/A")}
                               >
-                                {unite.niveau_1 || (isRTL ? t("common.notAvailable") : "N/A")}
+                                {unite.niveau_1 || (isRTL ? "غير متوفر" : "N/A")}
                               </div>
                             </div>
                           </div>
@@ -924,12 +949,8 @@ export function DashboardContent({ data }: DashboardContentProps) {
                               }`}
                             />
                             {unite.navigante
-                              ? isRTL
-                                ? t("dashboard.tables.unitTypes.navigante")
-                                : "Navigante"
-                              : isRTL
-                              ? t("dashboard.tables.unitTypes.terrestre")
-                              : "Terrestre"}
+                              ? (isRTL ? "وحـدة عـائمـة" : "Navigante")
+                              : (isRTL ? "وحـدة قــــارة" : "Terrestre")}
                           </span>
                         </td>
                       </tr>
@@ -946,14 +967,14 @@ export function DashboardContent({ data }: DashboardContentProps) {
         <div className={`${cardStyles}`}>
           <div className="px-6 py-4 flex items-center justify-between mb-1">
             <h2 className={`text-base font-semibold text-foreground ${cardTitleFontClass}`}>
-              {isRTL ? t("dashboard.tables.employeesList") : "Liste des Employés"}
+              {isRTL ? "قــائمــــة المــوظفيــــن" : "Liste des Employés"}
             </h2>
             <Link
               href={isRTL ? "/ar/dashboard/employees/table" : "/fr/dashboard/employees/table"}
               className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none ${cardSubtitleFontClass}`}
               style={{ color: viewAllButtonTextColor }}
             >
-              {isRTL ? t("dashboard.tables.viewAll") : "View All"}
+              {isRTL ? "عرض الكل" : "View All"}
             </Link>
           </div>
           <div className="px-6 pb-6">
@@ -963,10 +984,10 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   <tr>
                     {(isRTL
                       ? [
-                          t("dashboard.tables.employeeColumns.identity"),
-                          t("dashboard.tables.employeeColumns.matricule"),
-                          t("dashboard.tables.employeeColumns.uniqueIdentifier"),
-                          t("dashboard.tables.employeeColumns.status"),
+                          "الهــــويـــــــــــــة",
+                          "الرقــــم",
+                          "المعــرف الوحيـــد",
+                          "الحــالــــــة",
                         ]
                       : ["Identité", "Matricule", "Identifiant unique", "Statut"]
                     ).map((header) => (
@@ -988,7 +1009,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                         colSpan={3}
                         className={`px-6 py-8 text-center text-muted-foreground ${cardSubtitleFontClass}`}
                       >
-                        {isRTL ? t("dashboard.tables.noData.noEmployeesFound") : "Aucun employé trouvé"}
+                        {isRTL ? "لم يتم العثور على موظفين" : "Aucun employé trouvé"}
                       </td>
                     </tr>
                   ) : (
@@ -996,7 +1017,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                       <tr key={employee.id} className="hover:bg-gray-50 dark:hover:bg-[#363C44]">
                         <td className="px-6 py-2.5 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <div className="flex-shrink-0 h-10 w-10 relative rounded-full overflow-hidden bg-muted">
+                            <div className="shrink-0 h-10 w-10 relative rounded-full overflow-hidden bg-muted">
                               <Image
                                 className="object-cover "
                                 src={employee.displayImage || "/images/default-avatar.png"}
@@ -1077,7 +1098,17 @@ export function DashboardContent({ data }: DashboardContentProps) {
                                   : "bg-gray-500"
                               }`}
                             />
-                            {isRTL ? t(`dashboard.employeeStatus.${employee.actif}`) || employee.actif : employee.actif}
+                            {isRTL ? (
+                              employee.actif === "مباشر" ? "مبـاشــر" :
+                              employee.actif === "غير مباشر" ? "غير مباشر" :
+                              employee.actif === "إجازة" ? "في إجازة" :
+                              employee.actif === "مرض" ? "مــــرض" :
+                              employee.actif === "تدريب" ? "تكــويــن" :
+                              employee.actif === "مهمة" ? "في مهمــة" :
+                              employee.actif === "متغيب" ? "غائــب" :
+                              employee.actif === "موقوف" ? "موقــوف" :
+                              employee.actif
+                            ) : employee.actif}
                           </span>
                         </td>
                       </tr>

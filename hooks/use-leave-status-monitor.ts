@@ -4,12 +4,13 @@ import { dailyStatusCheck, checkEmployeeStatus, forceStatusUpdate } from '@/util
 
 /**
  * Hook pour surveiller et mettre à jour automatiquement les statuts des employés
- * basés sur leurs congés, sanctions ET formations - utilise les fonctions database unifiées
+ * basés sur leurs congés, sanctions, formations ET absences - utilise les fonctions database unifiées
  *
  * Gère automatiquement:
  * - Congés: إجازة, مرض → مباشر quand terminé
  * - Sanctions: موقوف → مباشر quand "إيقاف عن العمل" terminé
  * - Formations: تدريب → مباشر quand formation terminée
+ * - Absences: متغيب → مباشر quand absence terminée
  */
 export function useLeaveStatusMonitor() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -28,14 +29,14 @@ export function useLeaveStatusMonitor() {
 
     // Vérification initiale si c'est un nouveau jour
     if (isNewDay()) {
-      console.log("Nouveau jour détecté - Lancement de la vérification des statuts congés + sanctions + formations (via database)")
+      console.log("Nouveau jour détecté - Lancement de la vérification des statuts congés + sanctions + formations + absences (via database)")
       dailyStatusCheck()
     }
 
     // Vérifier toutes les 4 heures au lieu de chaque heure (la database gère l'automation)
     intervalRef.current = setInterval(() => {
       if (isNewDay()) {
-        console.log("Nouveau jour détecté - Lancement de la vérification des statuts congés + sanctions + formations (via database)")
+        console.log("Nouveau jour détecté - Lancement de la vérification des statuts congés + sanctions + formations + absences (via database)")
         dailyStatusCheck()
       }
     }, 4 * 60 * 60 * 1000) // Toutes les 4 heures
@@ -68,23 +69,24 @@ export function useLeaveStatusMonitor() {
 /**
  * Hook simplifié pour les interactions avec les statuts des employés
  * N'effectue PLUS de mise à jour automatique au montage
- * Fournit des fonctions pour interagir avec le système unifié (congés + sanctions + formations)
+ * Fournit des fonctions pour interagir avec le système unifié (congés + sanctions + formations + absences)
  *
  * Gère:
  * - Congés expirés → retour à "مباشر"
  * - Sanctions "إيقاف عن العمل" expirées → retour à "مباشر"
  * - Formations terminées → retour à "مباشر"
+ * - Absences terminées → retour à "مباشر"
  */
 export function useEmployeeStatusMonitor(employeeId?: string) {
-  // Fonction pour déclencher une vérification globale des statuts (congés + sanctions + formations)
+  // Fonction pour déclencher une vérification globale des statuts (congés + sanctions + formations + absences)
   const checkStatus = async () => {
-    console.log("Vérification globale des statuts (congés + sanctions + formations) via database")
+    console.log("Vérification globale des statuts (congés + sanctions + formations + absences) via database")
     return await checkEmployeeStatus("")
   }
 
-  // Fonction pour forcer une mise à jour complète (congés + sanctions + formations)
+  // Fonction pour forcer une mise à jour complète (congés + sanctions + formations + absences)
   const forceUpdate = async () => {
-    console.log("Force une mise à jour complète des statuts (congés + sanctions + formations)")
+    console.log("Force une mise à jour complète des statuts (congés + sanctions + formations + absences)")
     return await forceStatusUpdate()
   }
 

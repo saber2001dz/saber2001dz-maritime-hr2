@@ -152,6 +152,32 @@ export async function updateEmployeeStatusBasedOnFormationsRPC(
   }
 }
 
+/**
+ * Appelle la fonction database pour mettre à jour les statuts des employés basés sur leurs absences
+ * @param supabaseClient - Client Supabase (optionnel)
+ * @returns Le résultat de la mise à jour
+ */
+export async function updateEmployeeStatusBasedOnAbsencesRPC(
+  supabaseClient?: any
+): Promise<{ updated_employees: number; message: string }> {
+  const supabase = supabaseClient || createClient()
+
+  try {
+    const { data, error } = await supabase.rpc('update_employee_status_based_on_absences')
+
+    if (error) {
+      console.error("Erreur lors de la mise à jour des statuts (absences) via database:", error)
+      throw error
+    }
+
+    console.log(`Mise à jour des statuts (absences) terminée: ${data?.[0]?.updated_employees || 0} employés mis à jour`)
+    return data?.[0] || { updated_employees: 0, message: "Aucune mise à jour" }
+  } catch (error) {
+    console.error("Erreur lors de l'appel à la fonction database (absences):", error)
+    throw error
+  }
+}
+
 // Liste des statuts liés aux congés (qui peuvent être remplacés par "مباشر")
 // Note: Utilise les statuts définis dans le type TypeScript (إجازة et مرض)
 const LEAVE_RELATED_STATUSES: EmployeeStatus[] = ['إجازة', 'مرض']

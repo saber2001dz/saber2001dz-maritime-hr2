@@ -45,4 +45,5 @@ export interface DisplayEmployee {
   currentGradeDate: string | null
   recruitmentDate: string | null
   hierarchyLevel: number | null
+  dateRetraite: string | null
 }
