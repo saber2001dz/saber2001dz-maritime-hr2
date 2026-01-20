@@ -18,7 +18,30 @@ export interface EmployeeAffectation {
   date_responsabilite: string | null
 }
 
-export interface RawEmployeeData extends EmployeeRow {
+// Type pour la requête liste (EMPLOYEE_LIST_SELECT_QUERY)
+export interface RawEmployeeData {
+  id: string
+  prenom: string | null
+  nom: string | null
+  sexe: string | null
+  matricule: string | null
+  actif: string
+  identifiant_unique: string | null
+  date_recrutement: string | null
+  date_retraite: string | null
+  cin: string | null
+  date_naissance: string | null
+  grade_actuel?: string | null
+  date_grade?: string | null
+  unite_actuelle?: string | null
+  affectation_actuel?: string | null
+  date_affectation?: string | null
+  hierarchy_level?: number | null
+  employee_photos?: EmployeePhoto[] | null
+}
+
+// Type complet pour les détails d'un employé
+export interface RawEmployeeFullData extends EmployeeRow {
   grade_actuel?: string | null
   date_grade?: string | null
   unite_actuelle?: string | null
@@ -46,4 +69,6 @@ export interface DisplayEmployee {
   recruitmentDate: string | null
   hierarchyLevel: number | null
   dateRetraite: string | null
+  cin: string | null
+  date_naissance: string | null
 }

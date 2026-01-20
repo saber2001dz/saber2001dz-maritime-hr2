@@ -12,7 +12,10 @@ import {
   RefreshCw,
   RotateCcw,
   Search,
+  Download,
+  ChevronDown,
 } from "lucide-react"
+import * as XLSX from "xlsx"
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
@@ -38,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface SimpleRetraiteTableProps {
   initialEmployees: DisplayEmployee[]
@@ -73,16 +77,41 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
   const [matriculeSearchTerm, setMatriculeSearchTerm] = useState("")
   const [selectedYear, setSelectedYear] = useState<string>("")
   const [realtimeConnected, setRealtimeConnected] = useState(false)
+  const [showRetired, setShowRetired] = useState(false)
+  const [showExportMenu, setShowExportMenu] = useState(false)
 
-  // Générer les années disponibles (année actuelle + 10 ans)
+  // Générer les années disponibles
   const currentYear = new Date().getFullYear()
   const yearOptions = useMemo(() => {
-    const years: number[] = []
-    for (let i = 0; i <= 10; i++) {
-      years.push(currentYear + i)
+    if (showRetired) {
+      // Si le checkbox est coché, générer les années basées sur les dates de retraite réelles
+      const retiredEmployees = employees.filter((employee) => employee.actif === "متقاعد" && employee.dateRetraite)
+
+      if (retiredEmployees.length === 0) return []
+
+      // Extraire toutes les années de retraite
+      const retirementYears = retiredEmployees.map((employee) => new Date(employee.dateRetraite!).getFullYear())
+
+      // Obtenir l'année la plus récente et la plus ancienne
+      const maxYear = Math.max(...retirementYears)
+      const minYear = Math.min(...retirementYears)
+
+      // Générer la liste des années du plus récent au plus ancien
+      const years: number[] = []
+      for (let year = maxYear; year >= minYear; year--) {
+        years.push(year)
+      }
+
+      return years
+    } else {
+      // Sinon, année actuelle + 10 ans (comportement par défaut)
+      const years: number[] = []
+      for (let i = 0; i <= 10; i++) {
+        years.push(currentYear + i)
+      }
+      return years
     }
-    return years
-  }, [currentYear])
+  }, [currentYear, showRetired, employees])
   const [highlightedEmployeeId, setHighlightedEmployeeId] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -283,12 +312,19 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    // Filtrer d'abord les employés qui n'ont pas encore atteint la retraite
-    let filtered = employees.filter((employee) => {
-      if (!employee.dateRetraite) return false // Exclure ceux sans date de retraite
-      const retraiteDate = new Date(employee.dateRetraite)
-      return retraiteDate > today // Garder seulement ceux dont la date de retraite est dans le futur
-    })
+    let filtered: DisplayEmployee[]
+
+    if (showRetired) {
+      // Si le checkbox est coché, afficher uniquement les employés avec actif = "متقاعد"
+      filtered = employees.filter((employee) => employee.actif === "متقاعد")
+    } else {
+      // Sinon, filtrer les employés qui n'ont pas encore atteint la retraite
+      filtered = employees.filter((employee) => {
+        if (!employee.dateRetraite) return false // Exclure ceux sans date de retraite
+        const retraiteDate = new Date(employee.dateRetraite)
+        return retraiteDate > today // Garder seulement ceux dont la date de retraite est dans le futur
+      })
+    }
 
     // Filtrage par année de retraite
     if (selectedYear !== "") {
@@ -320,7 +356,7 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
     }
 
     return filtered
-  }, [employees, searchTerm, matriculeSearchTerm, selectedYear, normalize])
+  }, [employees, searchTerm, matriculeSearchTerm, selectedYear, showRetired, normalize])
 
   // Tri des employés avec logique complexe par défaut
   const sortedEmployees = useMemo(() => {
@@ -367,6 +403,12 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
   useEffect(() => {
     setCurrentPage(1)
   }, [searchTerm, matriculeSearchTerm, selectedYear])
+
+  // Réinitialiser le filtre d'année quand le checkbox change
+  useEffect(() => {
+    setSelectedYear("")
+    setCurrentPage(1)
+  }, [showRetired])
 
   // Fonction pour sauvegarder les paramètres actuels
   const saveCurrentParams = useCallback(() => {
@@ -471,6 +513,98 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
     }
   }, [refreshData, supabase, isRefreshing])
 
+  // Fonctions d'exportation
+  const exportToExcel = useCallback(() => {
+    const dataToExport = sortedEmployees.map((emp, index) => ({
+      "N°": index + 1,
+      "Prénom": emp.prenom || "",
+      "Nom": emp.nom || "",
+      "Matricule": emp.matricule || "",
+      "ID Unique": emp.identifiant_unique || "",
+      "Grade": emp.latestGrade || "",
+      ...(showRetired
+        ? {
+            "CIN": emp.cin || "",
+            "Date de naissance": emp.date_naissance ? formatDateForLTR(emp.date_naissance) : "",
+          }
+        : {
+            "Unité": emp.latestUnite || "",
+            "Responsabilité": emp.latestResponsibility || "",
+          }),
+      "Date retraite": emp.dateRetraite ? formatDateForLTR(emp.dateRetraite) : "",
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Retraites")
+    XLSX.writeFile(workbook, `retraites_${new Date().toISOString().split("T")[0]}.xlsx`)
+  }, [sortedEmployees, showRetired])
+
+  const exportToCSV = useCallback(() => {
+    const dataToExport = sortedEmployees.map((emp, index) => ({
+      "N°": index + 1,
+      "Prénom": emp.prenom || "",
+      "Nom": emp.nom || "",
+      "Matricule": emp.matricule || "",
+      "ID Unique": emp.identifiant_unique || "",
+      "Grade": emp.latestGrade || "",
+      ...(showRetired
+        ? {
+            "CIN": emp.cin || "",
+            "Date de naissance": emp.date_naissance ? formatDateForLTR(emp.date_naissance) : "",
+          }
+        : {
+            "Unité": emp.latestUnite || "",
+            "Responsabilité": emp.latestResponsibility || "",
+          }),
+      "Date retraite": emp.dateRetraite ? formatDateForLTR(emp.dateRetraite) : "",
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
+    const csv = XLSX.utils.sheet_to_csv(worksheet)
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `retraites_${new Date().toISOString().split("T")[0]}.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [sortedEmployees, showRetired])
+
+  const exportToJSON = useCallback(() => {
+    const dataToExport = sortedEmployees.map((emp, index) => ({
+      numero: index + 1,
+      prenom: emp.prenom || "",
+      nom: emp.nom || "",
+      matricule: emp.matricule || "",
+      id_unique: emp.identifiant_unique || "",
+      grade: emp.latestGrade || "",
+      ...(showRetired
+        ? {
+            cin: emp.cin || "",
+            date_naissance: emp.date_naissance || "",
+          }
+        : {
+            unite: emp.latestUnite || "",
+            responsabilite: emp.latestResponsibility || "",
+          }),
+      date_retraite: emp.dateRetraite || "",
+    }))
+
+    const jsonString = JSON.stringify(dataToExport, null, 2)
+    const blob = new Blob([jsonString], { type: "application/json" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `retraites_${new Date().toISOString().split("T")[0]}.json`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [sortedEmployees, showRetired])
+
   // Icône de tri
   const getSortIcon = (columnKey: SortKey) => {
     const spacingClass = isRTL ? "mr-2" : "ml-2"
@@ -507,7 +641,7 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
 
   return (
     <div className="mb-6 flex flex-col">
-      <div className="mb-6">
+      <div className="mb-2">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className={`text-2xl ${mainTitleFontClass} text-foreground`}>
@@ -555,6 +689,25 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
           </button>
         </div>
       </div>
+
+      {/* Checkbox for retired employees */}
+      <div className="flex items-center gap-2 mb-2">
+        <Checkbox
+          id="show-retired"
+          className="cursor-pointer border-gray-400 bg-gray-50 mr-1"
+          checked={showRetired}
+          onCheckedChange={(checked) => setShowRetired(checked as boolean)}
+        />
+        <label
+          htmlFor="show-retired"
+          className={`text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer select-none ${
+            isRTL ? titleFontClass : ''
+          }`}
+        >
+          {isRTL ? 'المتقـاعـديــن' : 'Retraités'}
+        </label>
+      </div>
+
       <div className="bg-white dark:bg-card rounded-sm px-8 py-6 border border-gray-200 dark:border-[#393A41] min-h-150 flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
           <div className="w-full sm:max-w-4xl flex gap-3">
@@ -646,6 +799,55 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
               <RotateCcw size={16} />
             </button>
           </div>
+          <div className="flex items-center gap-3">
+            {/* Export button */}
+            <div className="relative">
+              <button
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="px-3 py-1.5 bg-white dark:bg-card border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-[14px] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 rounded cursor-pointer"
+                style={{ fontFamily: "'Noto Naskh Arabic', sans-serif" }}
+              >
+                <Download size={14} />
+                تــصــديــر
+                <ChevronDown size={14} className="opacity-50" />
+              </button>
+
+              {showExportMenu && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
+                  <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-card border border-gray-300 dark:border-gray-600 shadow-lg rounded-md z-20">
+                    <button
+                      onClick={() => {
+                        exportToExcel()
+                        setShowExportMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      Excel
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportToCSV()
+                        setShowExportMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      CSV
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportToJSON()
+                        setShowExportMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      JSON
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="overflow-hidden flex-1 flex flex-col">
@@ -681,7 +883,7 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
                       isRTL ? "font-semibold" : "font-medium"
-                    } w-28 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                    } w-36 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                   >
                     {isRTL ? "الــرقم الموحد" : "ID Unique"}
                   </th>
@@ -690,14 +892,18 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
                       isRTL ? "font-semibold" : "font-medium"
                     } w-56 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                   >
-                    {isRTL ? "الــــــــوحــــــــــــــــدة" : "Unité"}
+                    {showRetired
+                      ? isRTL ? "بطاقة التعريف الوطنية" : "CIN"
+                      : isRTL ? "الــــــــوحــــــــــــــــدة" : "Unité"}
                   </th>
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
                       isRTL ? "font-semibold" : "font-medium"
                     } w-40 text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
                   >
-                    {isRTL ? "المســــؤوليــــــة" : "Responsabilité"}
+                    {showRetired
+                      ? isRTL ? "تــاريــخ الـــولادة" : "Date de naissance"
+                      : isRTL ? "المســــؤوليــــــة" : "Responsabilité"}
                   </th>
                   <th
                     className={`px-6 py-4 text-start text-[15px] ${
@@ -779,7 +985,7 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
                             {employee.matricule || "-"}
                           </span>
                         </td>
-                        <td className="px-6 py-2.5 w-28">
+                        <td className="px-6 py-2.5 w-36">
                           <span
                             className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
                               isRTL ? tableCellNotoFont : ""
@@ -793,20 +999,32 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
                             className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
                               isRTL ? tableCellNotoFont : ""
                             } ${isRTL ? "text-[15px]" : ""}`}
-                            title={employee.latestUnite || "-"}
+                            title={showRetired ? (employee.cin || "-") : (employee.latestUnite || "-")}
                           >
-                            {employee.latestUnite || "-"}
+                            {showRetired ? (employee.cin || "-") : (employee.latestUnite || "-")}
                           </span>
                         </td>
                         <td className="px-6 py-2.5 w-40">
-                          <span
-                            className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
-                              isRTL ? tableCellNotoFont : ""
-                            } ${isRTL ? "text-[15px]" : ""}`}
-                            title={employee.latestResponsibility || "-"}
-                          >
-                            {employee.latestResponsibility || "-"}
-                          </span>
+                          {(() => {
+                            const displayValue = showRetired
+                              ? employee.date_naissance
+                                ? isRTL
+                                  ? formatDateForRTL(employee.date_naissance)
+                                  : formatDateForLTR(employee.date_naissance)
+                                : "-"
+                              : employee.latestResponsibility || "-"
+
+                            return (
+                              <span
+                                className={`text-sm text-gray-700 dark:text-gray-300 block truncate ${
+                                  isRTL ? tableCellNotoFont : ""
+                                } ${isRTL ? "text-[15px]" : ""}`}
+                                title={displayValue}
+                              >
+                                {displayValue}
+                              </span>
+                            )
+                          })()}
                         </td>
                         <td className="px-6 py-2.5 w-28">
                           <span

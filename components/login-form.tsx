@@ -56,8 +56,10 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
+            name="email"
             type="email"
             placeholder="you@example.com"
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -73,8 +75,10 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
           </div>
           <Input
             id="password"
+            name="password"
             type="password"
             placeholder="••••••••"
+            autoComplete="current-password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}

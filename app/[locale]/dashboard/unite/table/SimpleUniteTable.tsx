@@ -16,7 +16,10 @@ import {
   Building2,
   Search,
   RotateCcw,
+  Download,
+  ChevronDown,
 } from "lucide-react"
+import * as XLSX from "xlsx"
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
@@ -69,6 +72,7 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
   const [realtimeConnected, setRealtimeConnected] = useState(false)
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [showExportMenu, setShowExportMenu] = useState(false)
 
   const supabase = createClient()
 
@@ -494,6 +498,71 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
     }
   }, [refreshData, isRefreshing])
 
+  // Fonctions d'exportation
+  const exportToExcel = useCallback(() => {
+    const dataToExport = sortedUnites.map((unite, index) => ({
+      "N°": index + 1,
+      "Nom de l'unité": unite.unite || "",
+      "Direction": unite.niveau_1 || "",
+      "Région": unite.niveau_2 || "",
+      "Catégorie": unite.unite_categorie || "",
+      "Nature": unite.navigante ? "Navigante" : "Terrestre",
+      "Responsable": unite.responsable_nom || "",
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Unités")
+    XLSX.writeFile(workbook, `unites_${new Date().toISOString().split("T")[0]}.xlsx`)
+  }, [sortedUnites])
+
+  const exportToCSV = useCallback(() => {
+    const dataToExport = sortedUnites.map((unite, index) => ({
+      "N°": index + 1,
+      "Nom de l'unité": unite.unite || "",
+      "Direction": unite.niveau_1 || "",
+      "Région": unite.niveau_2 || "",
+      "Catégorie": unite.unite_categorie || "",
+      "Nature": unite.navigante ? "Navigante" : "Terrestre",
+      "Responsable": unite.responsable_nom || "",
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
+    const csv = XLSX.utils.sheet_to_csv(worksheet)
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `unites_${new Date().toISOString().split("T")[0]}.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [sortedUnites])
+
+  const exportToJSON = useCallback(() => {
+    const dataToExport = sortedUnites.map((unite, index) => ({
+      numero: index + 1,
+      nom_unite: unite.unite || "",
+      direction: unite.niveau_1 || "",
+      region: unite.niveau_2 || "",
+      categorie: unite.unite_categorie || "",
+      nature: unite.navigante ? "Navigante" : "Terrestre",
+      responsable: unite.responsable_nom || "",
+    }))
+
+    const jsonString = JSON.stringify(dataToExport, null, 2)
+    const blob = new Blob([jsonString], { type: "application/json" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `unites_${new Date().toISOString().split("T")[0]}.json`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [sortedUnites])
+
   // Icône de tri
   const getSortIcon = (columnKey: SortKey) => {
     const spacingClass = isRTL ? "mr-2" : "ml-2"
@@ -672,15 +741,63 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
               <RotateCcw size={16} />
             </button>
           </div>
-          <Link
-            href="/dashboard/unite/nouveau"
-            className={`bg-[#076784] hover:bg-[#2B778F] text-white px-6 py-2.5 rounded text-[14px] font-medium flex items-center gap-2 transition-colors whitespace-nowrap shrink-0 ${
-              isRTL ? titleFontClass : ""
-            }`}
-          >
-            <Plus className="w-4 h-4" />
-            {isRTL ? "وحــدة جـديـدة" : "Nouvelle unité"}
-          </Link>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="px-3 py-1.75 bg-white dark:bg-card border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-[14px] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 rounded cursor-pointer"
+                style={{ fontFamily: "'Noto Naskh Arabic', sans-serif" }}
+              >
+                <Download size={14} />
+                تــصــديــر
+                <ChevronDown size={14} className="opacity-50" />
+              </button>
+
+              {showExportMenu && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
+                  <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-card border border-gray-300 dark:border-gray-600 shadow-lg rounded-md z-20">
+                    <button
+                      onClick={() => {
+                        exportToExcel()
+                        setShowExportMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      Excel
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportToCSV()
+                        setShowExportMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      CSV
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportToJSON()
+                        setShowExportMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      JSON
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+            <Link
+              href="/dashboard/unite/nouveau"
+              className={`bg-[#076784] hover:bg-[#2B778F] text-white px-6 py-2 rounded text-[14px] font-medium flex items-center gap-2 transition-colors whitespace-nowrap shrink-0 ${
+                isRTL ? titleFontClass : ""
+              }`}
+            >
+              <Plus className="w-4 h-4" />
+              {isRTL ? "وحــدة جـديـدة" : "Nouvelle unité"}
+            </Link>
+          </div>
         </div>
 
         <div className="overflow-hidden flex-1 flex flex-col">

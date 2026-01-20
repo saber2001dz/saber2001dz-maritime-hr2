@@ -14,7 +14,10 @@ import {
   RefreshCw,
   RotateCcw,
   Search,
+  Download,
+  ChevronDown,
 } from "lucide-react"
+import * as XLSX from "xlsx"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -88,6 +91,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
   const [realtimeConnected, setRealtimeConnected] = useState(false)
   const [highlightedEmployeeId, setHighlightedEmployeeId] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [showExportMenu, setShowExportMenu] = useState(false)
 
   // Ensure component is mounted client-side
   useEffect(() => {
@@ -460,6 +464,77 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
     }
   }, [refreshData, supabase, isRefreshing])
 
+  // Fonctions d'exportation
+  const exportToExcel = useCallback(() => {
+    const dataToExport = sortedEmployees.map((emp, index) => ({
+      "N°": index + 1,
+      "Prénom": emp.prenom || "",
+      "Nom": emp.nom || "",
+      "Matricule": emp.matricule || "",
+      "Grade": emp.latestGrade || "",
+      "Statut": emp.actif || "",
+      "Unité": emp.latestUnite || "",
+      "Responsabilité": emp.latestResponsibility || "",
+      "Date d'affectation": emp.latestDateAffectation ? formatDateForLTR(emp.latestDateAffectation) : "",
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Employés")
+    XLSX.writeFile(workbook, `employes_${new Date().toISOString().split("T")[0]}.xlsx`)
+  }, [sortedEmployees])
+
+  const exportToCSV = useCallback(() => {
+    const dataToExport = sortedEmployees.map((emp, index) => ({
+      "N°": index + 1,
+      "Prénom": emp.prenom || "",
+      "Nom": emp.nom || "",
+      "Matricule": emp.matricule || "",
+      "Grade": emp.latestGrade || "",
+      "Statut": emp.actif || "",
+      "Unité": emp.latestUnite || "",
+      "Responsabilité": emp.latestResponsibility || "",
+      "Date d'affectation": emp.latestDateAffectation ? formatDateForLTR(emp.latestDateAffectation) : "",
+    }))
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport)
+    const csv = XLSX.utils.sheet_to_csv(worksheet)
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `employes_${new Date().toISOString().split("T")[0]}.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [sortedEmployees])
+
+  const exportToJSON = useCallback(() => {
+    const dataToExport = sortedEmployees.map((emp, index) => ({
+      numero: index + 1,
+      prenom: emp.prenom || "",
+      nom: emp.nom || "",
+      matricule: emp.matricule || "",
+      grade: emp.latestGrade || "",
+      statut: emp.actif || "",
+      unite: emp.latestUnite || "",
+      responsabilite: emp.latestResponsibility || "",
+      date_affectation: emp.latestDateAffectation || "",
+    }))
+
+    const jsonString = JSON.stringify(dataToExport, null, 2)
+    const blob = new Blob([jsonString], { type: "application/json" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `employes_${new Date().toISOString().split("T")[0]}.json`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [sortedEmployees])
+
   // Icône de tri
   const getSortIcon = (columnKey: SortKey) => {
     const spacingClass = isRTL ? "mr-2" : "ml-2"
@@ -559,6 +634,8 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
           <div className="w-full sm:max-w-4xl flex gap-3">
             <div className="relative w-70">
               <input
+                id="search-name"
+                name="search-name"
                 type="text"
                 className={`w-full px-2 py-1.5 ltr:pr-8 rtl:pl-8 border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] text-sm  bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#959594] ${
                   isRTL ? titleFontClass : ""
@@ -581,6 +658,8 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
             </div>
             <div className="relative w-56">
               <input
+                id="search-matricule"
+                name="search-matricule"
                 type="text"
                 className={`w-full px-2 py-1.5 ltr:pr-8 rtl:pl-8 border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] text-sm bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#959594] ${
                   isRTL ? titleFontClass : ""
@@ -699,9 +778,55 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
             </button>
           </div>
           <div className="flex items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="px-3 py-1.75 bg-white dark:bg-card border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-[14px] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 rounded cursor-pointer"
+                style={{ fontFamily: "'Noto Naskh Arabic', sans-serif" }}
+              >
+                <Download size={14} />
+                تــصــديــر
+                <ChevronDown size={14} className="opacity-50" />
+              </button>
+
+              {showExportMenu && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
+                  <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-card border border-gray-300 dark:border-gray-600 shadow-lg rounded-md z-20">
+                    <button
+                      onClick={() => {
+                        exportToExcel()
+                        setShowExportMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      Excel
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportToCSV()
+                        setShowExportMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      CSV
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportToJSON()
+                        setShowExportMenu(false)
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    >
+                      JSON
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
             <Link
               href={`/${params.locale}/dashboard/employees/nouveau`}
-              className={`bg-[#076784] hover:bg-[#2B778F] text-white px-6 py-2.5 rounded text-[14px] font-medium flex items-center gap-2 transition-colors ${
+              className={`bg-[#076784] hover:bg-[#2B778F] text-white px-6 py-2 rounded text-[14px] font-medium flex items-center gap-2 transition-colors ${
                 isRTL ? titleFontClass : ""
               }`}
             >

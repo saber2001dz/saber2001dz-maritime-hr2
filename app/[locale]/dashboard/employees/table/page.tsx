@@ -13,10 +13,11 @@ export default async function EmployeesTablePage() {
   let fetchError: string | null = null
 
   try {
-    // D'abord, obtenir le nombre total
+    // D'abord, obtenir le nombre total (exclure les retraités)
     const { count } = await supabase
       .from("employees")
       .select("*", { count: 'exact', head: true })
+      .neq('actif', 'متقاعد')
 
     if (count && count > 0) {
       const pageSize = 1000
@@ -32,6 +33,7 @@ export default async function EmployeesTablePage() {
           supabase
             .from("employees")
             .select(EMPLOYEE_SELECT_QUERY)
+            .neq('actif', 'متقاعد')
             .range(from, to)
         )
       }

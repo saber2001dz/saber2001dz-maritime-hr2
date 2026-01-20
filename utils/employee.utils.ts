@@ -108,6 +108,8 @@ export const processEmployeeData = (emp: RawEmployeeData): DisplayEmployee => {
     recruitmentDate: emp.date_recrutement || null,
     hierarchyLevel: hierarchyLevel,
     dateRetraite: emp.date_retraite || null,
+    cin: emp.cin || null,
+    date_naissance: emp.date_naissance || null,
   }
 }
 
@@ -122,7 +124,7 @@ export const EMPLOYEE_FULL_SELECT_QUERY = `
 
 // Requête optimisée pour la liste/table des employés (données essentielles seulement)
 export const EMPLOYEE_LIST_SELECT_QUERY = `
-  id, prenom, nom, sexe, matricule, actif, identifiant_unique, date_recrutement, date_retraite,
+  id, prenom, nom, sexe, matricule, actif, identifiant_unique, date_recrutement, date_retraite, cin, date_naissance,
   grade_actuel, date_grade, unite_actuelle, affectation_actuel, date_affectation, hierarchy_level,
   employee_photos (photo_url)
 `

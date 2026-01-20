@@ -32,6 +32,9 @@ export default function LoginPage() {
           src="/images/logo1.jpeg"
           alt="Image"
           fill
+          sizes="(max-width: 1024px) 0vw, 50vw"
+          loading="eager"
+          priority
           className="object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>

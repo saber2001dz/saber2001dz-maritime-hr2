@@ -809,11 +809,11 @@ const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialDa
               } transition-all duration-200`}
             >
               <div className={`flex items-center truncate ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"}`}>
-                <tab.icon className="h-4 w-4 flex-shrink-0" />
+                <tab.icon className="h-4 w-4 shrink-0" />
                 <span className={`text-sm truncate ${cardSubtitleFontClass}`}>{tab.label}</span>
                 {tab.count !== undefined && tab.count > 0 && (
                   <span
-                    className={`bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full text-xs flex-shrink-0 ${cardSubtitleFontClass}`}
+                    className={`bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full text-xs shrink-0 ${cardSubtitleFontClass}`}
                   >
                     {tab.count}
                   </span>

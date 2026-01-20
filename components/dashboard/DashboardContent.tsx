@@ -22,17 +22,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { AnimatedNumber } from "@/components/motion-primitives/animated-number"
 import type { DashboardData } from "@/types/dashboard"
 import { useParams } from "next/navigation"
-import {
-  getTitleFont,
-  getMainTitleFont,
-  getCardTitleFont,
-  getSelectFont,
-  getCardFooterFont,
-  getCardSubtitleFont,
-  getTableCellFont,
-  getTableCellNotoFont,
-} from "@/lib/direction"
-import type { Locale } from "@/lib/types"
 import { sortEmployeesByHierarchy } from "@/utils/employee.utils"
 import { useEmployeeMonthlyStats } from "@/hooks/dashboard/useEmployeeMonthlyStats"
 
@@ -45,14 +34,6 @@ export function DashboardContent({ data }: DashboardContentProps) {
   const [monthsLimit, setMonthsLimit] = useState(6)
   const params = useParams()
   const isRTL = params.locale === "ar"
-  const titleFontClass = getTitleFont(params.locale as Locale)
-  const mainTitleFontClass = getMainTitleFont(params.locale as Locale)
-  const cardTitleFontClass = getCardTitleFont(params.locale as Locale)
-  const selectFontClass = getSelectFont(params.locale as Locale)
-  const cardFooterFontClass = getCardFooterFont(params.locale as Locale)
-  const cardSubtitleFontClass = getCardSubtitleFont(params.locale as Locale)
-  const tableCellFontClass = getTableCellFont(params.locale as Locale)
-  const tableCellNotoFontClass = getTableCellNotoFont(params.locale as Locale)
 
 
   // Charger les statistiques mensuelles selon la période sélectionnée
@@ -465,7 +446,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="mb-8">
-        <h1 className={`text-2xl ${mainTitleFontClass} text-foreground`}>
+        <h1 className={`text-2xl ${isRTL ? 'font-jazeera-bold' : 'font-medium'} text-foreground`}>
           {isRTL ? "لوحة المعلومات" : "Tableau de bord"}
         </h1>
       </div>
@@ -478,7 +459,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
             <div className="flex items-start justify-between">
               <div>
                 <CardTitle
-                  className={`text-[20px] font-semibold ${titleFontClass} text-gray-700 dark:text-gray-300 pb-1`}
+                  className={`text-[20px] font-semibold ${isRTL ? 'font-noto-naskh-arabic font-medium' : 'font-medium'} text-gray-700 dark:text-gray-300 pb-1`}
                 >
                   {expensesData.label}
                 </CardTitle>
@@ -494,24 +475,24 @@ export function DashboardContent({ data }: DashboardContentProps) {
 
               <Select dir={isRTL ? "rtl" : "ltr"} defaultValue="6months" onValueChange={handlePeriodChange}>
                 <SelectTrigger
-                  className={`w-23.75 rounded focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 ${selectFontClass}`}
+                  className={`w-23.75 rounded focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 ${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="3months" className={selectFontClass}>
+                  <SelectItem value="3months" className={`${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
                     {isRTL ? "3 أشهر" : "3 mois"}
                   </SelectItem>
-                  <SelectItem value="4months" className={selectFontClass}>
+                  <SelectItem value="4months" className={`${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
                     {isRTL ? "4 أشهر" : "4 mois"}
                   </SelectItem>
-                  <SelectItem value="6months" className={selectFontClass}>
+                  <SelectItem value="6months" className={`${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
                     {isRTL ? "6 أشهر" : "6 mois"}
                   </SelectItem>
-                  <SelectItem value="8months" className={selectFontClass}>
+                  <SelectItem value="8months" className={`${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
                     {isRTL ? "8 أشهر" : "8 mois"}
                   </SelectItem>
-                  <SelectItem value="1year" className={selectFontClass}>
+                  <SelectItem value="1year" className={`${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
                     {isRTL ? "سنـــــة" : "1 an"}
                   </SelectItem>
                 </SelectContent>
@@ -538,7 +519,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
           {/* === CARD : Statistiques des unités === */}
           {/* Affiche les statistiques des unités : total, administratives et opérationnelles avec icônes */}
           <Card className="p-4 md:p-6 flex flex-col justify-center h-35 overflow-hidden bg-card rounded-md shadow-sm border-0">
-            <h3 className={`text-[20px] font-semibold ${titleFontClass} text-gray-700 dark:text-gray-300 pb-3 pl-4`}>
+            <h3 className={`text-[20px] font-semibold ${isRTL ? 'font-noto-naskh-arabic font-medium' : 'font-medium'} text-gray-700 dark:text-gray-300 pb-3 pl-4`}>
               {isRTL ? "إحصــائيـــات الــوحــــدات" : "Statistiques des Unités"}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 pl-4 gap-x-4 gap-y-4 w-full">
@@ -550,7 +531,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                       <IconComponent className={`w-5 h-5 ${section.iconColor}`} />
                     </div>
                     <div>
-                      <p className={`text-[16px] text-muted-foreground whitespace-nowrap ${cardSubtitleFontClass}`}>
+                      <p className={`text-[16px] text-muted-foreground whitespace-nowrap ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                         {section.title}
                       </p>
                       <p className="text-xl font-semibold text-foreground">{section.value}</p>
@@ -572,7 +553,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                 >
                   <div className="flex items-center justify-between -mt-1">
                     <div className="flex items-center gap-2">
-                      <p className={`text-[16px] font-medium text-muted-foreground ${cardSubtitleFontClass}`}>
+                      <p className={`text-[16px] font-medium text-muted-foreground ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                         {stat.title}
                       </p>
                       {/* Ajouter le bouton popover pour les congés */}
@@ -588,7 +569,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   <div className="mt-auto">
                     <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                     <div className="flex items-center text-xs gap-1">
-                      <span className={`${cardSubtitleFontClass}`}>{stat.changeText}</span>
+                      <span className={`${isRTL ? 'font-noto-naskh-arabic' : ''}`}>{stat.changeText}</span>
                       {stat.changeValue && (
                         <span
                           className={`${
@@ -602,7 +583,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                           {stat.changeValue}
                         </span>
                       )}
-                      {stat.changeTextEnd && <span className={`${cardSubtitleFontClass}`}>{stat.changeTextEnd}</span>}
+                      {stat.changeTextEnd && <span className={`${isRTL ? 'font-noto-naskh-arabic' : ''}`}>{stat.changeTextEnd}</span>}
                       {stat.changeType !== "no_data" && (
                         <>
                           {stat.changeType === "increase" && (
@@ -655,7 +636,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                   >
-                    <CardTitle className={cardTitleFontClass}>{chartConfig.conges.title}</CardTitle>
+                    <CardTitle className={`${isRTL ? 'font-noto-naskh-arabic text-[18px] text-gray-700 dark:text-gray-300' : 'text-[18px] text-gray-700 dark:text-gray-300'}`}>{chartConfig.conges.title}</CardTitle>
                     <CardDescription>{chartConfig.conges.description}</CardDescription>
                   </motion.div>
                 )}
@@ -667,7 +648,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                   >
-                    <CardTitle className={cardTitleFontClass}>{chartConfig.grade.title}</CardTitle>
+                    <CardTitle className={`${isRTL ? 'font-noto-naskh-arabic text-[18px] text-gray-700 dark:text-gray-300' : 'text-[18px] text-gray-700 dark:text-gray-300'}`}>{chartConfig.grade.title}</CardTitle>
                     <CardDescription>{chartConfig.grade.description}</CardDescription>
                   </motion.div>
                 )}
@@ -679,7 +660,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                   >
-                    <CardTitle className={cardTitleFontClass}>{chartConfig.funnel.title}</CardTitle>
+                    <CardTitle className={`${isRTL ? 'font-noto-naskh-arabic text-[18px] text-gray-700 dark:text-gray-300' : 'text-[18px] text-gray-700 dark:text-gray-300'}`}>{chartConfig.funnel.title}</CardTitle>
                     <CardDescription>{chartConfig.funnel.description}</CardDescription>
                   </motion.div>
                 )}
@@ -689,17 +670,17 @@ export function DashboardContent({ data }: DashboardContentProps) {
                 defaultValue="grade"
                 onValueChange={(value) => setSelectedChart(value)}
               >
-                <SelectTrigger className={`w-30 rounded ${selectFontClass}`}>
+                <SelectTrigger className={`w-30 rounded ${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="grade" className={selectFontClass}>
+                  <SelectItem value="grade" className={`${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
                     {isRTL ? "الـرتـــــب" : "Grade"}
                   </SelectItem>
-                  <SelectItem value="conges" className={selectFontClass}>
+                  <SelectItem value="conges" className={`${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
                     {isRTL ? "الإجــازات" : "Congés"}
                   </SelectItem>
-                  <SelectItem value="funnel" className={selectFontClass}>
+                  <SelectItem value="funnel" className={`${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
                     {isRTL ? "قــمــع" : "Funnel"}
                   </SelectItem>
                 </SelectContent>
@@ -769,7 +750,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="flex-col items-start gap-1 text-sm w-full"
                 >
-                  <div className={`flex gap-2 leading-none font-semibold min-h-4 ${cardFooterFontClass}`}>
+                  <div className={`flex gap-2 leading-none font-semibold min-h-4 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                     {chartConfig[selectedChart as keyof typeof chartConfig].footer}
                     {(() => {
                       const currentChart = chartConfig[selectedChart as keyof typeof chartConfig]
@@ -778,7 +759,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                     })()}
                   </div>
                   {chartConfig[selectedChart as keyof typeof chartConfig].period && (
-                    <div className={`text-[13px] text-muted-foreground pt-1 ${cardFooterFontClass}`}>
+                    <div className={`text-[13px] text-muted-foreground pt-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                       {chartConfig[selectedChart as keyof typeof chartConfig].period}
                     </div>
                   )}
@@ -793,7 +774,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="flex-col items-start gap-1 text-sm w-full"
                 >
-                  <div className={`flex gap-2 leading-none font-semibold min-h-4 ${cardFooterFontClass}`}>
+                  <div className={`flex gap-2 leading-none font-semibold min-h-4 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                     <div>
                       {isRTL ? "الموظفين حسب الفئة: " : "Effectifs par Categorie: "}
                       <span className="font-semibold" style={{ color: "#72A8B7" }}>
@@ -810,7 +791,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                       </span>
                     </div>
                   </div>
-                  <div className={`text-[13px] text-muted-foreground pt-1 ${cardFooterFontClass}`}>
+                  <div className={`text-[13px] text-muted-foreground pt-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                     {isRTL ? "توزيع الأفراد حسب الرتب" : "Analyse des effectifs par grade"}
                   </div>
                 </motion.div>
@@ -824,10 +805,10 @@ export function DashboardContent({ data }: DashboardContentProps) {
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="flex-col items-start gap-1 text-sm w-full"
                 >
-                  <div className={`flex gap-2 leading-none font-semibold min-h-4 ${cardFooterFontClass}`}>
+                  <div className={`flex gap-2 leading-none font-semibold min-h-4 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                     {chartConfig[selectedChart as keyof typeof chartConfig].footer}
                   </div>
-                  <div className={`text-[13px] text-muted-foreground pt-1 ${cardFooterFontClass}`}>
+                  <div className={`text-[13px] text-muted-foreground pt-1 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                     {isRTL ? "الوظيفة قيد التطوير" : "Fonctionnalité en cours de développement"}
                   </div>
                 </motion.div>
@@ -839,7 +820,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
         {/* === CARD : Répartition par genre === */}
         {/* Graphique radial affichant la répartition hommes/femmes des employés */}
         <div className={`${cardStyles} p-6`}>
-          <h2 className={`text-lg font-semibold text-foreground mb-2 text-center ${cardTitleFontClass}`}>
+          <h2 className={`text-lg font-semibold text-foreground mb-2 text-center ${isRTL ? 'font-noto-naskh-arabic text-[18px] text-gray-700 dark:text-gray-300' : 'text-[18px] text-gray-700 dark:text-gray-300'}`}>
             {isRTL ? "التوزيع حسب الجنس" : "Répartition par Genre"}
           </h2>
           <GenderRadialChart />
@@ -852,12 +833,12 @@ export function DashboardContent({ data }: DashboardContentProps) {
         {/* Liste des unités récentes avec informations : nom, type, nature (navigante/terrestre) */}
         <div className={`${cardStyles}`}>
           <div className="px-6 py-4 flex items-center justify-between mb-1">
-            <h2 className={`text-base font-semibold text-foreground ${cardTitleFontClass}`}>
+            <h2 className={`text-base font-semibold text-foreground ${isRTL ? 'font-noto-naskh-arabic text-[18px] text-gray-700 dark:text-gray-300' : 'text-[18px] text-gray-700 dark:text-gray-300'}`}>
               {isRTL ? "قــائمــــة الــوحــــدات" : "Liste des Unités"}
             </h2>
             <Link
               href={isRTL ? "/ar/dashboard/unite/table" : "/fr/dashboard/unite/table"}
-              className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none ${cardSubtitleFontClass}`}
+              className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
               style={{ color: viewAllButtonTextColor }}
             >
               {isRTL ? "عرض الكل" : "View All"}
@@ -871,21 +852,21 @@ export function DashboardContent({ data }: DashboardContentProps) {
                     <th
                       className={`px-6 py-4 text-start w-[350] ${
                         isRTL ? "text-[15px]" : "text-xs"
-                      } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                      } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                     >
                       {isRTL ? "الـــــــوحــــــــدة" : "Nom Unité"}
                     </th>
                     <th
                       className={`px-6 py-4 text-start ${
                         isRTL ? "text-[15px]" : "text-xs"
-                      } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                      } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                     >
                       {isRTL ? "النـــــــــــــوع" : "Type"}
                     </th>
                     <th
                       className={`px-6 py-4 text-start ${
                         isRTL ? "text-[15px]" : "text-xs"
-                      } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                      } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                     >
                       {isRTL ? "طبيعــة الوحــــدة" : "Nature"}
                     </th>
@@ -896,7 +877,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                     <tr>
                       <td
                         colSpan={3}
-                        className={`px-6 py-8 text-center text-muted-foreground ${cardSubtitleFontClass}`}
+                        className={`px-6 py-8 text-center text-muted-foreground ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                       >
                         {isRTL ? "لم يتم العثور على وحدات" : "Aucune unité trouvée"}
                       </td>
@@ -911,13 +892,13 @@ export function DashboardContent({ data }: DashboardContentProps) {
                             </div>
                             <div className="min-w-0 flex-1">
                               <div
-                                className={`text-md font-medium text-foreground truncate ${tableCellFontClass}`}
+                                className={`text-md font-medium text-foreground truncate ${isRTL ? 'font-jazeera-bold text-sm' : ''}`}
                                 title={unite.unite || "Non défini"}
                               >
                                 {unite.unite || "Non défini"}
                               </div>
                               <div
-                                className={`text-xs mt-1 text-muted-foreground truncate dark:text-gray-400 ${tableCellNotoFontClass}`}
+                                className={`text-xs mt-1 text-muted-foreground truncate dark:text-gray-400 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                                 title={unite.niveau_1 || (isRTL ? "غير متوفر" : "N/A")}
                               >
                                 {unite.niveau_1 || (isRTL ? "غير متوفر" : "N/A")}
@@ -927,7 +908,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                         </td>
                         <td className="px-6 py-2.5 whitespace-nowrap">
                           <span
-                            className={`text-sm text-foreground block truncate ${tableCellNotoFontClass} ${
+                            className={`text-sm text-foreground block truncate ${isRTL ? 'font-noto-naskh-arabic' : ''} ${
                               isRTL ? "text-[16px]" : ""
                             }`}
                             title={unite.unite_type || "-"}
@@ -937,7 +918,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                         </td>
                         <td className="px-6 py-2.5 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium ${tableCellFontClass} ${
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium ${isRTL ? 'font-jazeera-bold text-sm' : ''} ${
                               unite.navigante
                                 ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
                                 : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
@@ -966,12 +947,12 @@ export function DashboardContent({ data }: DashboardContentProps) {
         {/* Liste des employés de haut rang (colonels/majors) avec photo, grade et statut */}
         <div className={`${cardStyles}`}>
           <div className="px-6 py-4 flex items-center justify-between mb-1">
-            <h2 className={`text-base font-semibold text-foreground ${cardTitleFontClass}`}>
+            <h2 className={`text-base font-semibold text-foreground ${isRTL ? 'font-noto-naskh-arabic text-[18px] text-gray-700 dark:text-gray-300' : 'text-[18px] text-gray-700 dark:text-gray-300'}`}>
               {isRTL ? "قــائمــــة المــوظفيــــن" : "Liste des Employés"}
             </h2>
             <Link
               href={isRTL ? "/ar/dashboard/employees/table" : "/fr/dashboard/employees/table"}
-              className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none ${cardSubtitleFontClass}`}
+              className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
               style={{ color: viewAllButtonTextColor }}
             >
               {isRTL ? "عرض الكل" : "View All"}
@@ -995,7 +976,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                         key={header}
                         className={`px-6 py-4 text-start ${
                           isRTL ? "text-[15px]" : "text-xs"
-                        } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${cardSubtitleFontClass}`}
+                        } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                       >
                         {header}
                       </th>
@@ -1007,7 +988,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                     <tr>
                       <td
                         colSpan={3}
-                        className={`px-6 py-8 text-center text-muted-foreground ${cardSubtitleFontClass}`}
+                        className={`px-6 py-8 text-center text-muted-foreground ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                       >
                         {isRTL ? "لم يتم العثور على موظفين" : "Aucun employé trouvé"}
                       </td>
@@ -1033,12 +1014,12 @@ export function DashboardContent({ data }: DashboardContentProps) {
                               <div
                                 className={`${
                                   isRTL ? "text-md" : "text-md"
-                                } font-medium text-foreground pb-0 ${tableCellFontClass}`}
+                                } font-medium text-foreground pb-0 ${isRTL ? 'font-jazeera-bold text-sm' : ''}`}
                               >
                                 {employee.prenom} {employee.nom}
                               </div>
                               <div
-                                className={`text-sm text-muted-foreground dark:text-gray-400 ${tableCellNotoFontClass}`}
+                                className={`text-sm text-muted-foreground dark:text-gray-400 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                               >
                                 {employee.latestGrade}
                               </div>
@@ -1046,18 +1027,18 @@ export function DashboardContent({ data }: DashboardContentProps) {
                           </div>
                         </td>
                         <td
-                          className={`px-6 py-2.5 whitespace-nowraptext-foreground text-sm ${tableCellNotoFontClass}`}
+                          className={`px-6 py-2.5 whitespace-nowraptext-foreground text-sm ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                         >
                           {employee.matricule}
                         </td>
                         <td
-                          className={`px-6 py-2.5 whitespace-nowraptext-foreground text-sm ${tableCellNotoFontClass} `}
+                          className={`px-6 py-2.5 whitespace-nowraptext-foreground text-sm ${isRTL ? 'font-noto-naskh-arabic' : ''} `}
                         >
                           {employee.identifiant_unique}
                         </td>
                         <td className="px-6 py-2.5 whitespace-nowrap text-sm text-muted-foreground">
                           <span
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium ${tableCellFontClass} ${
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium ${isRTL ? 'font-jazeera-bold text-sm' : ''} ${
                               employee.actif === "مباشر"
                                 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                                 : employee.actif === "غير مباشر"

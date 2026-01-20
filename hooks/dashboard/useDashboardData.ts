@@ -177,7 +177,7 @@ const fetchCongesData = async () => {
 
 const fetchOfficerGradesDistribution = async () => {
   const supabase = createClient()
-  
+
   try {
     // Définir l'ordre des grades d'officier pour l'affichage (grades en arabe de la DB)
     const displayGrades = [
@@ -189,13 +189,14 @@ const fetchOfficerGradesDistribution = async () => {
       'ملازم أول', // Lieutenant
       'ملازم' // Sous-Lieutenant
     ]
-    
-    // Récupérer tous les employés avec leur grade actuel
+
+    // Récupérer tous les employés avec leur grade actuel (exclure les retraités)
     const { data, error } = await supabase
       .from('employees')
       .select('grade_actuel')
       .in('grade_actuel', displayGrades)
       .not('grade_actuel', 'is', null)
+      .neq('actif', 'متقاعد')
     
     if (error) {
       console.error("Erreur récupération grades officiers:", error)
@@ -227,7 +228,7 @@ const fetchOfficerGradesDistribution = async () => {
 
 const fetchNCOGradesDistribution = async () => {
   const supabase = createClient()
-  
+
   try {
     // Définir l'ordre des grades de sous-officier (grades en arabe de la DB)
     const ncoGrades = [
@@ -239,13 +240,14 @@ const fetchNCOGradesDistribution = async () => {
       'عريف', // Caporal
       'حارس' // Garde (à vérifier si existe)
     ]
-    
-    // Récupérer tous les employés avec leur grade actuel de sous-officier
+
+    // Récupérer tous les employés avec leur grade actuel de sous-officier (exclure les retraités)
     const { data, error } = await supabase
       .from('employees')
       .select('grade_actuel')
       .in('grade_actuel', ncoGrades)
       .not('grade_actuel', 'is', null)
+      .neq('actif', 'متقاعد')
     
     if (error) {
       console.error("Erreur récupération grades sous-officiers:", error)
@@ -276,9 +278,9 @@ const fetchNCOGradesDistribution = async () => {
 }
 const fetchGenderStatistics = async (): Promise<GenderStatistics> => {
   const supabase = createClient()
-  
+
   try {
-    // Récupérer tous les employés avec sexe, date de naissance et état civil
+    // Récupérer tous les employés avec sexe, date de naissance et état civil (exclure les retraités)
     const { data: employeesData, error: employeesError } = await supabase
       .from('employees')
       .select(`
@@ -291,6 +293,7 @@ const fetchGenderStatistics = async (): Promise<GenderStatistics> => {
           identite_conjoint
         )
       `)
+      .neq('actif', 'متقاعد')
     
     if (employeesError) {
       console.error('Erreur lors de la récupération des employés:', employeesError)
@@ -501,10 +504,11 @@ const fetchRecentUnites = async (limit: number) => {
 const fetchRecentEmployees = async (limit: number) => {
   const supabase = createClient()
 
-  // Utiliser la même requête que la liste des employés pour assurer la cohérence du tri
+  // Utiliser la même requête que la liste des employés pour assurer la cohérence du tri (exclure les retraités)
   const { data, error } = await supabase
     .from("employees")
     .select(EMPLOYEE_LIST_SELECT_QUERY)
+    .neq('actif', 'متقاعد')
 
   if (error) {
     throw error

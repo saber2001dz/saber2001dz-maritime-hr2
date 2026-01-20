@@ -42,6 +42,7 @@ export function SearchEmployeeClient() {
         const { data, error } = await supabase
           .from("employees")
           .select(EMPLOYEE_SELECT_QUERY)
+          .neq('actif', 'متقاعد')
           .or(
             `prenom.ilike.${searchTerm},nom.ilike.${searchTerm},matricule.ilike.${searchTerm},unite_actuelle.ilike.${searchTerm},affectation_actuel.ilike.${searchTerm}`
           )
@@ -145,7 +146,7 @@ export function SearchEmployeeClient() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   {/* Employee Photo - À droite en RTL */}
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden bg-muted ring-2 ring-background group-hover:ring-primary/20 transition-all">
                       <Image
                         src={employee.displayImage}

@@ -21,7 +21,6 @@ import { ModeToggle } from "@/components/ui/mode-toggle"
 import { UserNav } from "@/components/user-nav"
 import { Notifications } from "@/components/notifications"
 import { LanguageSelector } from "@/components/language-selector"
-import { useTranslations } from "next-intl"
 import { ChevronLeft, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
@@ -33,84 +32,109 @@ const notoNaskhArabic = localFont({
   display: "swap",
 })
 
-// Function to generate page configuration with translations
-const getPageConfig = (t: (key: string) => string) => ({
+// Hardcoded translations for breadcrumbs
+const BREADCRUMB_LABELS = {
+  maritimeHR: "الموارد البشرية البحرية",
+  dashboard: "لوحة المعلومات",
+  personnel: "الموظفون",
+  personnelList: "قائمة الموظفين",
+  newAgent: "موظف جديد",
+  agentProfile: "ملف الموظف",
+  searchEmployee: "بحث عن موظـف",
+  retirement: "بـاب التـقاعـد",
+  marineUnits: "الوحدات البحرية",
+  unitsList: "قائمة الوحدات",
+  newUnit: "وحـدة جـديـدة",
+  unitProfile: "ملف الوحدة",
+  organizationalChart: "الهيكل التنظيمي",
+}
+
+// Function to generate page configuration with hardcoded translations
+const getPageConfig = () => ({
   "/dashboard": {
-    title: t('breadcrumbs.dashboard'),
-    breadcrumbs: [{ label: t('breadcrumbs.maritimeHR'), href: "/dashboard" }, { label: t('breadcrumbs.dashboard') }],
+    title: BREADCRUMB_LABELS.dashboard,
+    breadcrumbs: [{ label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" }, { label: BREADCRUMB_LABELS.dashboard }],
   },
   // Pages Employés
   "/dashboard/employees": {
-    title: t('breadcrumbs.personnel'),
-    breadcrumbs: [{ label: t('breadcrumbs.maritimeHR'), href: "/dashboard" }, { label: t('breadcrumbs.personnel') }],
+    title: BREADCRUMB_LABELS.personnel,
+    breadcrumbs: [{ label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" }, { label: BREADCRUMB_LABELS.personnel }],
   },
   "/dashboard/employees/table": {
-    title: t('breadcrumbs.personnelList'),
+    title: BREADCRUMB_LABELS.personnelList,
     breadcrumbs: [
-      { label: t('breadcrumbs.maritimeHR'), href: "/dashboard" },
-      { label: t('breadcrumbs.personnel'), href: "/dashboard/employees" },
-      { label: t('breadcrumbs.personnelList') },
+      { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+      { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
+      { label: BREADCRUMB_LABELS.personnelList },
     ],
   },
   "/dashboard/employees/nouveau": {
-    title: t('breadcrumbs.newAgent'),
+    title: BREADCRUMB_LABELS.newAgent,
     breadcrumbs: [
-      { label: t('breadcrumbs.maritimeHR'), href: "/dashboard" },
-      { label: t('breadcrumbs.personnel'), href: "/dashboard/employees" },
-      { label: t('breadcrumbs.newAgent') },
+      { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+      { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
+      { label: BREADCRUMB_LABELS.newAgent },
     ],
   },
   "/dashboard/employees/search": {
-    title: "بــحــث عـن مـوظــف",
+    title: BREADCRUMB_LABELS.searchEmployee,
     breadcrumbs: [
-      { label: t('breadcrumbs.maritimeHR'), href: "/dashboard" },
-      { label: t('breadcrumbs.personnel'), href: "/dashboard/employees" },
-      { label: "بــحــث عـن مـوظــف" },
+      { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+      { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
+      { label: BREADCRUMB_LABELS.searchEmployee },
+    ],
+  },
+  "/dashboard/employees/retraite": {
+    title: BREADCRUMB_LABELS.retirement,
+    breadcrumbs: [
+      { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+      { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
+      { label: BREADCRUMB_LABELS.retirement },
     ],
   },
   // Pages Unités Maritimes
   "/dashboard/unite": {
-    title: t('breadcrumbs.marineUnits'),
-    breadcrumbs: [{ label: t('breadcrumbs.maritimeHR'), href: "/dashboard" }, { label: t('breadcrumbs.marineUnits') }],
+    title: BREADCRUMB_LABELS.marineUnits,
+    breadcrumbs: [{ label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" }, { label: BREADCRUMB_LABELS.marineUnits }],
   },
   "/dashboard/unite/table": {
-    title: t('breadcrumbs.unitsList'),
+    title: BREADCRUMB_LABELS.unitsList,
     breadcrumbs: [
-      { label: t('breadcrumbs.maritimeHR'), href: "/dashboard" },
-      { label: t('breadcrumbs.marineUnits'), href: "/dashboard/unite" },
-      { label: t('breadcrumbs.unitsList') },
+      { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+      { label: BREADCRUMB_LABELS.marineUnits, href: "/dashboard/unite" },
+      { label: BREADCRUMB_LABELS.unitsList },
     ],
   },
   "/dashboard/unite/nouveau": {
-    title: t('breadcrumbs.newUnit'),
+    title: BREADCRUMB_LABELS.newUnit,
     breadcrumbs: [
-      { label: t('breadcrumbs.maritimeHR'), href: "/dashboard" },
-      { label: t('breadcrumbs.marineUnits'), href: "/dashboard/unite" },
-      { label: t('breadcrumbs.newUnit') },
+      { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+      { label: BREADCRUMB_LABELS.marineUnits, href: "/dashboard/unite" },
+      { label: BREADCRUMB_LABELS.newUnit },
     ],
   },
   "/dashboard/unite/organigramme": {
-    title: t('breadcrumbs.organizationalChart'),
+    title: BREADCRUMB_LABELS.organizationalChart,
     breadcrumbs: [
-      { label: t('breadcrumbs.maritimeHR'), href: "/dashboard" },
-      { label: t('breadcrumbs.marineUnits'), href: "/dashboard/unite" },
-      { label: t('breadcrumbs.organizationalChart') },
+      { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+      { label: BREADCRUMB_LABELS.marineUnits, href: "/dashboard/unite" },
+      { label: BREADCRUMB_LABELS.organizationalChart },
     ],
   },
 })
 
 // Fonction pour générer la configuration des pages dynamiques
-const getDynamicPageConfig = (pathWithoutLocale: string, t: (key: string) => string) => {
+const getDynamicPageConfig = (pathWithoutLocale: string) => {
   // Gestion de la route /dashboard/employees/details/{id}
   const employeeDetailMatch = pathWithoutLocale.match(/^\/dashboard\/employees\/details\/([^\/]+)$/)
   if (employeeDetailMatch) {
     return {
-      title: t('breadcrumbs.agentProfile'),
+      title: BREADCRUMB_LABELS.agentProfile,
       breadcrumbs: [
-        { label: t('breadcrumbs.maritimeHR'), href: "/dashboard" },
-        { label: t('breadcrumbs.personnel'), href: "/dashboard/employees" },
-        { label: t('breadcrumbs.personnelList'), href: "/dashboard/employees/table" },
-        { label: t('breadcrumbs.agentProfile') },
+        { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+        { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
+        { label: BREADCRUMB_LABELS.personnelList, href: "/dashboard/employees/table" },
+        { label: BREADCRUMB_LABELS.agentProfile },
       ],
     }
   }
@@ -119,12 +143,12 @@ const getDynamicPageConfig = (pathWithoutLocale: string, t: (key: string) => str
   const uniteDetailMatch = pathWithoutLocale.match(/^\/dashboard\/unite\/details\/([^\/]+)$/)
   if (uniteDetailMatch) {
     return {
-      title: t('breadcrumbs.unitProfile'),
+      title: BREADCRUMB_LABELS.unitProfile,
       breadcrumbs: [
-        { label: t('breadcrumbs.maritimeHR'), href: "/dashboard" },
-        { label: t('breadcrumbs.marineUnits'), href: "/dashboard/unite" },
-        { label: t('breadcrumbs.unitsList'), href: "/dashboard/unite/table" },
-        { label: t('breadcrumbs.unitProfile') },
+        { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+        { label: BREADCRUMB_LABELS.marineUnits, href: "/dashboard/unite" },
+        { label: BREADCRUMB_LABELS.unitsList, href: "/dashboard/unite/table" },
+        { label: BREADCRUMB_LABELS.unitProfile },
       ],
     }
   }
@@ -132,7 +156,7 @@ const getDynamicPageConfig = (pathWithoutLocale: string, t: (key: string) => str
   // Configuration par défaut pour les autres pages
   return {
     title: "Page",
-    breadcrumbs: [{ label: t('breadcrumbs.maritimeHR'), href: "/dashboard" }, { label: "Page" }],
+    breadcrumbs: [{ label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" }, { label: "Page" }],
   }
 }
 
@@ -143,7 +167,6 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname()
   const locale = pathname.split('/')[1] as Locale
-  const t = useTranslations()
   const router = useRouter()
 
   useLeaveStatusMonitor()
@@ -154,8 +177,8 @@ export default function RootLayout({
 
   // Extraire le chemin sans locale pour la configuration
   const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/dashboard'
-  const PAGE_CONFIG = getPageConfig(t)
-  const pageConfig = PAGE_CONFIG[pathWithoutLocale as keyof typeof PAGE_CONFIG] || getDynamicPageConfig(pathWithoutLocale, t)
+  const PAGE_CONFIG = getPageConfig()
+  const pageConfig = PAGE_CONFIG[pathWithoutLocale as keyof typeof PAGE_CONFIG] || getDynamicPageConfig(pathWithoutLocale)
   
   // Fonction pour ajouter la locale aux hrefs avec validation
   const addLocaleToHref = (href: string | undefined): string => {

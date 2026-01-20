@@ -1,7 +1,7 @@
 "use client"
 import React, { useMemo, useState, useRef } from "react"
 import { Edit, Award, AlertTriangle, Calendar, FileText, User, BarChart3, PieChart, LucideIcon } from "lucide-react"
-import RatioChart from "../ratioChart"
+import { ChartPieLabel } from "../chart-pie-label"
 import { EmployeeCompleteData, EmployeeSanctions, EmployeeRecompenses } from "@/types/details_employees"
 import EditDialogs, { useEditDialogs } from "../tabsEdit/TabDisciplineInfoEdit"
 import Toaster, { ToasterRef } from "@/components/ui/toast"
@@ -245,10 +245,9 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
     openDialog("recompenses")
   }, [openDialog])
 
-  // Calcul des totaux et ratio
+  // Calcul des totaux
   const totalSanctions = sanctionsData.length
   const totalRecompenses = recompensesData.length
-  const ratio = totalRecompenses > 0 ? ((totalRecompenses / (totalSanctions + totalRecompenses)) * 100).toFixed(1) : "0"
 
   return (
     <div className={`space-y-6 px-6 ${isRTL ? "text-start" : ""}`} dir={isRTL ? "rtl" : "ltr"}>
@@ -442,16 +441,15 @@ export default function TabDiscipline({ data }: TabDisciplineInfoProps) {
         <div className="space-y-6">
           {/* Graphique du Ratio */}
           <Card
-            title={isRTL ? "نسبة الأداء" : "Ratio Performance"}
+            title={isRTL ? "تــوزيـع المكـافـآت و العقـوبـات" : "Ratio Performance"}
             icon={PieChart}
             animationDelay="0.3s"
             isRTL={isRTL}
             titleFontClass={titleFontClass}
           >
-            <RatioChart
+            <ChartPieLabel
               totalSanctions={totalSanctions}
               totalRecompenses={totalRecompenses}
-              ratio={ratio}
               isRTL={isRTL}
             />
           </Card>

@@ -1,6 +1,6 @@
 "use client"
 import * as React from "react"
-import { BookOpen, Bot, LayoutDashboardIcon, Settings2, SquareTerminal } from "lucide-react"
+import { Users, Anchor, Building2, ArrowLeftRight, FileText, LayoutDashboardIcon } from "lucide-react"
 import { NavMain } from "@/components/nav-main"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, useSidebar } from "@/components/ui/sidebar"
 import Image from "next/image"
@@ -28,7 +28,7 @@ function useNavigationData() {
       {
         title: t("personnel"),
         url: "#",
-        icon: SquareTerminal,
+        icon: Users,
         items: [
           {
             title: "بــحــث عـن مـوظــف ",
@@ -55,7 +55,7 @@ function useNavigationData() {
       {
         title: t("marineUnits"),
         url: "#",
-        icon: BookOpen,
+        icon: Anchor,
         items: [
           {
             title: t("newUnit"),
@@ -74,7 +74,7 @@ function useNavigationData() {
       {
         title: "بــــــــــاب الإدارات",
         url: "#",
-        icon: Bot,
+        icon: Building2,
         items: [
           {
             title: "إدارة حــــــرس الســـواحــــــل",
@@ -101,7 +101,7 @@ function useNavigationData() {
       {
         title: "حــركــــة النـقـــــل",
         url: "#",
-        icon: Settings2,
+        icon: ArrowLeftRight,
         items: [
           {
             title: "طلبـــات النـقــل",
@@ -116,7 +116,7 @@ function useNavigationData() {
       {
         title: "بـــــــــاب التوثيـق",
         url: "#",
-        icon: BookOpen,
+        icon: FileText,
         items: [
           {
             title: t("periodicHrReports"),
