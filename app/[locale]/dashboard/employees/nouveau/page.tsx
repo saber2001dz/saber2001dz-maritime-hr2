@@ -96,7 +96,7 @@ function PhoneInputField({
         onChange={handleChange}
         placeholder={placeholder}
         inputMode="numeric"
-        className="w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 font-geist-sans text-[15px]"
+        className="w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 font-geist-sans text-[15px]"
         style={{ textAlign: "right", direction: "ltr" }}
       />
     </div>
@@ -496,9 +496,9 @@ export default function NewAgentPage() {
   // Composant Toast moderne
   const ValidationToast = ({ message, onClose }: { message: string; onClose: () => void }) => (
     <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-2 duration-300">
-      <div className="bg-white border border-amber-200 rounded-lg shadow-lg p-4 min-w-[320px] max-w-[400px]">
+      <div className="bg-white border border-amber-200 rounded-lg shadow-lg p-4 min-w-[320px] max-w-100">
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <AlertCircle className="w-5 h-5 text-amber-500" />
           </div>
           <div className="flex-1">
@@ -507,7 +507,7 @@ export default function NewAgentPage() {
             </h4>
             <p className={`text-sm text-gray-600 ${isRTL ? cardSubtitleFontClass : ""}`}>{message}</p>
           </div>
-          <button onClick={onClose} className="flex-shrink-0 p-1 rounded-full hover:bg-gray-100 transition-colors">
+          <button onClick={onClose} className="shrink-0 p-1 rounded-full hover:bg-gray-100 transition-colors">
             <X className="w-4 h-4 text-gray-400" />
           </button>
         </div>
@@ -751,7 +751,7 @@ export default function NewAgentPage() {
                             autoFocus
                             value={formData.prenom}
                             onChange={(e) => handleInputChange("prenom", e.target.value)}
-                            className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                            className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                               isRTL ? "text-right" : ""
                             } ${isRTL ? tableCellFontClass : ""}`}
                             autoComplete="off"
@@ -773,7 +773,7 @@ export default function NewAgentPage() {
                             type="text"
                             value={formData.prenomPere}
                             onChange={(e) => handleInputChange("prenomPere", e.target.value)}
-                            className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                            className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                               isRTL ? "text-right" : ""
                             } ${isRTL ? tableCellFontClass : ""}`}
                             autoComplete="off"
@@ -817,7 +817,7 @@ export default function NewAgentPage() {
                             type="text"
                             value={formData.nom}
                             onChange={(e) => handleInputChange("nom", e.target.value)}
-                            className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                            className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                               isRTL ? "text-right" : ""
                             } ${isRTL ? tableCellFontClass : ""}`}
                             required
@@ -841,7 +841,7 @@ export default function NewAgentPage() {
                             type="text"
                             value={formData.mere}
                             onChange={(e) => handleInputChange("mere", e.target.value)}
-                            className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                            className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                               isRTL ? "text-right" : ""
                             } ${isRTL ? tableCellFontClass : ""}`}
                             autoComplete="off"
@@ -869,7 +869,7 @@ export default function NewAgentPage() {
                             >
                               <DateInput
                                 focusColor="rgb(7,103,132)"
-                                className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:ring-0 focus-visible:ring-0 bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-[#959594] ${
+                                className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:ring-0 focus-visible:ring-0 bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-[#959594] ${
                                   isRTL ? "text-right font-geist-sans text-[15px]" : ""
                                 }`}
                               />
@@ -891,7 +891,7 @@ export default function NewAgentPage() {
                             type="text"
                             value={formData.lieuNaissance}
                             onChange={(e) => handleInputChange("lieuNaissance", e.target.value)}
-                            className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                            className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                               isRTL ? "text-right" : ""
                             } ${isRTL ? tableCellFontClass : ""}`}
                             autoComplete="new-password"
@@ -916,7 +916,7 @@ export default function NewAgentPage() {
                             >
                               <DateInput
                                 focusColor="rgb(7,103,132)"
-                                className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:ring-0 focus-visible:ring-0 bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-[#959594] ${
+                                className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:ring-0 focus-visible:ring-0 bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-[#959594] ${
                                   isRTL ? "text-right font-geist-sans text-[15px]" : ""
                                 }`}
                               />
@@ -1146,7 +1146,7 @@ export default function NewAgentPage() {
                           type="text"
                           value={formData.passeport}
                           onChange={(e) => handleInputChange("passeport", e.target.value)}
-                          className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                          className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                             isRTL ? "text-right font-geist-sans text-[15px]" : ""
                           }`}
                           autoComplete="off"
@@ -1170,7 +1170,7 @@ export default function NewAgentPage() {
                             const value = e.target.value.replace(/\D/g, "")
                             handleInputChange("matriculemutuel", value)
                           }}
-                          className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                          className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                             isRTL ? "text-right font-geist-sans text-[15px]" : ""
                           }`}
                           autoComplete="off"
@@ -1194,7 +1194,7 @@ export default function NewAgentPage() {
                             const value = e.target.value.replace(/\D/g, "")
                             handleInputChange("identifiantUnique", value)
                           }}
-                          className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                          className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                             isRTL ? "text-right font-geist-sans text-[15px]" : ""
                           }`}
                           autoComplete="new-password"
@@ -1222,7 +1222,7 @@ export default function NewAgentPage() {
                         value={formData.adresse}
                         onChange={(e) => handleInputChange("adresse", e.target.value)}
                         rows={2}
-                        className={`w-full h-[60px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] resize-none table-start ${
+                        className={`w-full h-15 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] resize-none table-start ${
                           isRTL ? tableCellFontClass : ""
                         }`}
                         autoComplete="off"
@@ -1301,7 +1301,7 @@ export default function NewAgentPage() {
                           type="email"
                           value={formData.emailPersonnel}
                           onChange={(e) => handleInputChange("emailPersonnel", e.target.value)}
-                          className={`w-full h-[36px] px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
+                          className={`w-full h-9 px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded focus:outline-none focus:border-[rgb(7,103,132)] dark:focus:border-[rgb(7,103,132)] ${
                             isRTL ? "text-right font-geist-sans text-[15px]" : ""
                           }`}
                           autoComplete="new-password"

@@ -105,7 +105,7 @@ function useNavigationData() {
         items: [
           {
             title: "طلبـــات النـقــل",
-            url: "#",
+            url: `/${locale}/dashboard/employees/mutations/demande`,
           },
           {
             title: "قـائمــــة النـقــل",

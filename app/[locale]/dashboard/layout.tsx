@@ -280,7 +280,7 @@ export default function RootLayout({
                 <div>
                   <UserNav />
                 </div>
-              </TooltipTrigger>
+              </TooltipTrigger >
               <TooltipContent className={isRTL ? notoNaskhArabic.className : ""}>
                 <p>{isRTL ? "حـسـابـي" : "Mon compte"}</p>
               </TooltipContent>
