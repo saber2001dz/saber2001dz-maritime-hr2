@@ -69,7 +69,7 @@ export const processEmployeeData = (emp: RawEmployeeData): DisplayEmployee => {
 
   // Lecture directe de l'affectation actuelle
   const latestUnite = emp.unite_actuelle || null
-  const latestResponsibility = emp.affectation_actuel || null
+  const latestResponsibility = emp.responsabilite_actuelle || null
   const latestDateAffectation = emp.date_affectation || null
   const hierarchyLevel = emp.hierarchy_level || null
 
@@ -125,7 +125,7 @@ export const EMPLOYEE_FULL_SELECT_QUERY = `
 // Requête optimisée pour la liste/table des employés (données essentielles seulement)
 export const EMPLOYEE_LIST_SELECT_QUERY = `
   id, prenom, nom, sexe, matricule, actif, identifiant_unique, date_recrutement, date_retraite, cin, date_naissance,
-  grade_actuel, date_grade, unite_actuelle, affectation_actuel, date_affectation, hierarchy_level,
+  grade_actuel, date_grade, unite_actuelle, responsabilite_actuelle, date_affectation, hierarchy_level,
   employee_photos (photo_url)
 `
 

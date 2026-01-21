@@ -44,7 +44,7 @@ export interface Education {
 export interface Assignment {
   unite: string;
   responsibility: string;
-  date_responsabilite: string | null;
+  date_debut: string | null;
 }
 
 export type Agent = AgentBase & AgentWorkInfo & AgentAddress & {
@@ -66,7 +66,7 @@ export type Formation = {
 export type Affectation = {
   unite: string;
   responsibility: string;
-  date_responsabilite: string;
+  date_debut: string;
 }
 
 // Type pour le parcours scolaire

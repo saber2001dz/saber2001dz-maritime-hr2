@@ -235,7 +235,7 @@ export const useRealtimeStore = create<RealtimeState>()(
             employee_affectations (
               unite,
               responsibility,
-              date_responsabilite,
+              date_debut,
               id
             )
           `)

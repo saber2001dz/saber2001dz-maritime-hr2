@@ -64,7 +64,7 @@ interface AgentData {
   nom: string
   matricule: string
   responsibility: string | null
-  date_responsabilite: string | null
+  date_debut: string | null
   photo_url: string | null
   employee_grade: string | null
   phone_1: string | null
@@ -185,8 +185,8 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
   const [selectedEmployeeForAdd, setSelectedEmployeeForAdd] = useState<EmployeeSearchResult | null>(null)
   const [newEmployeeData, setNewEmployeeData] = useState<{
     responsibility: string
-    date_responsabilite: string
-  }>({ responsibility: "", date_responsabilite: "" })
+    date_debut: string
+  }>({ responsibility: "", date_debut: "" })
   const [isAddingNewEmployee, setIsAddingNewEmployee] = useState(false)
   const [availableResponsibilities, setAvailableResponsibilities] = useState<{ value: string; label: string }[]>([])
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
@@ -489,7 +489,7 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
         .from("employee_affectations")
         .update({
           responsibility: employee.responsibility.trim(),
-          date_responsabilite: employee.date_responsabilite || null,
+          date_debut: employee.date_debut || null,
           updated_at: new Date().toISOString(),
         })
         .eq("employee_id", employee.id)
@@ -607,7 +607,7 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
         employee_id: selectedEmployeeForAdd.id,
         unite: unite.unite,
         responsibility: newEmployeeData.responsibility || null,
-        date_responsabilite: newEmployeeData.date_responsabilite || null,
+        date_debut: newEmployeeData.date_debut || null,
       })
 
       if (affectationError) {
@@ -622,7 +622,7 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
         nom: selectedEmployeeForAdd.nom,
         matricule: selectedEmployeeForAdd.matricule,
         responsibility: newEmployeeData.responsibility || null,
-        date_responsabilite: newEmployeeData.date_responsabilite || null,
+        date_debut: newEmployeeData.date_debut || null,
         photo_url: selectedEmployeeForAdd.photo_url,
         employee_grade: selectedEmployeeForAdd.employee_grade,
         phone_1: null, // Sera mis à jour par le realtime
@@ -634,7 +634,7 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
       setIsAddingNewEmployee(false)
       setEditingEmployeeIndex(null)
       setSelectedEmployeeForAdd(null)
-      setNewEmployeeData({ responsibility: "", date_responsabilite: "" })
+      setNewEmployeeData({ responsibility: "", date_debut: "" })
       // Recharger les responsabilités disponibles après ajout
       fetchAvailableResponsibilities()
     } catch (error) {
@@ -649,7 +649,7 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
     setIsAddingNewEmployee(false)
     setEditingEmployeeIndex(null)
     setSelectedEmployeeForAdd(null)
-    setNewEmployeeData({ responsibility: "", date_responsabilite: "" })
+    setNewEmployeeData({ responsibility: "", date_debut: "" })
   }
 
   // Fonction pour gérer le chargement temporaire des photos secondaires
@@ -780,7 +780,7 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
     setShowPopover(false)
     setSearchTerm("")
     setSearchResults([])
-    setNewEmployeeData({ responsibility: "", date_responsabilite: "" })
+    setNewEmployeeData({ responsibility: "", date_debut: "" })
     // Délai pour permettre l'animation de fermeture
     setTimeout(() => {
       setShowEmployeesDialog(false)
@@ -2058,17 +2058,17 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
                                   <span
                                     className={`text-sm text-foreground block truncate font-noto-naskh-arabic ${isRTL ? "text-[15px]" : ""}`}
                                     title={
-                                      agent.date_responsabilite
+                                      agent.date_debut
                                         ? isRTL
-                                          ? formatDateForRTL(agent.date_responsabilite)
-                                          : formatDateForLTR(agent.date_responsabilite)
+                                          ? formatDateForRTL(agent.date_debut)
+                                          : formatDateForLTR(agent.date_debut)
                                         : (isRTL ? "غير محدد" : "N/A")
                                     }
                                   >
-                                    {agent.date_responsabilite
+                                    {agent.date_debut
                                       ? isRTL
-                                        ? formatDateForRTL(agent.date_responsabilite)
-                                        : formatDateForLTR(agent.date_responsabilite)
+                                        ? formatDateForRTL(agent.date_debut)
+                                        : formatDateForLTR(agent.date_debut)
                                       : (isRTL ? "غير محدد" : "N/A")}
                                   </span>
                                 </td>
@@ -2421,25 +2421,25 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
                           {editingEmployeeIndex === index ? (
                             <input
                               type="date"
-                              value={formatDateForInput(employee.date_responsabilite || "") || ""}
-                              onChange={(e) => updateEmployee(index, "date_responsabilite", e.target.value)}
+                              value={formatDateForInput(employee.date_debut || "") || ""}
+                              onChange={(e) => updateEmployee(index, "date_debut", e.target.value)}
                               className="w-full h-8 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 hover:shadow-sm"
                             />
                           ) : (
                             <span
                               className={`text-sm text-foreground block truncate font-noto-naskh-arabic ${isRTL ? "text-[15px]" : ""}`}
                               title={
-                                employee.date_responsabilite
+                                employee.date_debut
                                   ? isRTL
-                                    ? formatDateForRTL(employee.date_responsabilite)
-                                    : formatDateForLTR(employee.date_responsabilite)
+                                    ? formatDateForRTL(employee.date_debut)
+                                    : formatDateForLTR(employee.date_debut)
                                   : (isRTL ? "غير محدد" : "Non défini")
                               }
                             >
-                              {employee.date_responsabilite
+                              {employee.date_debut
                                 ? isRTL
-                                  ? formatDateForRTL(employee.date_responsabilite)
-                                  : formatDateForLTR(employee.date_responsabilite)
+                                  ? formatDateForRTL(employee.date_debut)
+                                  : formatDateForLTR(employee.date_debut)
                                 : (isRTL ? "غير محدد" : "Non défini")}
                             </span>
                           )}
@@ -2577,9 +2577,9 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
                         <td className="px-6 py-2.5 whitespace-nowrap">
                           <input
                             type="date"
-                            value={newEmployeeData.date_responsabilite}
+                            value={newEmployeeData.date_debut}
                             onChange={(e) =>
-                              setNewEmployeeData({ ...newEmployeeData, date_responsabilite: e.target.value })
+                              setNewEmployeeData({ ...newEmployeeData, date_debut: e.target.value })
                             }
                             className="w-full h-8 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 hover:shadow-sm"
                           />

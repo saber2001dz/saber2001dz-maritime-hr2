@@ -45,7 +45,7 @@ const fetchEmployeeData = async (employeeId: string) => {
         .from("employee_affectations")
         .select("*")
         .eq("employee_id", employeeId)
-        .order("date_responsabilite", { ascending: false }),
+        .order("date_debut", { ascending: false }),
       supabase.from("employee_banque").select("*").eq("employee_id", employeeId),
       supabase
         .from("employee_conges")

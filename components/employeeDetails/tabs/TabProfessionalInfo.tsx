@@ -685,7 +685,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
 
   // Trier les affectations par date de début (plus récentes en premier) et limiter l'affichage aux 3 dernières
   const sortedAffectations = [...currentAffectations].sort(
-    (a, b) => new Date(b.date_responsabilite || 0).getTime() - new Date(a.date_responsabilite || 0).getTime()
+    (a, b) => new Date(b.date_debut || 0).getTime() - new Date(a.date_debut || 0).getTime()
   )
   const displayedAffectations = sortedAffectations.slice(0, 3)
 
@@ -907,7 +907,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
     try {
       // Prendre la dernière affectation dans la liste triée (date la plus ancienne)
       const firstAffectation = sortedAffectations[sortedAffectations.length - 1]
-      return calculateDuration(firstAffectation.date_responsabilite, null, isRTL)
+      return calculateDuration(firstAffectation.date_debut, null, isRTL)
     } catch {
       return isRTL ? "غير محدد" : "Non défini"
     }
@@ -1009,7 +1009,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
             />
             <Field
               label={isRTL ? "تاريخ المسؤوليــة" : "Date Responsabilité"}
-              value={formatDate(currentAffectation?.date_responsabilite, isRTL)}
+              value={formatDate(currentAffectation?.date_debut, isRTL)}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
@@ -1167,7 +1167,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                                   {affectation.responsibility || (isRTL ? "-" : "-")}
                                 </td>
                                 <td className={`px-3 py-2 ${jazeeraFontClass}`}>
-                                  {formatDate(affectation.date_responsabilite, isRTL)}
+                                  {formatDate(affectation.date_debut, isRTL)}
                                 </td>
                                 <td className={`px-3 py-2 ${jazeeraFontClass}`}>
                                   {affectation.date_fin
@@ -1177,7 +1177,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                                     : "En cours"}
                                 </td>
                                 <td className={`px-3 py-2 ${jazeeraFontClass}`}>
-                                  {calculateDuration(affectation.date_responsabilite, affectation.date_fin, isRTL)}
+                                  {calculateDuration(affectation.date_debut, affectation.date_fin, isRTL)}
                                 </td>
                                 <td className="px-3 py-2">
                                   <span
@@ -1229,7 +1229,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                           <div className={`flex gap-1.5 dark:text-gray-400 mt-1`}>
                             <Calendar className="w-3.5 h-3.5" />
                             <span className={cardSubtitleFontClass}>
-                              {formatDate(affectation.date_responsabilite, isRTL)}
+                              {formatDate(affectation.date_debut, isRTL)}
                             </span>
                           </div>
                           <div className={`flex items-center gap-1.5 dark:text-gray-400`}>
@@ -1239,7 +1239,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                           <div className={`flex items-center gap-1.5 dark:text-gray-400`}>
                             <Clock className="w-3.5 h-3.5" />
                             <span className={cardSubtitleFontClass}>
-                              {calculateDuration(affectation.date_responsabilite, affectation.date_fin, isRTL)}
+                              {calculateDuration(affectation.date_debut, affectation.date_fin, isRTL)}
                             </span>
                           </div>
                         </div>

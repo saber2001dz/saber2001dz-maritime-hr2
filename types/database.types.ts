@@ -42,7 +42,7 @@ export type Database = {
         Row: {
           created_at: string | null
           date_fin: string | null
-          date_responsabilite: string | null
+          date_debut: string | null
           employee_id: string
           hierarchy_level: number | null
           id: string
@@ -55,7 +55,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           date_fin?: string | null
-          date_responsabilite?: string | null
+          date_debut?: string | null
           employee_id: string
           hierarchy_level?: number | null
           id?: string
@@ -68,7 +68,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           date_fin?: string | null
-          date_responsabilite?: string | null
+          date_debut?: string | null
           employee_id?: string
           hierarchy_level?: number | null
           id?: string
@@ -1013,7 +1013,7 @@ export type Database = {
           p_employee_id: string
           p_unite: string
           p_responsibility: string
-          p_date_responsabilite?: string
+          p_date_debut?: string
           p_telex_debut?: string
           p_auto_close_previous?: boolean
         }
@@ -1146,7 +1146,7 @@ export type Database = {
           nom: string
           matricule: string
           responsibility: string
-          date_responsabilite: string
+          date_debut: string
           photo_url: string
           employee_grade: string
           phone_1: string

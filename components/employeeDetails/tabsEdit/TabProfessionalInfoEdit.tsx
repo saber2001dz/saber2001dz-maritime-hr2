@@ -445,7 +445,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
   }
 
   const isEmptyAffectation = (affectation: any) => {
-    return !affectation.unite && !affectation.responsibility && !affectation.date_responsabilite
+    return !affectation.unite && !affectation.responsibility && !affectation.date_debut
   }
 
   const isEmptyBanque = (banque: any) => {
@@ -993,7 +993,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
       unite: "",
       responsibility: "",
       reference: "",
-      date_responsabilite: "",
+      date_debut: "",
       date_fin: "",
       telex_debut: "",
       created_at: new Date().toISOString(),
@@ -1051,7 +1051,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
     }
 
     // Validation des champs obligatoires
-    if (!affectation.unite || !affectation.responsibility || !affectation.date_responsabilite) {
+    if (!affectation.unite || !affectation.responsibility || !affectation.date_debut) {
       return
     }
 
@@ -1067,7 +1067,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
             employee_id: data.employee.id,
             unite: affectation.unite,
             responsibility: affectation.responsibility,
-            date_responsabilite: affectation.date_responsabilite,
+            date_debut: affectation.date_debut,
             date_fin: affectation.date_fin || null,
             telex_debut: affectation.telex_debut || null,
           })
@@ -1085,7 +1085,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
           .update({
             unite: affectation.unite,
             responsibility: affectation.responsibility,
-            date_responsabilite: affectation.date_responsabilite,
+            date_debut: affectation.date_debut,
             date_fin: affectation.date_fin || null,
             telex_debut: affectation.telex_debut || null,
           })
@@ -2710,11 +2710,11 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             <I18nProvider locale="fr-FR">
                               <DateField
                                 value={
-                                  affectation.date_responsabilite ? parseDate(affectation.date_responsabilite) : null
+                                  affectation.date_debut ? parseDate(affectation.date_debut) : null
                                 }
                                 onChange={(date) => {
                                   const dateStr = date ? date.toString() : ""
-                                  updateAffectation(index, "date_responsabilite", dateStr)
+                                  updateAffectation(index, "date_debut", dateStr)
                                 }}
                               >
                                 <DateInput
@@ -2727,7 +2727,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             </I18nProvider>
                           ) : (
                             <div className="h-8 flex items-center">
-                              {formatDateRTL(affectation.date_responsabilite, isRTL)}
+                              {formatDateRTL(affectation.date_debut, isRTL)}
                             </div>
                           )}
                         </td>

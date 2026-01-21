@@ -35,7 +35,7 @@ async function executeCrudOperation<T>(
 // Fonctions de validation
 const isEmptyGrade = (grade: any): boolean => !grade.grade && !grade.date_grade
 const isEmptyFonction = (fonction: any): boolean => !fonction.fonction && !fonction.date_obtention_fonction
-const isEmptyAffectation = (affectation: any): boolean => !affectation.unite && !affectation.responsibility && !affectation.date_responsabilite
+const isEmptyAffectation = (affectation: any): boolean => !affectation.unite && !affectation.responsibility && !affectation.date_debut
 const isEmptyBanque = (banque: any): boolean => !banque.banque && !banque.agence && !banque.rib
 const isEmptyAbsence = (absence: any): boolean => !absence.date_debut && !absence.reference_debut
 
@@ -186,7 +186,7 @@ export function useOptimizedCrudOperations(employeeId: string) {
       return null
     }
 
-    if (!affectation.unite || !affectation.responsibility || !affectation.date_responsabilite) {
+    if (!affectation.unite || !affectation.responsibility || !affectation.date_debut) {
       config.showToast?.("error", "Validation", "Unité, responsabilité et date sont obligatoires")
       return null
     }
@@ -199,7 +199,7 @@ export function useOptimizedCrudOperations(employeeId: string) {
             employee_id: employeeId,
             unite: affectation.unite,
             responsibility: affectation.responsibility,
-            date_responsabilite: affectation.date_responsabilite,
+            date_debut: affectation.date_debut,
             date_fin: affectation.date_fin || null,
             telex_debut: affectation.telex_debut || null,
           })
@@ -214,7 +214,7 @@ export function useOptimizedCrudOperations(employeeId: string) {
           .update({
             unite: affectation.unite,
             responsibility: affectation.responsibility,
-            date_responsabilite: affectation.date_responsabilite,
+            date_debut: affectation.date_debut,
             date_fin: affectation.date_fin || null,
             telex_debut: affectation.telex_debut || null,
           })

@@ -364,11 +364,11 @@ const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialDa
   }, [employeeData?.employee?.grade_actuel, t])
 
   const getCurrentAffectation = useMemo(() => {
-    return { 
-      unite: employeeData?.employee?.unite_actuelle || (isRTL ? t("common.notAvailable") : "Non défini"), 
-      responsibility: employeeData?.employee?.affectation_actuel || (isRTL ? t("common.notAvailable") : "Non défini") 
+    return {
+      unite: employeeData?.employee?.unite_actuelle || (isRTL ? t("common.notAvailable") : "Non défini"),
+      responsibility: employeeData?.employee?.responsabilite_actuelle || (isRTL ? t("common.notAvailable") : "Non défini")
     }
-  }, [employeeData?.employee?.unite_actuelle, employeeData?.employee?.affectation_actuel])
+  }, [employeeData?.employee?.unite_actuelle, employeeData?.employee?.responsabilite_actuelle])
 
 
   const getPhotoUrl = useMemo(() => {

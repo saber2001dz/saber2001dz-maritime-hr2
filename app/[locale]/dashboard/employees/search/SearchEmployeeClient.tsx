@@ -44,7 +44,7 @@ export function SearchEmployeeClient() {
           .select(EMPLOYEE_SELECT_QUERY)
           .neq('actif', 'متقاعد')
           .or(
-            `prenom.ilike.${searchTerm},nom.ilike.${searchTerm},matricule.ilike.${searchTerm},unite_actuelle.ilike.${searchTerm},affectation_actuel.ilike.${searchTerm}`
+            `prenom.ilike.${searchTerm},nom.ilike.${searchTerm},matricule.ilike.${searchTerm},unite_actuelle.ilike.${searchTerm},responsabilite_actuelle.ilike.${searchTerm}`
           )
           .limit(50)
 

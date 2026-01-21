@@ -91,17 +91,17 @@ const Toaster = forwardRef<ToasterRef, { defaultPosition?: Position }>(({ defaul
             exit="exit"
             transition={{ duration: 0.3, ease: "easeOut" }}
             className={cn(
-              "flex items-center justify-between w-full max-w-xs p-3 rounded-xl border shadow-md",
+              "flex items-center justify-between w-80 p-4 rounded-xl border shadow-md",
               variantStyles[variant]
             )}
           >
-            <div className="flex items-start gap-2">
-              <Icon className={cn("h-4 w-4 mt-0.5 shrink-0", iconColor[variant])} />
-              <div className="space-y-0.5">
+            <div className="flex items-start gap-3">
+              <Icon className={cn("h-5 w-5 mt-0.5 shrink-0", iconColor[variant])} />
+              <div className="space-y-2 font-noto-naskh-arabic">
                 {title && (
                   <h3
                     className={cn(
-                      "text-xs font-medium leading-none",
+                      "text-sm font-semibold leading-none",
                       titleColor[variant],
                       highlightTitle && titleColor["success"] // override for meeting case
                     )}
@@ -109,7 +109,7 @@ const Toaster = forwardRef<ToasterRef, { defaultPosition?: Position }>(({ defaul
                     {title}
                   </h3>
                 )}
-                <p className="text-xs text-muted-foreground">{message}</p>
+                <p className="text-sm text-muted-foreground">{message}</p>
               </div>
             </div>
 
@@ -142,10 +142,10 @@ const Toaster = forwardRef<ToasterRef, { defaultPosition?: Position }>(({ defaul
                   sonnerToast.dismiss(toastId)
                   onDismiss?.()
                 }}
-                className="rounded-full p-1 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+                className="rounded-full p-1.5 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
                 aria-label="Dismiss notification"
               >
-                <X className="h-3 w-3 text-muted-foreground" />
+                <X className="h-4 w-4 text-muted-foreground" />
               </button>
             </div>
           </motion.div>

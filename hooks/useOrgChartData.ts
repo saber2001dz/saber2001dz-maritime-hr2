@@ -61,7 +61,7 @@ const fetcher = async (): Promise<{
         unite,
         responsibility,
         hierarchy_level,
-        date_responsabilite
+        date_debut
       ),
       employee_photos(
         photo_url

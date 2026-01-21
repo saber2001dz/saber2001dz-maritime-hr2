@@ -36,7 +36,7 @@ export interface Employee {
   prolongation_retraite: number
   date_retraite?: string
   unite_actuelle?: string
-  affectation_actuel?: string
+  responsabilite_actuelle?: string
   grade_actuel?: string
   created_at: string
   updated_at: string
@@ -48,8 +48,8 @@ export interface EmployeeAffectation {
   unite: string
   responsibility: string
   reference: string
-  date_responsabilite: string
-  telex_debut: string  
+  date_debut: string
+  telex_debut: string
   date_fin: string
   created_at: string
   updated_at: string

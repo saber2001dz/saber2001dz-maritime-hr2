@@ -15,7 +15,7 @@ export interface EmployeePhoto {
 export interface EmployeeAffectation {
   unite: string | null
   responsibility: string | null
-  date_responsabilite: string | null
+  date_debut: string | null
 }
 
 // Type pour la requête liste (EMPLOYEE_LIST_SELECT_QUERY)
@@ -34,7 +34,7 @@ export interface RawEmployeeData {
   grade_actuel?: string | null
   date_grade?: string | null
   unite_actuelle?: string | null
-  affectation_actuel?: string | null
+  responsabilite_actuelle?: string | null
   date_affectation?: string | null
   hierarchy_level?: number | null
   employee_photos?: EmployeePhoto[] | null
@@ -45,7 +45,7 @@ export interface RawEmployeeFullData extends EmployeeRow {
   grade_actuel?: string | null
   date_grade?: string | null
   unite_actuelle?: string | null
-  affectation_actuel?: string | null
+  responsabilite_actuelle?: string | null
   date_affectation?: string | null
   hierarchy_level?: number | null
   employee_photos?: EmployeePhoto[] | null

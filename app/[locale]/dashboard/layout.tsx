@@ -35,17 +35,19 @@ const notoNaskhArabic = localFont({
 // Hardcoded translations for breadcrumbs
 const BREADCRUMB_LABELS = {
   maritimeHR: "الموارد البشرية البحرية",
-  dashboard: "لوحة المعلومات",
-  personnel: "الموظفون",
+  dashboard: "لوحـة المعلـومـات",
+  personnel: "المـوظـفــون",
   personnelList: "قائمة الموظفين",
-  newAgent: "موظف جديد",
-  agentProfile: "ملف الموظف",
-  searchEmployee: "بحث عن موظـف",
+  newAgent: "مـوظـف جـديـد",
+  agentProfile: "مـلـف المـوظــف",
+  searchEmployee: "بـحـث عـن مـوظــف",
   retirement: "بـاب التـقاعـد",
-  marineUnits: "الوحدات البحرية",
-  unitsList: "قائمة الوحدات",
+  mutations: "النـقـــل",
+  mutationRequest: "طـلـب نـفـلــة",
+  marineUnits: "الوحـدات البحـريـة",
+  unitsList: "قائمة الـوحــدات",
   newUnit: "وحـدة جـديـدة",
-  unitProfile: "ملف الوحدة",
+  unitProfile: "مـلـف الـوحــدة",
   organizationalChart: "الهيكل التنظيمي",
 }
 
@@ -90,6 +92,15 @@ const getPageConfig = () => ({
       { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
       { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
       { label: BREADCRUMB_LABELS.retirement },
+    ],
+  },
+  "/dashboard/employees/mutations/demande": {
+    title: BREADCRUMB_LABELS.mutationRequest,
+    breadcrumbs: [
+      { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+      { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
+      { label: BREADCRUMB_LABELS.mutations, href: "/dashboard/employees/mutations" },
+      { label: BREADCRUMB_LABELS.mutationRequest },
     ],
   },
   // Pages Unités Maritimes

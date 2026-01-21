@@ -518,7 +518,7 @@ const fetchEmployeeAffectationStats = async () => {
       .select(`
         employee_id,
         unite,
-        date_responsabilite,
+        date_debut,
         date_fin
       `)
       .or('date_fin.is.null,date_fin.gt.' + new Date().toISOString().split('T')[0])
@@ -535,8 +535,8 @@ const fetchEmployeeAffectationStats = async () => {
       const employeeId = affectation.employee_id
       const currentAffectation = employeeLatestAffectations.get(employeeId)
       
-      if (!currentAffectation || 
-          new Date(affectation.date_responsabilite) > new Date(currentAffectation.date_responsabilite)) {
+      if (!currentAffectation ||
+          new Date(affectation.date_debut) > new Date(currentAffectation.date_debut)) {
         employeeLatestAffectations.set(employeeId, affectation)
       }
     })

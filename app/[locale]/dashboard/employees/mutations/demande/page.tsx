@@ -12,8 +12,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
 import { Check, RotateCcw, AlertCircle } from "lucide-react"
+import { Spinner } from "@/components/ui/spinner"
 import { gradeOptions } from "@/lib/selectOptions"
 import { motion, AnimatePresence } from "motion/react"
+import { createClient } from "@/lib/supabase/client"
+import Toaster, { ToasterRef } from "@/components/ui/toast"
 
 export default function DemandeMutationPage() {
   const params = useParams()
@@ -35,6 +38,9 @@ export default function DemandeMutationPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [direction, setDirection] = useState(1) // 1 = forward, -1 = backward
+  const [isSearching, setIsSearching] = useState(false)
+  const [employeeFound, setEmployeeFound] = useState(false)
+  const toasterRef = useRef<ToasterRef>(null)
 
   // Variants pour l'animation des étapes
   const variants = {
@@ -85,6 +91,74 @@ export default function DemandeMutationPage() {
     today.setHours(0, 0, 0, 0)
 
     return inputDate < today
+  }
+
+  // Fonction pour rechercher l'employé par matricule
+  const searchEmployeeByMatricule = async (matricule: string) => {
+    if (!matricule || matricule.trim() === "") {
+      return
+    }
+
+    setIsSearching(true)
+    setEmployeeFound(false)
+
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("employees")
+        .select("prenom, nom, grade_actuel, unite_actuelle, date_affectation")
+        .eq("matricule", matricule)
+        .maybeSingle()
+
+      if (error) {
+        console.error("Erreur lors de la recherche:", error)
+        return
+      }
+
+      if (data) {
+        // Remplir les champs avec les données trouvées
+        setPrenomNomValue(`${data.prenom || ""} ${data.nom || ""}`.trim())
+        setAffectationActuelleValue(data.unite_actuelle || "")
+        setGradeValue(data.grade_actuel || "")
+
+        // Remplir les champs de date si date_affectation existe
+        if (data.date_affectation) {
+          const dateAffectation = new Date(data.date_affectation)
+          const day = dateAffectation.getDate().toString().padStart(2, "0")
+          const month = (dateAffectation.getMonth() + 1).toString().padStart(2, "0")
+          const year = dateAffectation.getFullYear().toString()
+
+          setDayValue(day)
+          setMonthValue(month)
+          setYearValue(year)
+        }
+
+        setEmployeeFound(true)
+
+        // Afficher le toast de succès uniquement si l'employé est trouvé
+        toasterRef.current?.show({
+          title: "تم العثور على الموظف",
+          message: "تم تعبئة البيانات تلقائياً",
+          variant: "success",
+          duration: 3000,
+        })
+      } else {
+        // Aucun employé trouvé - pas de toast
+        setEmployeeFound(false)
+      }
+    } catch (error) {
+      console.error("Erreur inattendue:", error)
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  // Fonction pour gérer le blur du champ matricule
+  const handleMatriculeBlur = () => {
+    handleInputBlur(matriculeValue, setMatriculeValue)
+    if (matriculeValue && matriculeValue.trim() !== "") {
+      searchEmployeeByMatricule(matriculeValue)
+    }
   }
 
   // Fonction pour gérer le onBlur et vider les champs contenant que des espaces
@@ -265,10 +339,15 @@ export default function DemandeMutationPage() {
                             const value = e.target.value.replace(/\D/g, "").slice(0, 6)
                             setMatriculeValue(value)
                           }}
-                          onBlur={() => handleInputBlur(matriculeValue, setMatriculeValue)}
+                          onBlur={handleMatriculeBlur}
                           className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
                         />
-                        {matriculeValue && (
+                        {isSearching && (
+                          <div className="absolute left-2 top-1/2 -translate-y-1/2 ml-1.5">
+                            <Spinner className="h-4 w-4 text-[#076784]" />
+                          </div>
+                        )}
+                        {!isSearching && matriculeValue && employeeFound && (
                           <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
                             <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
                           </div>
@@ -526,6 +605,9 @@ export default function DemandeMutationPage() {
           </CardFooter>
         </Card>
       </div>
+
+      {/* Toaster pour les notifications */}
+      <Toaster ref={toasterRef} defaultPosition="top-right" />
     </div>
   )
 }

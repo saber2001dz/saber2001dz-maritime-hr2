@@ -20,7 +20,7 @@ interface AgentData {
   nom: string
   matricule: string
   responsibility: string | null
-  date_responsabilite: string | null
+  date_debut: string | null
   photo_url: string | null
   employee_grade: string | null
   phone_1: string | null
