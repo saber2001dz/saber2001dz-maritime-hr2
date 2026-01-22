@@ -23,41 +23,47 @@ export function CongesByTypePopover({ triggerClassName = "" }: CongesByTypePopov
   
   // Configuration des icônes et couleurs pour chaque type de congé
   const typeConfig = {
-    'سنوية': { 
-      icon: Calendar, 
+    'سنوية': {
+      icon: Calendar,
       color: 'text-green-600 dark:text-green-400',
       bgColor: 'bg-green-100 dark:bg-green-900/30',
       key: 'annual'
     },
-    'مرض': { 
-      icon: Heart, 
+    'مرض': {
+      icon: Heart,
       color: 'text-red-600 dark:text-red-400',
       bgColor: 'bg-red-100 dark:bg-red-900/30',
       key: 'sick'
     },
-    'طارئة': { 
-      icon: AlertTriangle, 
+    'طارئة': {
+      icon: AlertTriangle,
       color: 'text-orange-600 dark:text-orange-400',
       bgColor: 'bg-orange-100 dark:bg-orange-900/30',
       key: 'emergency'
     },
-    'زواج': { 
-      icon: Heart, 
+    'زواج': {
+      icon: Heart,
       color: 'text-pink-600 dark:text-pink-400',
       bgColor: 'bg-pink-100 dark:bg-pink-900/30',
       key: 'marriage'
     },
-    'أمومة': { 
-      icon: Baby, 
+    'أمومة': {
+      icon: Baby,
       color: 'text-purple-600 dark:text-purple-400',
       bgColor: 'bg-purple-100 dark:bg-purple-900/30',
       key: 'maternity'
     },
-    'بدون راتب': { 
-      icon: DollarSign, 
+    'بدون راتب': {
+      icon: DollarSign,
       color: 'text-gray-600 dark:text-gray-400',
       bgColor: 'bg-gray-100 dark:bg-gray-900/30',
       key: 'unpaid'
+    },
+    'إجازة تقاعد': {
+      icon: Users,
+      color: 'text-blue-600 dark:text-blue-400',
+      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+      key: 'retirement'
     }
   }
 

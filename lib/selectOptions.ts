@@ -288,6 +288,7 @@ export const congeOptions: SelectOption[] = [
   { value: "زواج", label: "Mariage", labelAr: "زواج" },
   { value: "أمومة", label: "Maternité", labelAr: "أمومة" },
   { value: "بدون راتب", label: "Sans Solde", labelAr: "بدون راتب" },
+  { value: "إجازة تقاعد", label: "Retraite", labelAr: "إجازة تقاعد" },
 ];
 
 // Fonction pour obtenir les options de congés filtrées selon le genre
