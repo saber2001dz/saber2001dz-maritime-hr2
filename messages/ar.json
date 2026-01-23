@@ -824,5 +824,46 @@
         "birthPlace": "مكان الميلاد"
       }
     }
+  },
+  "mutationsList": {
+    "title": "قـائـمـة طلـبـــات النقلـــة",
+    "totalMutations": "طلب نقلة",
+    "realTimeStatus": {
+      "active": "متصل",
+      "inactive": "غير متصل"
+    },
+    "refresh": "تحديث",
+    "filters": {
+      "searchByName": "البحث بالإسم...",
+      "searchByMatricule": "البحث بالرقم...",
+      "clearFilters": "إعادة تعيين الفلاتر"
+    },
+    "table": {
+      "headers": {
+        "order": "ع/ر",
+        "gradeAndName": "الرتبة الإسم و اللقب",
+        "matricule": "الــرقـــم",
+        "currentUnit": "الـوحــدة الحــاليــة",
+        "assignmentDate": "تــاريــخ التعييــن",
+        "causes": "الأسبــــاب",
+        "options": "خيــارات"
+      }
+    },
+    "pagination": {
+      "rowsPerPage": "صفوف في الصفحة",
+      "page": "صفحة",
+      "of": "من"
+    },
+    "emptyStates": {
+      "noMutations": "لا توجد طلبات نقلة",
+      "noMutationsDescription": "لم يتم تسجيل أي طلب نقلة حتى الآن",
+      "noResults": "لم يتم العثور على نتائج",
+      "noDataToShow": "لا توجد بيانات للعرض"
+    },
+    "actions": {
+      "view": "عرض التفاصيل",
+      "delete": "حذف"
+    },
+    "export": "تــصــديــر"
   }
 }

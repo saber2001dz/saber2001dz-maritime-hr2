@@ -43,9 +43,10 @@ const BREADCRUMB_LABELS = {
   searchEmployee: "بـحـث عـن مـوظــف",
   retirement: "بـاب التـقاعـد",
   mutations: "النـقـــل",
-  mutationRequest: "طـلـب نـفـلــة",
+  mutationRequest: "طـلـب نـقـلــة",
+  mutationsList: "قائمـة النـقـل",
   marineUnits: "الوحـدات البحـريـة",
-  unitsList: "قائمة الـوحــدات",
+  unitsList: "قائمـة الـوحــدات",
   newUnit: "وحـدة جـديـدة",
   unitProfile: "مـلـف الـوحــدة",
   organizationalChart: "الهيكل التنظيمي",
@@ -101,6 +102,15 @@ const getPageConfig = () => ({
       { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
       { label: BREADCRUMB_LABELS.mutations, href: "/dashboard/employees/mutations" },
       { label: BREADCRUMB_LABELS.mutationRequest },
+    ],
+  },
+  "/dashboard/employees/mutations/table-mutations": {
+    title: BREADCRUMB_LABELS.mutationsList,
+    breadcrumbs: [
+      { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+      { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
+      { label: BREADCRUMB_LABELS.mutations, href: "/dashboard/employees/mutations" },
+      { label: BREADCRUMB_LABELS.mutationsList },
     ],
   },
   // Pages Unités Maritimes

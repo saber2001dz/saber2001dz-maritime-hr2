@@ -109,7 +109,7 @@ function useNavigationData() {
           },
           {
             title: "قـائمــــة النـقــل",
-            url: "#",
+            url: `/${locale}/dashboard/employees/mutations/table-mutations`,
           },
         ],
       },

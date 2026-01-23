@@ -27,14 +27,16 @@ export function useCongesByType(): UseCongesByTypeReturn {
       setError(null)
       
       const supabase = createClient()
-      
+
+      const today = new Date().toISOString().split('T')[0]
+
       // Récupérer les congés en cours groupés par type
       const { data, error: queryError } = await supabase
         .from('employee_conges')
         .select('type_conge, employee_id')
         .eq('statut', 'قيد التنفيذ')
-        .lte('date_debut', new Date().toISOString().split('T')[0])
-        .gte('date_fin', new Date().toISOString().split('T')[0])
+        .lte('date_debut', today)
+        .gte('date_fin', today)
       
       if (queryError) {
         throw queryError
@@ -59,7 +61,7 @@ export function useCongesByType(): UseCongesByTypeReturn {
       }))
       
       // Ajouter les types sans congés avec 0
-      const allTypes = ['سنوية', 'مرض', 'طارئة', 'زواج', 'أمومة', 'بدون راتب']
+      const allTypes = ['سنوية', 'مرض', 'طارئة', 'زواج', 'أمومة', 'بدون راتب', 'إجازة تقاعد']
       const completeResult = allTypes.map(type => {
         const found = result.find(item => item.type_conge === type)
         return found || {
@@ -68,7 +70,7 @@ export function useCongesByType(): UseCongesByTypeReturn {
           nombre_conges: 0
         }
       })
-      
+
       setCongesByType(completeResult)
       
     } catch (err) {

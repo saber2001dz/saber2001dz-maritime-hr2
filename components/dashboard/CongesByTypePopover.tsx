@@ -94,13 +94,13 @@ export function CongesByTypePopover({ triggerClassName = "" }: CongesByTypePopov
         </div>
 
         {/* Liste des types */}
-        <div className="space-y-2 max-h-64 overflow-y-auto">
+        <div className="space-y-2 max-h-80 overflow-y-auto">
           {congesByType.map((conge) => {
             const config = typeConfig[conge.type_conge as keyof typeof typeConfig]
             if (!config) return null
-            
+
             const IconComponent = config.icon
-            
+
             return (
               <div key={conge.type_conge} className="flex items-center justify-between py-1.5">
                 <div className="flex items-center gap-2 flex-1">
@@ -147,8 +147,8 @@ export function CongesByTypePopover({ triggerClassName = "" }: CongesByTypePopov
           <Info className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
         </button>
       </PopoverTrigger>
-      <PopoverContent 
-        className="w-80 p-4" 
+      <PopoverContent
+        className="w-80 p-4 max-h-128"
         align={isRTL ? "end" : "start"}
         side="bottom"
       >

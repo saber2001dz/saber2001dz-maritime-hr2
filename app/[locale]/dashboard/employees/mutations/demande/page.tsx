@@ -13,7 +13,7 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
 import { Check, RotateCcw, AlertCircle } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
-import { gradeOptions } from "@/lib/selectOptions"
+import { gradeOptions, gouvernoratOptions } from "@/lib/selectOptions"
 import { motion, AnimatePresence } from "motion/react"
 import { createClient } from "@/lib/supabase/client"
 import Toaster, { ToasterRef } from "@/components/ui/toast"
@@ -48,6 +48,47 @@ export default function DemandeMutationPage() {
   const [showValidationErrors, setShowValidationErrors] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveProgress, setSaveProgress] = useState(0)
+  const [step2Progress, setStep2Progress] = useState(0)
+
+  // États pour les données du tableau de l'étape 2 (3 gouvernorats avec 2 unités chacun)
+  const [tableData, setTableData] = useState<{
+    gouvernorat1: string
+    direction1_1: string
+    direction1_2: string
+    unite1_1: string
+    unite1_2: string
+    gouvernorat2: string
+    direction2_1: string
+    direction2_2: string
+    unite2_1: string
+    unite2_2: string
+    gouvernorat3: string
+    direction3_1: string
+    direction3_2: string
+    unite3_1: string
+    unite3_2: string
+  }>({
+    gouvernorat1: "",
+    direction1_1: "",
+    direction1_2: "",
+    unite1_1: "",
+    unite1_2: "",
+    gouvernorat2: "",
+    direction2_1: "",
+    direction2_2: "",
+    unite2_1: "",
+    unite2_2: "",
+    gouvernorat3: "",
+    direction3_1: "",
+    direction3_2: "",
+    unite3_1: "",
+    unite3_2: "",
+  })
+
+  // Fonction pour mettre à jour les données du tableau
+  const updateTableData = (field: keyof typeof tableData, value: string) => {
+    setTableData((prev) => ({ ...prev, [field]: value }))
+  }
 
   // Variants pour l'animation des étapes - animation simple sans opacity
   const variants = {
@@ -112,6 +153,7 @@ export default function DemandeMutationPage() {
         .from("employees")
         .select("prenom, nom, grade_actuel, unite_actuelle, date_affectation")
         .eq("matricule", matricule)
+        .neq("actif", "متقاعد")
         .maybeSingle()
 
       if (error) {
@@ -264,20 +306,97 @@ export default function DemandeMutationPage() {
       // Construire la date d'affectation au format YYYY-MM-DD
       const dateAffectation = `${yearValue}-${monthValue.padStart(2, "0")}-${dayValue.padStart(2, "0")}`
 
-      // Insérer dans la table employee_mutations
-      const { error: insertError } = await supabase.from("employee_mutations").insert({
-        employee_id: employeeData.id,
-        matricule: matriculeValue,
-        prenom_nom: prenomNomValue,
-        grade: gradeValue,
-        unite_actuelle: affectationActuelleValue,
-        date_affectation: dateAffectation,
-        causes: causesValue,
-      })
+      // Insérer dans la table employee_mutations et récupérer l'ID
+      const { data: mutationData, error: insertError } = await supabase
+        .from("employee_mutations")
+        .insert({
+          employee_id: employeeData.id,
+          matricule: matriculeValue,
+          prenom_nom: prenomNomValue,
+          grade: gradeValue,
+          unite_actuelle: affectationActuelleValue,
+          date_affectation: dateAffectation,
+          causes: causesValue,
+        })
+        .select("id")
+        .single()
 
-      if (insertError) {
-        console.error("Erreur d'insertion:", insertError)
+      if (insertError || !mutationData) {
+        console.error("Erreur d'insertion mutation:", insertError)
         return { success: false, error: "insert_error" }
+      }
+
+      // Préparer les données des unités demandées pour mutation_unites
+      const unitesData = []
+
+      // Gouvernorat 1 - Unité 1
+      if (tableData.gouvernorat1 || tableData.direction1_1 || tableData.unite1_1) {
+        unitesData.push({
+          mutation_id: mutationData.id,
+          gouvernorat: tableData.gouvernorat1 || null,
+          direction: tableData.direction1_1 || null,
+          unite: tableData.unite1_1 || null,
+        })
+      }
+
+      // Gouvernorat 1 - Unité 2
+      if (tableData.gouvernorat1 || tableData.direction1_2 || tableData.unite1_2) {
+        unitesData.push({
+          mutation_id: mutationData.id,
+          gouvernorat: tableData.gouvernorat1 || null,
+          direction: tableData.direction1_2 || null,
+          unite: tableData.unite1_2 || null,
+        })
+      }
+
+      // Gouvernorat 2 - Unité 1
+      if (tableData.gouvernorat2 || tableData.direction2_1 || tableData.unite2_1) {
+        unitesData.push({
+          mutation_id: mutationData.id,
+          gouvernorat: tableData.gouvernorat2 || null,
+          direction: tableData.direction2_1 || null,
+          unite: tableData.unite2_1 || null,
+        })
+      }
+
+      // Gouvernorat 2 - Unité 2
+      if (tableData.gouvernorat2 || tableData.direction2_2 || tableData.unite2_2) {
+        unitesData.push({
+          mutation_id: mutationData.id,
+          gouvernorat: tableData.gouvernorat2 || null,
+          direction: tableData.direction2_2 || null,
+          unite: tableData.unite2_2 || null,
+        })
+      }
+
+      // Gouvernorat 3 - Unité 1
+      if (tableData.gouvernorat3 || tableData.direction3_1 || tableData.unite3_1) {
+        unitesData.push({
+          mutation_id: mutationData.id,
+          gouvernorat: tableData.gouvernorat3 || null,
+          direction: tableData.direction3_1 || null,
+          unite: tableData.unite3_1 || null,
+        })
+      }
+
+      // Gouvernorat 3 - Unité 2
+      if (tableData.gouvernorat3 || tableData.direction3_2 || tableData.unite3_2) {
+        unitesData.push({
+          mutation_id: mutationData.id,
+          gouvernorat: tableData.gouvernorat3 || null,
+          direction: tableData.direction3_2 || null,
+          unite: tableData.unite3_2 || null,
+        })
+      }
+
+      // Insérer les unités demandées dans mutation_unites si des données existent
+      if (unitesData.length > 0) {
+        const { error: unitesInsertError } = await supabase.from("mutation_unites").insert(unitesData)
+
+        if (unitesInsertError) {
+          console.error("Erreur d'insertion unités:", unitesInsertError)
+          return { success: false, error: "insert_unites_error" }
+        }
       }
 
       return { success: true }
@@ -289,30 +408,48 @@ export default function DemandeMutationPage() {
 
   // Fonction pour enregistrer la demande de mutation
   const handleSave = async () => {
+    // Étape 1: Animation remplissage du 2ème progress dans le card
+    const step2Duration = 500
+    const step2Interval = 25
+    const step2Step = 100 / (step2Duration / step2Interval)
+
+    await new Promise<void>((resolve) => {
+      const step2Timer = setInterval(() => {
+        setStep2Progress((prev) => {
+          const newProgress = prev + step2Step
+          if (newProgress >= 100) {
+            clearInterval(step2Timer)
+            resolve()
+            return 100
+          }
+          return newProgress
+        })
+      }, step2Interval)
+    })
+
+    // Étape 2: Animation Progress en haut de la page
     setIsSaving(true)
     setSaveProgress(0)
 
-    // Durée totale de l'animation de progression (2.5 secondes)
-    const progressDuration = 1000
-    const progressInterval = 50 // Mise à jour toutes les 50ms
+    const progressDuration = 400
+    const progressInterval = 20
     const progressStep = 100 / (progressDuration / progressInterval)
 
-    // Lancer l'animation de progression
-    const progressTimer = setInterval(() => {
-      setSaveProgress((prev) => {
-        const newProgress = prev + progressStep
-        if (newProgress >= 100) {
-          clearInterval(progressTimer)
-          return 100
-        }
-        return newProgress
-      })
-    }, progressInterval)
+    await new Promise<void>((resolve) => {
+      const progressTimer = setInterval(() => {
+        setSaveProgress((prev) => {
+          const newProgress = prev + progressStep
+          if (newProgress >= 100) {
+            clearInterval(progressTimer)
+            resolve()
+            return 100
+          }
+          return newProgress
+        })
+      }, progressInterval)
+    })
 
-    // Attendre que la progression atteigne 100%
-    await new Promise((resolve) => setTimeout(resolve, progressDuration))
-
-    // Enregistrer les données dans la base de données
+    // Étape 3: Enregistrement des données dans la base de données
     const result = await saveToDatabase()
 
     // Afficher le toast approprié
@@ -324,15 +461,17 @@ export default function DemandeMutationPage() {
         duration: 3000,
       })
 
-      // Réinitialiser le formulaire après un court délai
+      // Étape 4: Réinitialisation de la page après un court délai
       setTimeout(() => {
         setIsSaving(false)
         setSaveProgress(0)
+        setStep2Progress(0)
         handleReset()
       }, 500)
     } else {
       setIsSaving(false)
       setSaveProgress(0)
+      setStep2Progress(0)
 
       if (result.error === "employee_not_found") {
         toasterRef.current?.show({
@@ -392,6 +531,24 @@ export default function DemandeMutationPage() {
     setCurrentStep(1)
     setProgress(50)
     setIsTransitioning(false)
+    // Réinitialiser les données du tableau de l'étape 2
+    setTableData({
+      gouvernorat1: "",
+      direction1_1: "",
+      direction1_2: "",
+      unite1_1: "",
+      unite1_2: "",
+      gouvernorat2: "",
+      direction2_1: "",
+      direction2_2: "",
+      unite2_1: "",
+      unite2_2: "",
+      gouvernorat3: "",
+      direction3_1: "",
+      direction3_2: "",
+      unite3_1: "",
+      unite3_2: "",
+    })
     // Donner le focus à l'input matricule après réinitialisation
     setTimeout(() => {
       matriculeInputRef.current?.focus()
@@ -458,10 +615,14 @@ export default function DemandeMutationPage() {
               </div>
               <Separator className="mt-0.5 mb-3 bg-gray-300 dark:bg-gray-500" />
               <div className="flex items-center gap-4 mt-3">
-                <Progress value={progress} dir="rtl" className="h-3 flex-1" />
-                <span className="font-noto-naskh-arabic text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                  2/{currentStep} مكتملة
-                </span>
+                <div className="flex-1 flex flex-col gap-1">
+                  <span className={`font-noto-naskh-arabic text-sm transition-colors duration-300 ${currentStep >= 2 ? "text-[#2B778F] font-semibold" : "text-gray-500 dark:text-gray-700"}`}>البيـانـات الشخصيـة</span>
+                  <Progress value={currentStep >= 2 ? 100 : 0} dir="rtl" className="h-3" />
+                </div>
+                <div className="flex-1 flex flex-col gap-1">
+                  <span className={`font-noto-naskh-arabic text-sm transition-colors duration-300 ${step2Progress >= 100 ? "text-[#2B778F] font-semibold" : "text-gray-500 dark:text-gray-700"}`}>الـوحـدات حسـب الـرغبـة</span>
+                  <Progress value={step2Progress} dir="rtl" className="h-3" />
+                </div>
               </div>
             </CardHeader>
             <div className="overflow-hidden relative min-h-100">
@@ -812,9 +973,229 @@ export default function DemandeMutationPage() {
                     }}
                   >
                     <CardContent className="space-y-5">
-                      {/* Contenu de l'étape 2 - vide pour l'instant */}
-                      <div className="text-center py-20">
-                        <p className="font-noto-naskh-arabic text-gray-500 dark:text-gray-400">المرحلة الثانية</p>
+                      {/* Table des unités demandées */}
+                      <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                        <table className="w-full border-collapse" dir="rtl">
+                          <thead>
+                            <tr className="bg-gray-100 dark:bg-gray-800">
+                              <th colSpan={2} className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-l border-gray-300 dark:border-gray-600 text-center">
+                                الـــولایـــة
+                              </th>
+                              <th className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-l border-gray-300 dark:border-gray-600 text-center">
+                                الإدارة / الإقلیم
+                              </th>
+                              <th colSpan={2} className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-gray-300 dark:border-gray-600 text-center">
+                                الوحدات المطلوبة
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {/* الولاية 1 - صفان */}
+                            <tr className="border-b border-gray-300 dark:border-gray-600">
+                              <td rowSpan={2} className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12">
+                                1
+                              </td>
+                              <td rowSpan={2} className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45">
+                                <Select dir="rtl" value={tableData.gouvernorat1} onValueChange={(value) => updateTableData("gouvernorat1", value)}>
+                                  <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
+                                    <SelectValue placeholder="" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {gouvernoratOptions.map((gov) => (
+                                      <SelectItem
+                                        key={gov.value}
+                                        value={gov.value}
+                                        className="font-noto-naskh-arabic hover:bg-[#EBF3F5] focus:bg-[#EBF3F5] data-highlighted:bg-[#EBF3F5]"
+                                      >
+                                        {gov.labelAr || gov.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </td>
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.direction1_1}
+                                  onChange={(e) => updateTableData("direction1_1", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                              <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
+                                1
+                              </td>
+                              <td className="py-2 px-3 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.unite1_1}
+                                  onChange={(e) => updateTableData("unite1_1", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                            </tr>
+                            <tr className="border-b border-gray-300 dark:border-gray-600">
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.direction1_2}
+                                  onChange={(e) => updateTableData("direction1_2", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                              <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
+                                2
+                              </td>
+                              <td className="py-2 px-3 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.unite1_2}
+                                  onChange={(e) => updateTableData("unite1_2", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                            </tr>
+                            {/* الولاية 2 - صفان */}
+                            <tr className="border-b border-gray-300 dark:border-gray-600">
+                              <td rowSpan={2} className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12">
+                                2
+                              </td>
+                              <td rowSpan={2} className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45">
+                                <Select dir="rtl" value={tableData.gouvernorat2} onValueChange={(value) => updateTableData("gouvernorat2", value)}>
+                                  <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
+                                    <SelectValue placeholder="" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {gouvernoratOptions.map((gov) => (
+                                      <SelectItem
+                                        key={gov.value}
+                                        value={gov.value}
+                                        className="font-noto-naskh-arabic hover:bg-[#EBF3F5] focus:bg-[#EBF3F5] data-highlighted:bg-[#EBF3F5]"
+                                      >
+                                        {gov.labelAr || gov.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </td>
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.direction2_1}
+                                  onChange={(e) => updateTableData("direction2_1", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                              <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
+                                3
+                              </td>
+                              <td className="py-2 px-3 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.unite2_1}
+                                  onChange={(e) => updateTableData("unite2_1", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                            </tr>
+                            <tr className="border-b border-gray-300 dark:border-gray-600">
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.direction2_2}
+                                  onChange={(e) => updateTableData("direction2_2", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                              <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
+                                4
+                              </td>
+                              <td className="py-2 px-3 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.unite2_2}
+                                  onChange={(e) => updateTableData("unite2_2", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                            </tr>
+                            {/* الولاية 3 - صفان */}
+                            <tr className="border-b border-gray-300 dark:border-gray-600">
+                              <td rowSpan={2} className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12">
+                                3
+                              </td>
+                              <td rowSpan={2} className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45">
+                                <Select dir="rtl" value={tableData.gouvernorat3} onValueChange={(value) => updateTableData("gouvernorat3", value)}>
+                                  <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
+                                    <SelectValue placeholder="" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {gouvernoratOptions.map((gov) => (
+                                      <SelectItem
+                                        key={gov.value}
+                                        value={gov.value}
+                                        className="font-noto-naskh-arabic hover:bg-[#EBF3F5] focus:bg-[#EBF3F5] data-highlighted:bg-[#EBF3F5]"
+                                      >
+                                        {gov.labelAr || gov.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </td>
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.direction3_1}
+                                  onChange={(e) => updateTableData("direction3_1", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                              <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
+                                5
+                              </td>
+                              <td className="py-2 px-3 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.unite3_1}
+                                  onChange={(e) => updateTableData("unite3_1", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.direction3_2}
+                                  onChange={(e) => updateTableData("direction3_2", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                              <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
+                                6
+                              </td>
+                              <td className="py-2 px-3 bg-white dark:bg-card">
+                                <Input
+                                  placeholder=""
+                                  autoComplete="new-password"
+                                  value={tableData.unite3_2}
+                                  onChange={(e) => updateTableData("unite3_2", e.target.value)}
+                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
+                                />
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </CardContent>
                   </motion.div>
