@@ -1052,6 +1052,13 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
 
     // Validation des champs obligatoires
     if (!affectation.unite || !affectation.responsibility || !affectation.date_debut) {
+      showToast?.(
+        "error",
+        isRTL ? "حقول مطلوبة مفقودة" : "Champs obligatoires manquants",
+        isRTL
+          ? "يرجى ملء الوحدة والمسؤولية وتاريخ البداية قبل الحفظ."
+          : "Veuillez remplir l'unité, la responsabilité et la date de début avant d'enregistrer."
+      )
       return
     }
 
@@ -1061,6 +1068,13 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
 
       if (affectation.id.toString().startsWith("temp-")) {
         // Création
+        console.log("Creating new affectation:", {
+          employee_id: data.employee.id,
+          unite: affectation.unite,
+          responsibility: affectation.responsibility,
+          date_debut: affectation.date_debut,
+        })
+
         const { data: newAffectation, error } = await supabase
           .from("employee_affectations")
           .insert({
@@ -1074,12 +1088,23 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
           .select()
           .single()
 
-        if (error) throw error
+        if (error) {
+          console.error("Supabase insert error:", error)
+          throw error
+        }
 
+        console.log("New affectation created:", newAffectation)
         updatedAffectations[index] = newAffectation
         setAffectations(updatedAffectations)
       } else {
         // Mise à jour
+        console.log("Updating affectation:", {
+          id: affectation.id,
+          unite: affectation.unite,
+          responsibility: affectation.responsibility,
+          date_debut: affectation.date_debut,
+        })
+
         const { error } = await supabase
           .from("employee_affectations")
           .update({
@@ -1091,14 +1116,36 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
           })
           .eq("id", affectation.id)
 
-        if (error) throw error
+        if (error) {
+          console.error("Supabase update error:", error)
+          throw error
+        }
+
+        console.log("Affectation updated successfully")
       }
 
       // Appel onSave APRÈS la mise à jour
+      console.log("Calling onSave with updatedAffectations:", updatedAffectations)
       onSave("affectations", updatedAffectations)
       setEditingAffectationIndex(null)
-    } catch (error) {
-      console.error("Erreur:", error)
+
+      showToast?.(
+        "success",
+        isRTL ? "تم الحفظ بنجاح" : "Sauvegarde réussie",
+        isRTL ? "تم حفظ التعيين بنجاح" : "L'affectation a été sauvegardée avec succès"
+      )
+    } catch (error: any) {
+      console.error("Erreur saveAffectation:", error)
+      console.error("Error details:", JSON.stringify(error, null, 2))
+      console.error("Error message:", error?.message)
+      console.error("Error code:", error?.code)
+      showToast?.(
+        "error",
+        isRTL ? "خطأ في الحفظ" : "Erreur de sauvegarde",
+        isRTL
+          ? `خطأ أثناء حفظ التعيين: ${error?.message || "خطأ غير معروف"}`
+          : `Erreur lors de la sauvegarde de l'affectation: ${error?.message || "Erreur inconnue"}`
+      )
     }
   }
 
@@ -2205,7 +2252,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغلاق" : "Fermer"}</span>
+                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــلاق" : "Fermer"}</span>
               </button>
             </div>
           </div>
@@ -2515,7 +2562,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغلاق" : "Fermer"}</span>
+                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــلاق" : "Fermer"}</span>
               </button>
             </div>
           </div>
@@ -2843,7 +2890,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغلاق" : "Fermer"}</span>
+                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــلاق" : "Fermer"}</span>
               </button>
             </div>
           </div>
@@ -3147,7 +3194,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغلاق" : "Fermer"}</span>
+                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــلاق" : "Fermer"}</span>
               </button>
             </div>
           </div>
@@ -3426,7 +3473,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={cardSubtitleFontClass}>إغلاق</span>
+                <span className={cardSubtitleFontClass}>إغـــلاق</span>
               </button>
             </div>
           </div>
@@ -3642,7 +3689,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={cardSubtitleFontClass}>إغلاق</span>
+                <span className={cardSubtitleFontClass}>إغـــلاق</span>
               </button>
             </div>
           </div>

@@ -123,7 +123,7 @@ function InputField({
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full !h-[40px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+        className={`w-full h-10! px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
           isRTL ? "font-noto-naskh-arabic" : ""
         }`}
       />
@@ -158,7 +158,7 @@ function SelectField({
       </label>
       <Select value={value || ""} onValueChange={onChange}>
         <SelectTrigger
-          className={`w-full !h-[40px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+          className={`w-full h-10! px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
             isRTL ? "font-noto-naskh-arabic" : ""
           }`}
         >
@@ -700,7 +700,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                   >
                     <DateInput
                       focusColor="rgb(7,103,132)"
-                      className={`w-full !h-[40px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                      className={`w-full h-10! px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                         isRTL ? "text-right font-geist-sans" : ""
                       } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                     />
@@ -725,7 +725,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                   >
                     <DateInput
                       focusColor="rgb(7,103,132)"
-                      className={`w-full !h-[40px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                      className={`w-full h-10! px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                         isRTL ? "text-right font-geist-sans" : ""
                       } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                     />
@@ -863,7 +863,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                   >
                     <DateInput
                       focusColor="rgb(7,103,132)"
-                      className={`w-full !h-[40px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                      className={`w-full h-10! px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                         isRTL ? "text-right font-geist-sans" : ""
                       } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                     />
@@ -888,7 +888,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                   >
                     <DateInput
                       focusColor="rgb(7,103,132)"
-                      className={`w-full !h-[40px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                      className={`w-full h-10! px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                         isRTL ? "text-right font-geist-sans" : ""
                       } ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                     />
@@ -973,8 +973,8 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
           </div>
 
           <div className="overflow-x-auto max-h-96 mb-1">
-            <table className="w-full text-sm min-w-[800px] table-fixed">
-              <thead className="bg-gray-100 dark:bg-gray-800 h-[48px]">
+            <table className="w-full text-sm min-w-200 table-fixed">
+              <thead className="bg-gray-100 dark:bg-gray-800 h-12">
                 <tr>
                   <th
                     className={`px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -1051,7 +1051,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                   </tr>
                 ) : (
                   niveauxScolarite.map((niveau, index) => (
-                    <tr key={niveau.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 h-[48px]">
+                    <tr key={niveau.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 h-12">
                       <td className="px-4 py-2 w-44 align-middle">
                         {editingNiveauIndex === index ? (
                           <Select
@@ -1059,7 +1059,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             onValueChange={(value) => updateNiveau(index, "niveau_scolaire", value)}
                           >
                             <SelectTrigger
-                              className={`w-full px-3 py-1 text-xs !h-[32px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                              className={`w-full px-3 py-1 text-xs h-8! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                                 isRTL ? "font-noto-naskh-arabic" : ""
                               }`}
                             >
@@ -1081,11 +1081,11 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                           </Select>
                         ) : (
                           <div
-                            className={`truncate h-[32px] flex items-center ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+                            className={`truncate h-8 flex items-center ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                             title={niveau.niveau_scolaire || (isRTL ? "غير محدد" : "Non défini")}
                           >
                             <GraduationCap
-                              className={`w-4 h-4 text-[#076784] flex-shrink-0 ${isRTL ? "ml-2" : "mr-2"}`}
+                              className={`w-4 h-4 text-[#076784] shrink-0 ${isRTL ? "ml-2" : "mr-2"}`}
                             />
                             {niveau.niveau_scolaire || (isRTL ? "غير محدد" : "Non défini")}
                           </div>
@@ -1098,13 +1098,13 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             value={niveau.diplome || ""}
                             onChange={(e) => updateNiveau(index, "diplome", e.target.value)}
                             placeholder={isRTL ? "الشهادة المحصل عليها" : "Diplôme obtenu"}
-                            className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                            className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                               isRTL ? "font-noto-naskh-arabic" : ""
                             }`}
                           />
                         ) : (
                           <div
-                            className={`truncate h-[32px] flex items-center ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+                            className={`truncate h-8 flex items-center ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                             title={niveau.diplome || (isRTL ? "غير محدد" : "Non défini")}
                           >
                             {niveau.diplome || (isRTL ? "غير محدد" : "Non défini")}
@@ -1118,13 +1118,13 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             value={niveau.lieu || ""}
                             onChange={(e) => updateNiveau(index, "lieu", e.target.value)}
                             placeholder={isRTL ? "مكان الدراسة" : "Lieu d'études"}
-                            className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                            className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                               isRTL ? "font-noto-naskh-arabic" : ""
                             }`}
                           />
                         ) : (
                           <div
-                            className={`truncate h-[32px] flex items-center ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+                            className={`truncate h-8 flex items-center ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                             title={niveau.lieu || (isRTL ? "غير محدد" : "Non défini")}
                           >
                             {niveau.lieu || (isRTL ? "غير محدد" : "Non défini")}
@@ -1138,13 +1138,13 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             value={niveau.annee_debut || ""}
                             onChange={(e) => updateNiveau(index, "annee_debut", e.target.value)}
                             placeholder={isRTL ? "2020" : "2020"}
-                            className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                            className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                               isRTL ? "font-noto-naskh-arabic" : ""
                             }`}
                           />
                         ) : (
                           <div
-                            className={`truncate h-[32px] flex items-center ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+                            className={`truncate h-8 flex items-center ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                             title={niveau.annee_debut || (isRTL ? "غير محدد" : "Non défini")}
                           >
                             {niveau.annee_debut || (isRTL ? "غير محدد" : "Non défini")}
@@ -1158,13 +1158,13 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             value={niveau.annee_fin || ""}
                             onChange={(e) => updateNiveau(index, "annee_fin", e.target.value)}
                             placeholder={isRTL ? "2024" : "2024"}
-                            className={`w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                            className={`w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                               isRTL ? "font-noto-naskh-arabic" : ""
                             }`}
                           />
                         ) : (
                           <div
-                            className={`truncate h-[32px] flex items-center ${isRTL ? "font-noto-naskh-arabic" : ""}`}
+                            className={`truncate h-8 flex items-center ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                             title={niveau.annee_fin || (isRTL ? "غير محدد" : "Non défini")}
                           >
                             {niveau.annee_fin || (isRTL ? "غير محدد" : "Non défini")}
@@ -1234,7 +1234,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 isRTL ? "font-noto-naskh-arabic" : ""
               }`}
             >
-              {isRTL ? "إغلاق" : "Fermer"}
+              {isRTL ? "إغـــلاق" : "Fermer"}
             </button>
           </div>
         </div>

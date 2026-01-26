@@ -488,7 +488,7 @@ function LeavesTabsComponent({
       </div>
 
       {/* Content des onglets */}
-      <div className="h-[320px]">
+      <div className="h-80">
         {activeTab === "conges" && (
           <div className="h-full overflow-y-auto overflow-x-auto">
             <table className="w-full">

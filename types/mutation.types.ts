@@ -11,6 +11,8 @@ export interface RawMutationData {
   unite_actuelle: string | null
   date_affectation: string | null
   causes: string | null
+  type_demande: string | null
+  direction: string | null
 }
 
 export interface DisplayMutation {
@@ -22,6 +24,8 @@ export interface DisplayMutation {
   unite_actuelle: string | null
   date_affectation: string | null
   causes: string | null
+  type_demande: string | null
+  direction: string | null
   created_at: string
 }
 
@@ -36,6 +40,8 @@ export function processMutationData(raw: RawMutationData): DisplayMutation {
     unite_actuelle: raw.unite_actuelle,
     date_affectation: raw.date_affectation,
     causes: raw.causes,
+    type_demande: raw.type_demande,
+    direction: raw.direction,
     created_at: raw.created_at,
   }
 }
@@ -50,5 +56,7 @@ export const MUTATION_SELECT_QUERY = `
   unite_actuelle,
   date_affectation,
   causes,
+  type_demande,
+  direction,
   created_at
 `

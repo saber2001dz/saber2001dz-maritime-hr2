@@ -141,7 +141,7 @@ export function CongesByTypePopover({ triggerClassName = "" }: CongesByTypePopov
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className={`inline-flex items-center justify-center w-5 h-5 rounded-full hover:bg-muted transition-colors cursor-pointer ${triggerClassName}`}
+          className={`inline-flex items-center justify-center w-5 h-5 rounded-full hover:bg-muted transition-colors cursor-pointer focus:outline-none ${triggerClassName}`}
           aria-label={isRTL ? "عرض التفاصيل" : "Voir les détails"}
         >
           <Info className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />

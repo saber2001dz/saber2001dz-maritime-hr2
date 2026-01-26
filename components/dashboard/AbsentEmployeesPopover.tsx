@@ -125,7 +125,7 @@ export function AbsentEmployeesPopover({ triggerClassName = "" }: AbsentEmployee
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className={`inline-flex items-center justify-center w-5 h-5 rounded-full hover:bg-muted transition-colors cursor-pointer ${triggerClassName}`}
+          className={`inline-flex items-center justify-center w-5 h-5 rounded-full hover:bg-muted transition-colors cursor-pointer focus:outline-none ${triggerClassName}`}
           aria-label={isRTL ? "عرض التفاصيل" : "Voir les détails"}
         >
           <Info className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
@@ -140,7 +140,7 @@ export function AbsentEmployeesPopover({ triggerClassName = "" }: AbsentEmployee
           <h3 className={`text-lg font-semibold text-[#076784] ${titleFontClass}`}>
             {isRTL ? "قائمة الموظفين المتغيبين" : "Liste des Employés Absents"}
           </h3>
-          <PopoverClose>
+          <PopoverClose className="focus:outline-none">
             <X className="w-4 h-4 cursor-pointer text-[#076784]" />
           </PopoverClose>
         </div>

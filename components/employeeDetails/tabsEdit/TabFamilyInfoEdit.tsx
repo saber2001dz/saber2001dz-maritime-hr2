@@ -116,7 +116,7 @@ function InputField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 !h-[40px] font-medium border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+        className={`w-full px-3 py-2 h-10! font-medium border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
           isRTL ? "font-noto-naskh-arabic" : ""
         }`}
         dir={isRTL ? "rtl" : "ltr"}
@@ -149,7 +149,7 @@ function SelectField({
         {label}
       </label>
       <Select dir={isRTL ? "rtl" : "ltr"} value={value} onValueChange={onChange}>
-        <SelectTrigger className={`w-full px-3 py-2 text-sm !h-[40px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+        <SelectTrigger className={`w-full px-3 py-2 text-sm h-10! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
             isRTL ? "font-noto-naskh-arabic" : ""
           }`}>
           <SelectValue
@@ -579,7 +579,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 {isRTL ? "الحالة المدنية" : "État Civil"}
               </label>
               <Select dir={isRTL ? "rtl" : "ltr"} value={familyData.etat_civil} onValueChange={(value) => setFamilyData({ ...familyData, etat_civil: value })}>
-                <SelectTrigger className={`w-full px-3 py-2 text-sm !h-[40px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                <SelectTrigger className={`w-full px-3 py-2 text-sm h-10! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                     isRTL ? "font-noto-naskh-arabic" : ""
                   }`}>
                   <SelectValue
@@ -617,7 +617,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 >
                   <DateInput
                     focusColor="rgb(7,103,132)"
-                    className={`w-full px-3 py-2 !h-[40px] font-medium border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+                    className={`w-full px-3 py-2 h-10! font-medium border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
                       isRTL ? "text-right font-geist-sans" : ""
                     }`}
                   />
@@ -692,8 +692,8 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
           </div>
 
           <div className="overflow-x-auto max-h-96 mb-1">
-            <table className="w-full text-sm min-w-[800px] table-fixed">
-              <thead className="bg-gray-100 dark:bg-gray-800 h-[48px]">
+            <table className="w-full text-sm min-w-200 table-fixed">
+              <thead className="bg-gray-100 dark:bg-gray-800 h-12">
                 <tr>
                   <th
                     className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? "font-noto-naskh-arabic" : ""}`}
@@ -745,7 +745,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                   </tr>
                 ) : (
                   enfantsList.map((enfant, index) => (
-                    <tr key={enfant.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-[48px]">
+                    <tr key={enfant.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 h-12">
                       <td className="px-4 py-2 w-64 align-middle">
                         {editingEnfantIndex === index ? (
                           <input
@@ -753,11 +753,11 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             value={enfant.prenom || ""}
                             onChange={(e) => updateEnfant(index, "prenom", e.target.value)}
                             placeholder={isRTL ? "اسم الطفل" : "Prénom de l'enfant"}
-                            className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                            className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                           />
                         ) : (
-                          <div className="truncate h-[32px] flex items-center" title={enfant.prenom || (isRTL ? "غير محدد" : "Non défini")}>
-                            <Baby className="w-4 h-4 text-[#076784] flex-shrink-0 mr-2" />
+                          <div className="truncate h-8 flex items-center" title={enfant.prenom || (isRTL ? "غير محدد" : "Non défini")}>
+                            <Baby className="w-4 h-4 text-[#076784] shrink-0 mr-2" />
                             {enfant.prenom || (isRTL ? "غير محدد" : "Non défini")}
                           </div>
                         )}
@@ -765,7 +765,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       <td className="px-4 py-2 w-32 align-middle">
                         {editingEnfantIndex === index ? (
                           <Select value={enfant.sexe} onValueChange={(value) => updateEnfant(index, "sexe", value)}>
-                            <SelectTrigger className="w-full px-3 py-1 text-xs !h-[32px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm">
+                            <SelectTrigger className="w-full px-3 py-1 text-xs h-8! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm">
                               <SelectValue placeholder={isRTL ? "اختر" : "Choisir"} />
                             </SelectTrigger>
                             <SelectContent className="bg-white dark:bg-[#1C1C1C] border-gray-300 dark:border-gray-600">
@@ -781,7 +781,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             </SelectContent>
                           </Select>
                         ) : (
-                          <div className="h-[32px] flex items-center">
+                          <div className="h-8 flex items-center">
                             <span
                               className={`px-2 py-1 rounded-full text-xs ${
                                 enfant.sexe === "masculin"
@@ -802,10 +802,10 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             type="date"
                             value={formatDateForInput(enfant.date_naissance) || ""}
                             onChange={(e) => updateEnfant(index, "date_naissance", e.target.value)}
-                            className="w-full h-[32px] px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
+                            className="w-full h-8 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm"
                           />
                         ) : (
-                          <div className="h-[32px] flex items-center">
+                          <div className="h-8 flex items-center">
                             {enfant.date_naissance ? formatDateWith2DigitDay(enfant.date_naissance) : (isRTL ? "غير محدد" : "Non défini")}
                           </div>
                         )}
@@ -816,7 +816,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                             value={enfant.niveau_scolaire}
                             onValueChange={(value) => updateEnfant(index, "niveau_scolaire", value)}
                           >
-                            <SelectTrigger className="w-full px-3 py-1 text-xs !h-[32px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm">
+                            <SelectTrigger className="w-full px-3 py-1 text-xs h-8! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm">
                               <SelectValue placeholder={isRTL ? "اختر المستوى" : "Choisir niveau"} />
                             </SelectTrigger>
                             <SelectContent className="bg-white dark:bg-[#1C1C1C] border-gray-300 dark:border-gray-600">
@@ -833,7 +833,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                           </Select>
                         ) : (
                           <div
-                            className="truncate h-[32px] flex items-center"
+                            className="truncate h-8 flex items-center"
                             title={enfant.niveau_scolaire || (isRTL ? "غير محدد" : "Non défini")}
                           >
                             {enfant.niveau_scolaire || (isRTL ? "غير محدد" : "Non défini")}
@@ -897,7 +897,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
               onClick={handleDialogClose}
               className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
             >
-              {isRTL ? <span className="font-noto-naskh-arabic">إغلاق</span> : "Fermer"}
+              {isRTL ? <span className="font-noto-naskh-arabic">إغـــلاق</span> : "Fermer"}
             </button>
           </div>
         </div>

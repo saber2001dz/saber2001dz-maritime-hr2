@@ -239,7 +239,7 @@
     "backHome": "العودة إلى الصفحة الرئيسية"
   },
   "employeesList": {
-    "title": "قائمـة المـوظفيـن",
+    "title": "قـائمـة المـوظفيـن",
     "totalEmployees": "موظـف",
     "totalEmployeesPlural": "موظـف",
     "totalOf": "من أصل",
@@ -393,7 +393,7 @@
     },
     "form": {
       "basicData": "البيانات الأساسية",
-      "familyData": "البيانات العائلية",
+      "familyData": "البيانات العائليـة",
       "personalContacts": "البيانات الشخصية",
       "fields": {
         "firstName": "الإســــــم",
@@ -461,12 +461,12 @@
     },
     "employeeDetails": {
       "tabs": {
-        "personalInfo": "بيــانــات شخصيـــة",
-        "professionalInfo": "بيــانــات المهنيــــة", 
-        "familyInfo": "بيــانــات العائلية",
-        "trainingInfo": "التكوين والتدريب",
-        "disciplineInfo": "الانضباط العقـوبـات",
-        "leavesInfo": "الإجازات والغياب"
+        "personalInfo": "البيــانــات الشخصيـــة",
+        "professionalInfo": "البيــانــات المهنيــــة", 
+        "familyInfo": "البيــانــات العائليــة",
+        "trainingInfo": "التكـويـن والتـدريـب",
+        "disciplineInfo": "التشجيــع و العقـوبــات",
+        "leavesInfo": "الإجــــازات والغيـــاب"
       },
       "navigation": {
         "backToEmployees": "العودة إلى قائمة الموظفين",
@@ -545,7 +545,7 @@
         "cancel": "إلـغــــاء",
         "save": "حفظ",
         "add": "إضافة",
-        "close": "إغلاق",
+        "close": "إغـــلاق",
         "saving": "جاري الحفظ...",
         "actions": "الإجراءات",
         "modify": "تعديل",

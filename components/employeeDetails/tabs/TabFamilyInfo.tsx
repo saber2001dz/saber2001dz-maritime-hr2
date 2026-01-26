@@ -112,7 +112,7 @@ function Field({
   return (
     <div>
       <p className={`text-sm text-gray-500 dark:text-gray-400 mb-1 ${labelFontClass}`}>{label}</p>
-      <p className={`text-gray-900 dark:text-gray-300 font-medium ${valueFontClass}`}>{value || "Non défini"}</p>
+      <p className={`text-gray-900 dark:text-gray-300 text-sm font-medium ${valueFontClass}`}>{value || "Non défini"}</p>
     </div>
   )
 }
@@ -406,7 +406,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
       <div className="space-y-6">
         {/* Contact d'Urgence */}
         <Card
-          title={isRTL ? "جهة الاتصال الطارئ" : "Contact d'Urgence"}
+          title={isRTL ? "جهة الاتصال عند الطوارئ" : "Contact d'Urgence"}
           icon={Phone}
           edit
           animationDelay="0.3s"
@@ -416,7 +416,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
         >
           <div className="space-y-4">
             <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800/30">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div className="w-10 h-10 bg-red-100 dark:bg-red-800/40 rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-red-600 dark:text-red-400" />
                 </div>
@@ -426,7 +426,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
                   {urgentContacts.prenom_nom || (isRTL ? "غير محدد" : "Non défini")}
                 </h3>
                 <div className="flex items-center gap-1">
-                  <Phone className="w-3.5 h-3.5 text-red-600 dark:text-red-400 flex-shrink-0" />
+                  <Phone className="w-3.5 h-3.5 text-red-600 dark:text-red-400 shrink-0" />
                   <span className={`text-sm text-red-700 dark:text-red-200 ${jazeeraFontClass}`}>
                     {urgentContacts.phone || (isRTL ? "غير محدد" : "Non défini")}
                   </span>
@@ -434,7 +434,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
                   {urgentContacts.relationship && (
                     <div className="flex items-center gap-1 ml-1">
                       <span className="text-red-600 dark:text-red-400">-</span>
-                      <User className="w-3.5 h-3.5 text-red-600 dark:text-red-400 flex-shrink-0 ml-1" />
+                      <User className="w-3.5 h-3.5 text-red-600 dark:text-red-400 shrink-0 ml-1" />
                       <span className={`text-sm text-red-700 dark:text-red-200 ${jazeeraFontClass}`}>
                         {urgentContacts.relationship}
                       </span>
@@ -444,7 +444,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
               </div>
             </div>
             <div className={`text-xs text-gray-500 dark:text-gray-400 text-left ${cardSubtitleFontClass}`}>
-              {isRTL ? "سيتم الاتصال بهذا الشخص في حالة الطوارئ" : "Ce contact sera appelé en cas d'urgence"}
+              {isRTL ? "يـتــم الاتصال بهـذا الشخـص في حالـة الطـوارئ" : "Ce contact sera appelé en cas d'urgence"}
             </div>
           </div>
         </Card>

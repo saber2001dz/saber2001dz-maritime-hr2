@@ -610,7 +610,7 @@ function Field({
   return (
     <div>
       <p className={`text-sm text-gray-500 dark:text-gray-400 mb-1 ${labelFontClass}`}>{label}</p>
-      <p className={`text-gray-700 dark:text-gray-300 ${valueFontClass}`}>{value || "Non défini"}</p>
+      <p className={`text-gray-700 dark:text-gray-300 ${valueFontClass} text-sm`}>{value || "Non défini"}</p>
     </div>
   )
 }
@@ -1080,7 +1080,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
       <div className="space-y-6">
         {/* Affectations */}
         <Card
-          title={isRTL ? "التعيينات" : "Affectations"}
+          title={isRTL ? "التعـيـيـنـــات" : "Affectations"}
           icon={ClipboardList}
           edit
           animationDelay="0.4s"
@@ -1112,7 +1112,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                   <PopoverContent className="w-250 bg-white dark:bg-[#1C1C1C]" align="end">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className={`text-lg font-semibold text-[#076784] ${titleFontClass}`}>
-                        {isRTL ? "جميع التعيينات" : "Toutes les Affectations"}
+                        {isRTL ? "جميــع التعـيـيـنـــات" : "Toutes les Affectations"}
                       </h3>
                       <PopoverClose>
                         <X className="w-4 h-4 cursor-pointer text-[#076784]" />
@@ -1209,7 +1209,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                         <div className="flex items-start justify-between">
                           <div>
                             <h3
-                              className={`text-md font-semibold text-gray-800 dark:text-gray-300 ${jazeeraFontClass}`}
+                              className={`text-sm font-semibold text-gray-800 dark:text-gray-300 ${jazeeraFontClass}`}
                             >
                               {affectation.unite || (isRTL ? "غير محدد" : "Non défini")}
                             </h3>
@@ -1260,7 +1260,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
               </span>
               <span>|</span>
               <span>
-                {isRTL ? "عدد التعيينات : " : "Nombre d'affectations:"} {sortedAffectations.length}
+                {isRTL ? "عــدد التعـيـيـنـــات : " : "Nombre d'affectations:"} {sortedAffectations.length}
               </span>
             </div>
           </div>
@@ -1293,7 +1293,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                     {currentBanque.logo_url && (
                       <img src={currentBanque.logo_url} alt="Logo banque" className="w-7 h-7 object-contain" />
                     )}
-                    <p className={`text-gray-900 dark:text-gray-300 text-[15px] ${jazeeraFontClass}`}>
+                    <p className={`text-gray-900 dark:text-gray-300 text-sm ${jazeeraFontClass}`}>
                       {currentBanque.banque || (isRTL ? "غير محدد" : "Non défini")}
                     </p>
                   </div>

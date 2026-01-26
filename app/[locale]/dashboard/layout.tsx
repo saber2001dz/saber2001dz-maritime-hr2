@@ -95,12 +95,12 @@ const getPageConfig = () => ({
       { label: BREADCRUMB_LABELS.retirement },
     ],
   },
-  "/dashboard/employees/mutations/demande": {
+  "/dashboard/employees/mutations/demande/nouvelle-demande": {
     title: BREADCRUMB_LABELS.mutationRequest,
     breadcrumbs: [
       { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
       { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
-      { label: BREADCRUMB_LABELS.mutations, href: "/dashboard/employees/mutations" },
+      { label: BREADCRUMB_LABELS.mutations, href: "/dashboard/employees/mutations/" },
       { label: BREADCRUMB_LABELS.mutationRequest },
     ],
   },

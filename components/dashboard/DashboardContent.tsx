@@ -475,7 +475,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
 
               <Select dir={isRTL ? "rtl" : "ltr"} defaultValue="6months" onValueChange={handlePeriodChange}>
                 <SelectTrigger
-                  className={`w-23.75 rounded focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 ${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}
+                  className={`w-23.75 rounded focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 focus:outline-none ${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -670,7 +670,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                 defaultValue="grade"
                 onValueChange={(value) => setSelectedChart(value)}
               >
-                <SelectTrigger className={`w-30 rounded ${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
+                <SelectTrigger className={`w-30 rounded focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 focus:outline-none ${isRTL ? 'font-noto-naskh-arabic font-medium text-sm' : 'font-medium text-sm'}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -838,7 +838,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
             </h2>
             <Link
               href={isRTL ? "/ar/dashboard/unite/table" : "/fr/dashboard/unite/table"}
-              className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
+              className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none focus:outline-none ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
               style={{ color: viewAllButtonTextColor }}
             >
               {isRTL ? "عرض الكل" : "View All"}
@@ -952,7 +952,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
             </h2>
             <Link
               href={isRTL ? "/ar/dashboard/employees/table" : "/fr/dashboard/employees/table"}
-              className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
+              className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none focus:outline-none ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
               style={{ color: viewAllButtonTextColor }}
             >
               {isRTL ? "عرض الكل" : "View All"}

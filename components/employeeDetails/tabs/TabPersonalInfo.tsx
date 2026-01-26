@@ -570,7 +570,7 @@ function Field({
         {label}
       </label>
       <p
-        className={`text-gray-700 dark:text-gray-300 text-start ${valueSizeClass || "text-base"} ${
+        className={`text-gray-700 dark:text-gray-300 text-start ${valueSizeClass || "text-sm"} ${
           valueWheightClass || "font-medium"
         } ${valueFontClass || ""} ${valueLetterSpacing || ""}`}
       >
@@ -614,7 +614,7 @@ function AddressBlock({
         {label}
       </label>
       <div className="flex justify-between items-start">
-        <p className={`text-gray-900 dark:text-gray-300 text-start max-w-[80%] ${valueFontClass || ""}`}>{value}</p>
+        <p className={`text-gray-900 text-sm dark:text-gray-300 text-start max-w-[80%] ${valueFontClass || ""}`}>{value}</p>
         <button
           className={`text-[#076784] hover:text-[#065a72] text-start text-sm flex items-center cursor-pointer whitespace-nowrap ${
             isRTL ? "space-x-reverse space-x-1" : "space-x-1"

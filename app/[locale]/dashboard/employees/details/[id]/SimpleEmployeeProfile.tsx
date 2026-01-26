@@ -629,13 +629,17 @@ const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialDa
               <button
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
                 onClick={() => {
-                  sessionStorage.setItem("highlightEmployeeId", employeeId)
-                  // Vérifier si l'utilisateur vient de la page retraite
                   const returnToPage = sessionStorage.getItem("returnToPage")
-                  if (returnToPage === "retraite") {
+
+                  if (returnToPage === "mutations") {
+                    sessionStorage.removeItem("returnToPage")
+                    router.push(isRTL ? "/ar/dashboard/employees/mutations/table-mutations" : "/fr/dashboard/employees/mutations/table-mutations")
+                  } else if (returnToPage === "retraite") {
+                    sessionStorage.setItem("highlightEmployeeId", employeeId)
                     sessionStorage.removeItem("returnToPage")
                     router.push(isRTL ? "/ar/dashboard/employees/retraite" : "/fr/dashboard/employees/retraite")
                   } else {
+                    sessionStorage.setItem("highlightEmployeeId", employeeId)
                     router.push(isRTL ? "/ar/dashboard/employees/table" : "/fr/dashboard/employees/table")
                   }
                   router.refresh()

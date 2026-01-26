@@ -914,7 +914,7 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                             </div>
                             <Link
                               href={`/${params.locale}/dashboard/unite/details/${unite.id}`}
-                              className="min-w-0 flex-1 cursor-pointer"
+                              className="min-w-0 flex-1 cursor-pointer focus:outline-none"
                               onClick={saveCurrentParams}
                             >
                               <div
@@ -1005,7 +1005,7 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
                         <td className="px-6 py-2.5 w-16">
                           <Link
                             href={`/${params.locale}/dashboard/unite/details/${unite.id}`}
-                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors inline-block"
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors inline-block focus:outline-none"
                             onClick={saveCurrentParams}
                           >
                             <Edit className="w-4 h-4" style={{ color: "rgb(7, 103, 132)" }} />

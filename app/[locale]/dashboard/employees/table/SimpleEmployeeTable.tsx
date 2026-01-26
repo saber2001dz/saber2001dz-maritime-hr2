@@ -957,7 +957,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                             </div>
                             <Link
                               href={`/${params.locale}/dashboard/employees/details/${employee.id}`}
-                              className="flex-1 min-w-0"
+                              className="flex-1 min-w-0 focus:outline-none"
                               onClick={saveCurrentParams}
                             >
                               <div
@@ -1070,7 +1070,7 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                         <td className="px-6 py-2.5 w-16">
                           <Link
                             href={`/${params.locale}/dashboard/employees/details/${employee.id}`}
-                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors inline-block"
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors inline-block focus:outline-none"
                             onClick={saveCurrentParams}
                           >
                             <Edit className="w-4 h-4" style={{ color: "rgb(7, 103, 132)" }} />

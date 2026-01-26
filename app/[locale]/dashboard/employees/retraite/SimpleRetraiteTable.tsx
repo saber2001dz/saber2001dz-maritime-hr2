@@ -956,7 +956,7 @@ export function SimpleRetraiteTable({ initialEmployees }: SimpleRetraiteTablePro
                             </div>
                             <Link
                               href={`/${params.locale}/dashboard/employees/details/${employee.id}`}
-                              className="flex-1 min-w-0"
+                              className="flex-1 min-w-0 focus:outline-none"
                               onClick={saveCurrentParams}
                             >
                               <div

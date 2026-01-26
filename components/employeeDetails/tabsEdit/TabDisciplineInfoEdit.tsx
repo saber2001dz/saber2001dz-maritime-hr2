@@ -991,7 +991,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
                 isRTL ? "font-noto-naskh-arabic" : ""
               }`}
             >
-              {isRTL ? "إغلاق" : "Fermer"}
+              {isRTL ? "إغـــلاق" : "Fermer"}
             </button>
           </div>
         </div>
@@ -1295,7 +1295,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
                 isRTL ? "font-noto-naskh-arabic" : ""
               }`}
             >
-              {isRTL ? "إغلاق" : "Fermer"}
+              {isRTL ? "إغـــلاق" : "Fermer"}
             </button>
           </div>
         </div>

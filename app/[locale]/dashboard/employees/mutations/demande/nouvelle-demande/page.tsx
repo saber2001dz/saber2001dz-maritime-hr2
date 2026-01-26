@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Progress } from "@/components/ui/progress"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
 import { Check, RotateCcw, AlertCircle } from "lucide-react"
@@ -46,9 +46,25 @@ export default function DemandeMutationPage() {
   const [employeeFound, setEmployeeFound] = useState(false)
   const toasterRef = useRef<ToasterRef>(null)
   const [showValidationErrors, setShowValidationErrors] = useState(false)
+  const [showTableValidationError, setShowTableValidationError] = useState(false)
+  const [showStep3ValidationErrors, setShowStep3ValidationErrors] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveProgress, setSaveProgress] = useState(0)
-  const [step2Progress, setStep2Progress] = useState(0)
+
+  // États pour les checkboxes
+  const [selectedCheckbox, setSelectedCheckbox] = useState<string | null>(null)
+
+  // Fonction pour obtenir le label du checkbox sélectionné
+  const getCheckboxLabel = (checkboxId: string | null): string | null => {
+    if (!checkboxId) return null
+    const labelMap: Record<string, string> = {
+      checkbox1: "بطلب",
+      checkbox2: "بإقتراح",
+      checkbox3: "نقل صيفية",
+      checkbox4: "نقل تعديلية",
+    }
+    return labelMap[checkboxId] || null
+  }
 
   // États pour les données du tableau de l'étape 2 (3 gouvernorats avec 2 unités chacun)
   const [tableData, setTableData] = useState<{
@@ -85,9 +101,24 @@ export default function DemandeMutationPage() {
     unite3_2: "",
   })
 
+  // États pour l'étape 3 - Compétences
+  const [interetTravailValue, setInteretTravailValue] = useState("")
+  const [disciplineValue, setDisciplineValue] = useState("")
+  const [secretProfessionnelValue, setSecretProfessionnelValue] = useState("")
+  const [apparenceValue, setApparenceValue] = useState("")
+  const [respectHoraireValue, setRespectHoraireValue] = useState("")
+  const [conduiteValue, setConduiteValue] = useState("")
+  const [motivationValue, setMotivationValue] = useState("")
+  const [adaptationValue, setAdaptationValue] = useState("")
+  const [communicationValue, setCommunicationValue] = useState("")
+
   // Fonction pour mettre à jour les données du tableau
   const updateTableData = (field: keyof typeof tableData, value: string) => {
     setTableData((prev) => ({ ...prev, [field]: value }))
+    // Réinitialiser l'erreur de validation quand l'utilisateur commence à saisir
+    if (showTableValidationError) {
+      setShowTableValidationError(false)
+    }
   }
 
   // Variants pour l'animation des étapes - animation simple sans opacity
@@ -262,29 +293,78 @@ export default function DemandeMutationPage() {
       affectationActuelleValue &&
       !isDateEmpty && // La date ne doit pas être vide
       isDateValidAndPast() && // La date doit être valide et antérieure
-      causesValue
+      causesValue &&
+      selectedCheckbox // Un checkbox doit être sélectionné
+    )
+  }
+
+  // Fonction pour vérifier si au moins une ligne complète est remplie dans la table
+  const isTableValid = (): boolean => {
+    // Vérifier chaque ligne (gouvernorat + au moins une unité complète)
+    const ligne1Complete = tableData.gouvernorat1 && tableData.direction1_1 && tableData.unite1_1
+    const ligne2Complete = tableData.gouvernorat1 && tableData.direction1_2 && tableData.unite1_2
+    const ligne3Complete = tableData.gouvernorat2 && tableData.direction2_1 && tableData.unite2_1
+    const ligne4Complete = tableData.gouvernorat2 && tableData.direction2_2 && tableData.unite2_2
+    const ligne5Complete = tableData.gouvernorat3 && tableData.direction3_1 && tableData.unite3_1
+    const ligne6Complete = tableData.gouvernorat3 && tableData.direction3_2 && tableData.unite3_2
+
+    return !!(ligne1Complete || ligne2Complete || ligne3Complete || ligne4Complete || ligne5Complete || ligne6Complete)
+  }
+
+  // Fonction pour vérifier si tous les champs de l'étape 3 sont remplis
+  const isStep3Valid = (): boolean => {
+    return !!(
+      interetTravailValue &&
+      disciplineValue &&
+      secretProfessionnelValue &&
+      apparenceValue &&
+      respectHoraireValue &&
+      conduiteValue &&
+      motivationValue &&
+      adaptationValue &&
+      communicationValue
     )
   }
 
   // Fonction pour gérer le passage à l'étape suivante
   const handleNext = () => {
-    if (!isStep1Valid()) {
-      setShowValidationErrors(true)
-      setShowDateValidation(true)
-      return
+    if (currentStep === 1) {
+      if (!isStep1Valid()) {
+        setShowValidationErrors(true)
+        setShowDateValidation(true)
+        return
+      }
+      setDirection(1)
+      setIsTransitioning(true)
+      setCurrentStep(2)
+
+      // Animer le progress vers 66%
+      setTimeout(() => {
+        setProgress(66)
+      }, 0)
+
+      setTimeout(() => {
+        setIsTransitioning(false)
+      }, 300)
+    } else if (currentStep === 2) {
+      // Vérifier si au moins une ligne complète est remplie
+      if (!isTableValid()) {
+        setShowTableValidationError(true)
+        return
+      }
+      setDirection(1)
+      setIsTransitioning(true)
+      setCurrentStep(3)
+
+      // Animer le progress vers 100%
+      setTimeout(() => {
+        setProgress(100)
+      }, 0)
+
+      setTimeout(() => {
+        setIsTransitioning(false)
+      }, 300)
     }
-    setDirection(1)
-    setIsTransitioning(true)
-    setCurrentStep(2)
-
-    // Animer le progress avec la même durée que l'animation du contenu (300ms)
-    setTimeout(() => {
-      setProgress(100)
-    }, 0)
-
-    setTimeout(() => {
-      setIsTransitioning(false)
-    }, 300)
   }
 
   // Fonction pour enregistrer les données dans la base de données
@@ -306,6 +386,9 @@ export default function DemandeMutationPage() {
       // Construire la date d'affectation au format YYYY-MM-DD
       const dateAffectation = `${yearValue}-${monthValue.padStart(2, "0")}-${dayValue.padStart(2, "0")}`
 
+      // Obtenir le label du type de demande sélectionné
+      const typeDemandeLabel = getCheckboxLabel(selectedCheckbox)
+
       // Insérer dans la table employee_mutations et récupérer l'ID
       const { data: mutationData, error: insertError } = await supabase
         .from("employee_mutations")
@@ -317,6 +400,7 @@ export default function DemandeMutationPage() {
           unite_actuelle: affectationActuelleValue,
           date_affectation: dateAffectation,
           causes: causesValue,
+          type_demande: typeDemandeLabel,
         })
         .select("id")
         .single()
@@ -333,6 +417,7 @@ export default function DemandeMutationPage() {
       if (tableData.gouvernorat1 || tableData.direction1_1 || tableData.unite1_1) {
         unitesData.push({
           mutation_id: mutationData.id,
+          ordre_saisie: 1,
           gouvernorat: tableData.gouvernorat1 || null,
           direction: tableData.direction1_1 || null,
           unite: tableData.unite1_1 || null,
@@ -343,6 +428,7 @@ export default function DemandeMutationPage() {
       if (tableData.gouvernorat1 || tableData.direction1_2 || tableData.unite1_2) {
         unitesData.push({
           mutation_id: mutationData.id,
+          ordre_saisie: 2,
           gouvernorat: tableData.gouvernorat1 || null,
           direction: tableData.direction1_2 || null,
           unite: tableData.unite1_2 || null,
@@ -353,6 +439,7 @@ export default function DemandeMutationPage() {
       if (tableData.gouvernorat2 || tableData.direction2_1 || tableData.unite2_1) {
         unitesData.push({
           mutation_id: mutationData.id,
+          ordre_saisie: 3,
           gouvernorat: tableData.gouvernorat2 || null,
           direction: tableData.direction2_1 || null,
           unite: tableData.unite2_1 || null,
@@ -363,6 +450,7 @@ export default function DemandeMutationPage() {
       if (tableData.gouvernorat2 || tableData.direction2_2 || tableData.unite2_2) {
         unitesData.push({
           mutation_id: mutationData.id,
+          ordre_saisie: 4,
           gouvernorat: tableData.gouvernorat2 || null,
           direction: tableData.direction2_2 || null,
           unite: tableData.unite2_2 || null,
@@ -373,6 +461,7 @@ export default function DemandeMutationPage() {
       if (tableData.gouvernorat3 || tableData.direction3_1 || tableData.unite3_1) {
         unitesData.push({
           mutation_id: mutationData.id,
+          ordre_saisie: 5,
           gouvernorat: tableData.gouvernorat3 || null,
           direction: tableData.direction3_1 || null,
           unite: tableData.unite3_1 || null,
@@ -383,6 +472,7 @@ export default function DemandeMutationPage() {
       if (tableData.gouvernorat3 || tableData.direction3_2 || tableData.unite3_2) {
         unitesData.push({
           mutation_id: mutationData.id,
+          ordre_saisie: 6,
           gouvernorat: tableData.gouvernorat3 || null,
           direction: tableData.direction3_2 || null,
           unite: tableData.unite3_2 || null,
@@ -399,6 +489,25 @@ export default function DemandeMutationPage() {
         }
       }
 
+      // Insérer les données d'évaluation dans mutation_evaluations
+      const { error: evaluationInsertError } = await supabase.from("mutation_evaluations").insert({
+        mutation_id: mutationData.id,
+        attention_au_travail: interetTravailValue,
+        discipline: disciplineValue,
+        confidentialite: secretProfessionnelValue,
+        apparence: apparenceValue,
+        respecter_horaire: respectHoraireValue,
+        comportement: conduiteValue,
+        motivation_travail: motivationValue,
+        adaptation_collegues: adaptationValue,
+        communication: communicationValue,
+      })
+
+      if (evaluationInsertError) {
+        console.error("Erreur d'insertion évaluation:", evaluationInsertError)
+        return { success: false, error: "insert_evaluation_error" }
+      }
+
       return { success: true }
     } catch (error) {
       console.error("Erreur inattendue:", error)
@@ -408,26 +517,13 @@ export default function DemandeMutationPage() {
 
   // Fonction pour enregistrer la demande de mutation
   const handleSave = async () => {
-    // Étape 1: Animation remplissage du 2ème progress dans le card
-    const step2Duration = 500
-    const step2Interval = 25
-    const step2Step = 100 / (step2Duration / step2Interval)
+    // Vérifier si tous les champs de l'étape 3 sont remplis
+    if (!isStep3Valid()) {
+      setShowStep3ValidationErrors(true)
+      return
+    }
 
-    await new Promise<void>((resolve) => {
-      const step2Timer = setInterval(() => {
-        setStep2Progress((prev) => {
-          const newProgress = prev + step2Step
-          if (newProgress >= 100) {
-            clearInterval(step2Timer)
-            resolve()
-            return 100
-          }
-          return newProgress
-        })
-      }, step2Interval)
-    })
-
-    // Étape 2: Animation Progress en haut de la page
+    // Animation Progress en haut de la page
     setIsSaving(true)
     setSaveProgress(0)
 
@@ -449,7 +545,7 @@ export default function DemandeMutationPage() {
       }, progressInterval)
     })
 
-    // Étape 3: Enregistrement des données dans la base de données
+    // Enregistrement des données dans la base de données
     const result = await saveToDatabase()
 
     // Afficher le toast approprié
@@ -461,17 +557,15 @@ export default function DemandeMutationPage() {
         duration: 3000,
       })
 
-      // Étape 4: Réinitialisation de la page après un court délai
+      // Réinitialisation de la page après un court délai
       setTimeout(() => {
         setIsSaving(false)
         setSaveProgress(0)
-        setStep2Progress(0)
         handleReset()
       }, 500)
     } else {
       setIsSaving(false)
       setSaveProgress(0)
-      setStep2Progress(0)
 
       if (result.error === "employee_not_found") {
         toasterRef.current?.show({
@@ -502,12 +596,20 @@ export default function DemandeMutationPage() {
   const handlePrevious = () => {
     setDirection(-1)
     setIsTransitioning(true)
-    setCurrentStep(1)
 
-    // Animer le progress avec la même durée que l'animation du contenu (300ms)
-    setTimeout(() => {
-      setProgress(50)
-    }, 0)
+    if (currentStep === 2) {
+      setCurrentStep(1)
+      setShowTableValidationError(false)
+      setTimeout(() => {
+        setProgress(50)
+      }, 0)
+    } else if (currentStep === 3) {
+      setCurrentStep(2)
+      setShowStep3ValidationErrors(false)
+      setTimeout(() => {
+        setProgress(66)
+      }, 0)
+    }
 
     setTimeout(() => {
       setIsTransitioning(false)
@@ -528,9 +630,12 @@ export default function DemandeMutationPage() {
     setYearValue("")
     setShowDateValidation(false)
     setShowValidationErrors(false)
+    setShowTableValidationError(false)
+    setShowStep3ValidationErrors(false)
     setCurrentStep(1)
     setProgress(50)
     setIsTransitioning(false)
+    setSelectedCheckbox(null)
     // Réinitialiser les données du tableau de l'étape 2
     setTableData({
       gouvernorat1: "",
@@ -549,6 +654,16 @@ export default function DemandeMutationPage() {
       unite3_1: "",
       unite3_2: "",
     })
+    // Réinitialiser les champs de l'étape 3
+    setInteretTravailValue("")
+    setDisciplineValue("")
+    setSecretProfessionnelValue("")
+    setApparenceValue("")
+    setRespectHoraireValue("")
+    setConduiteValue("")
+    setMotivationValue("")
+    setAdaptationValue("")
+    setCommunicationValue("")
     // Donner le focus à l'input matricule après réinitialisation
     setTimeout(() => {
       matriculeInputRef.current?.focus()
@@ -588,13 +703,15 @@ export default function DemandeMutationPage() {
         )}
         <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
           <Card className="w-full max-w-4xl bg-white dark:bg-card rounded-2xl shadow-lg border-0 px-2">
-            <CardHeader className="pb-4">
+            <CardHeader className="pb-2">
               <CardTitle className="text-xl font-semibold font-noto-naskh-arabic text-gray-900 dark:text-gray-100">
-                طـلــــب نــقـلـــة جــديــد
+                طـلــب نـقلــة لسنـة {new Date().getFullYear()} خـاص بغـيـر المتقلـديـن لمسـؤوليـة
               </CardTitle>
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-600 dark:text-muted-foreground font-noto-naskh-arabic">
-                  المعلــومـــات الشخـصـيــة
+              <div className="flex items-center justify-between -mt-1">
+                <p className="text-sm text-gray-600 dark:text-muted-foreground font-noto-naskh-arabic font-medium">
+                  {currentStep === 1 && "البيـــانـــات الشخـصـيــة"}
+                  {currentStep === 2 && "الــوحـــدات المطلــوبــــة"}
+                  {currentStep === 3 && "تقييــــم رئــيــس الــوحـــدة"}
                 </p>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -613,19 +730,9 @@ export default function DemandeMutationPage() {
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Separator className="mt-0.5 mb-3 bg-gray-300 dark:bg-gray-500" />
-              <div className="flex items-center gap-4 mt-3">
-                <div className="flex-1 flex flex-col gap-1">
-                  <span className={`font-noto-naskh-arabic text-sm transition-colors duration-300 ${currentStep >= 2 ? "text-[#2B778F] font-semibold" : "text-gray-500 dark:text-gray-700"}`}>البيـانـات الشخصيـة</span>
-                  <Progress value={currentStep >= 2 ? 100 : 0} dir="rtl" className="h-3" />
-                </div>
-                <div className="flex-1 flex flex-col gap-1">
-                  <span className={`font-noto-naskh-arabic text-sm transition-colors duration-300 ${step2Progress >= 100 ? "text-[#2B778F] font-semibold" : "text-gray-500 dark:text-gray-700"}`}>الـوحـدات حسـب الـرغبـة</span>
-                  <Progress value={step2Progress} dir="rtl" className="h-3" />
-                </div>
-              </div>
+              <Separator className="mt-0.5 mb-1 bg-gray-300 dark:bg-gray-500" />
             </CardHeader>
-            <div className="overflow-hidden relative min-h-100">
+            <div className="overflow-hidden relative min-h-123 -mt-6">
               <AnimatePresence mode="popLayout" custom={direction} initial={false}>
                 {currentStep === 1 && (
                   <motion.div
@@ -643,6 +750,92 @@ export default function DemandeMutationPage() {
                     }}
                   >
                     <CardContent className="space-y-5">
+                      {/* Section des 4 checkboxes */}
+                      <div
+                        className={`flex justify-center gap-6 mb-8 p-4 rounded-md border ${
+                          showValidationErrors && !selectedCheckbox
+                            ? "border-red-500 dark:border-red-500"
+                            : "border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="checkbox1"
+                            className="cursor-pointer"
+                            checked={selectedCheckbox === "checkbox1"}
+                            onCheckedChange={(checked) => {
+                              setSelectedCheckbox(checked ? "checkbox1" : null)
+                            }}
+                            disabled={selectedCheckbox !== null && selectedCheckbox !== "checkbox1"}
+                          />
+                          <Label
+                            htmlFor="checkbox1"
+                            className={`font-noto-naskh-arabic text-[15px] cursor-pointer ${
+                              selectedCheckbox === "checkbox1" ? "text-[#076784]" : "text-gray-700 dark:text-gray-300"
+                            }`}
+                          >
+                            بطلب
+                          </Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="checkbox2"
+                            className="cursor-pointer"
+                            checked={selectedCheckbox === "checkbox2"}
+                            onCheckedChange={(checked) => {
+                              setSelectedCheckbox(checked ? "checkbox2" : null)
+                            }}
+                            disabled={selectedCheckbox !== null && selectedCheckbox !== "checkbox2"}
+                          />
+                          <Label
+                            htmlFor="checkbox2"
+                            className={`font-noto-naskh-arabic text-[15px] cursor-pointer ${
+                              selectedCheckbox === "checkbox2" ? "text-[#076784]" : "text-gray-700 dark:text-gray-300"
+                            }`}
+                          >
+                            بإقتراح
+                          </Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="checkbox3"
+                            className="cursor-pointer"
+                            checked={selectedCheckbox === "checkbox3"}
+                            onCheckedChange={(checked) => {
+                              setSelectedCheckbox(checked ? "checkbox3" : null)
+                            }}
+                            disabled={selectedCheckbox !== null && selectedCheckbox !== "checkbox3"}
+                          />
+                          <Label
+                            htmlFor="checkbox3"
+                            className={`font-noto-naskh-arabic text-[15px] cursor-pointer ${
+                              selectedCheckbox === "checkbox3" ? "text-[#076784]" : "text-gray-700 dark:text-gray-300"
+                            }`}
+                          >
+                            نقل صيفية
+                          </Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="checkbox4"
+                            className="cursor-pointer"
+                            checked={selectedCheckbox === "checkbox4"}
+                            onCheckedChange={(checked) => {
+                              setSelectedCheckbox(checked ? "checkbox4" : null)
+                            }}
+                            disabled={selectedCheckbox !== null && selectedCheckbox !== "checkbox4"}
+                          />
+                          <Label
+                            htmlFor="checkbox4"
+                            className={`font-noto-naskh-arabic text-[15px] cursor-pointer ${
+                              selectedCheckbox === "checkbox4" ? "text-[#076784]" : "text-gray-700 dark:text-gray-300"
+                            }`}
+                          >
+                            نقل تعديلية
+                          </Label>
+                        </div>
+                      </div>
+
                       {/* Ligne 1: Matricule et Prénom Nom */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-9">
                         <div
@@ -973,18 +1166,37 @@ export default function DemandeMutationPage() {
                     }}
                   >
                     <CardContent className="space-y-5">
+                      {/* Texte d'instruction */}
+                      <div className="text-start mb-4 mt-4">
+                        <p className="font-noto-naskh-arabic text-[15px] font-medium text-gray-500 dark:text-gray-400">
+                          إختيار 06 وحدات حسب الرغبة موزعة على 03 مناطق بولايات مختلفة.
+                        </p>
+                      </div>
+
                       {/* Table des unités demandées */}
-                      <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                      <div
+                        className={`border rounded-lg overflow-hidden ${
+                          showTableValidationError
+                            ? "border-red-500 dark:border-red-500"
+                            : "border-gray-300 dark:border-gray-600"
+                        }`}
+                      >
                         <table className="w-full border-collapse" dir="rtl">
                           <thead>
                             <tr className="bg-gray-100 dark:bg-gray-800">
-                              <th colSpan={2} className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-l border-gray-300 dark:border-gray-600 text-center">
+                              <th
+                                colSpan={2}
+                                className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-l border-gray-300 dark:border-gray-600 text-center"
+                              >
                                 الـــولایـــة
                               </th>
                               <th className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-l border-gray-300 dark:border-gray-600 text-center">
                                 الإدارة / الإقلیم
                               </th>
-                              <th colSpan={2} className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-gray-300 dark:border-gray-600 text-center">
+                              <th
+                                colSpan={2}
+                                className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-gray-300 dark:border-gray-600 text-center"
+                              >
                                 الوحدات المطلوبة
                               </th>
                             </tr>
@@ -992,11 +1204,21 @@ export default function DemandeMutationPage() {
                           <tbody>
                             {/* الولاية 1 - صفان */}
                             <tr className="border-b border-gray-300 dark:border-gray-600">
-                              <td rowSpan={2} className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12">
+                              <td
+                                rowSpan={2}
+                                className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12"
+                              >
                                 1
                               </td>
-                              <td rowSpan={2} className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45">
-                                <Select dir="rtl" value={tableData.gouvernorat1} onValueChange={(value) => updateTableData("gouvernorat1", value)}>
+                              <td
+                                rowSpan={2}
+                                className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45"
+                              >
+                                <Select
+                                  dir="rtl"
+                                  value={tableData.gouvernorat1}
+                                  onValueChange={(value) => updateTableData("gouvernorat1", value)}
+                                >
                                   <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
                                     <SelectValue placeholder="" />
                                   </SelectTrigger>
@@ -1060,11 +1282,21 @@ export default function DemandeMutationPage() {
                             </tr>
                             {/* الولاية 2 - صفان */}
                             <tr className="border-b border-gray-300 dark:border-gray-600">
-                              <td rowSpan={2} className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12">
+                              <td
+                                rowSpan={2}
+                                className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12"
+                              >
                                 2
                               </td>
-                              <td rowSpan={2} className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45">
-                                <Select dir="rtl" value={tableData.gouvernorat2} onValueChange={(value) => updateTableData("gouvernorat2", value)}>
+                              <td
+                                rowSpan={2}
+                                className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45"
+                              >
+                                <Select
+                                  dir="rtl"
+                                  value={tableData.gouvernorat2}
+                                  onValueChange={(value) => updateTableData("gouvernorat2", value)}
+                                >
                                   <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
                                     <SelectValue placeholder="" />
                                   </SelectTrigger>
@@ -1128,11 +1360,21 @@ export default function DemandeMutationPage() {
                             </tr>
                             {/* الولاية 3 - صفان */}
                             <tr className="border-b border-gray-300 dark:border-gray-600">
-                              <td rowSpan={2} className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12">
+                              <td
+                                rowSpan={2}
+                                className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12"
+                              >
                                 3
                               </td>
-                              <td rowSpan={2} className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45">
-                                <Select dir="rtl" value={tableData.gouvernorat3} onValueChange={(value) => updateTableData("gouvernorat3", value)}>
+                              <td
+                                rowSpan={2}
+                                className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45"
+                              >
+                                <Select
+                                  dir="rtl"
+                                  value={tableData.gouvernorat3}
+                                  onValueChange={(value) => updateTableData("gouvernorat3", value)}
+                                >
                                   <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
                                     <SelectValue placeholder="" />
                                   </SelectTrigger>
@@ -1200,11 +1442,410 @@ export default function DemandeMutationPage() {
                     </CardContent>
                   </motion.div>
                 )}
+
+                {/* Étape 3 - Compétences */}
+                {currentStep === 3 && (
+                  <motion.div
+                    key="step3"
+                    className="absolute top-0 left-0 w-full"
+                    custom={direction}
+                    variants={variants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{
+                      type: "tween",
+                      ease: "easeOut",
+                      duration: 0.3,
+                    }}
+                  >
+                    <CardContent className="space-y-5">
+                      {/* Section الكفايات المهنية */}
+                      <div className="space-y-4">
+                        <h3 className="font-noto-naskh-arabic text-[15px] font-bold text-[#076784] dark:text-[#7CCFCE]">
+                          الكفـايــات المهـنـيــــة
+                        </h3>
+
+                        {/* Ligne 1: الإهتمام بالعمل et الإنضبـــاط */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-9">
+                          {/* الإهتمام بالعمل */}
+                          <div
+                            className={`border rounded-md px-2 pt-2 relative ${
+                              interetTravailValue
+                                ? "border-[#339370]"
+                                : showStep3ValidationErrors
+                                  ? "border-red-500 dark:border-red-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                            }`}
+                          >
+                            <Label
+                              htmlFor="interetTravail"
+                              className={`font-noto-naskh-arabic text-[12px] font-semibold -mt-0.5 pb-1 ${
+                                interetTravailValue
+                                  ? "text-[#339370]"
+                                  : showStep3ValidationErrors
+                                    ? "text-red-500 dark:text-red-500"
+                                    : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              الإهتمام بالعمل :
+                            </Label>
+                            <Input
+                              id="interetTravail"
+                              placeholder="أدخل الإهتمام بالعمل"
+                              variant="lg"
+                              value={interetTravailValue}
+                              onChange={(e) => setInteretTravailValue(e.target.value)}
+                              onBlur={() => handleInputBlur(interetTravailValue, setInteretTravailValue)}
+                              className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                            />
+                            {interetTravailValue && (
+                              <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
+                                <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* الإنضبـــاط */}
+                          <div
+                            className={`border rounded-md px-2 pt-2 relative ${
+                              disciplineValue
+                                ? "border-[#339370]"
+                                : showStep3ValidationErrors
+                                  ? "border-red-500 dark:border-red-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                            }`}
+                          >
+                            <Label
+                              htmlFor="discipline"
+                              className={`font-noto-naskh-arabic text-[12px] font-semibold -mt-0.5 pb-1 ${
+                                disciplineValue
+                                  ? "text-[#339370]"
+                                  : showStep3ValidationErrors
+                                    ? "text-red-500 dark:text-red-500"
+                                    : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              الإنضبـــاط :
+                            </Label>
+                            <Input
+                              id="discipline"
+                              placeholder="أدخل الإنضبـــاط"
+                              variant="lg"
+                              value={disciplineValue}
+                              onChange={(e) => setDisciplineValue(e.target.value)}
+                              onBlur={() => handleInputBlur(disciplineValue, setDisciplineValue)}
+                              className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                            />
+                            {disciplineValue && (
+                              <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
+                                <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Ligne 2: المحافظة على السر المهني (seul, centré) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-9">
+                          {/* المحافظة على السر المهني */}
+                          <div
+                            className={`border rounded-md px-2 pt-2 relative ${
+                              secretProfessionnelValue
+                                ? "border-[#339370]"
+                                : showStep3ValidationErrors
+                                  ? "border-red-500 dark:border-red-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                            }`}
+                          >
+                            <Label
+                              htmlFor="secretProfessionnel"
+                              className={`font-noto-naskh-arabic text-[12px] font-semibold -mt-0.5 pb-1 ${
+                                secretProfessionnelValue
+                                  ? "text-[#339370]"
+                                  : showStep3ValidationErrors
+                                    ? "text-red-500 dark:text-red-500"
+                                    : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              المحافظة على السر المهني :
+                            </Label>
+                            <Input
+                              id="secretProfessionnel"
+                              placeholder="أدخل المحافظة على السر المهني"
+                              variant="lg"
+                              value={secretProfessionnelValue}
+                              onChange={(e) => setSecretProfessionnelValue(e.target.value)}
+                              onBlur={() => handleInputBlur(secretProfessionnelValue, setSecretProfessionnelValue)}
+                              className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                            />
+                            {secretProfessionnelValue && (
+                              <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
+                                <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section الكفايات المعنوية */}
+                      <div className="space-y-4">
+                        <h3 className="font-noto-naskh-arabic text-[15px] font-bold text-[#076784] dark:text-[#7CCFCE]">
+                          الكفـايــات المعنــويــة
+                        </h3>
+
+                        {/* Ligne 1: العناية بالمظهر العام et إحترام توقيت الحضور */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-9">
+                          {/* العناية بالمظهر العام */}
+                          <div
+                            className={`border rounded-md px-2 pt-2 relative ${
+                              apparenceValue
+                                ? "border-[#339370]"
+                                : showStep3ValidationErrors
+                                  ? "border-red-500 dark:border-red-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                            }`}
+                          >
+                            <Label
+                              htmlFor="apparence"
+                              className={`font-noto-naskh-arabic text-[12px] font-semibold -mt-0.5 pb-1 ${
+                                apparenceValue
+                                  ? "text-[#339370]"
+                                  : showStep3ValidationErrors
+                                    ? "text-red-500 dark:text-red-500"
+                                    : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              العناية بالمظهر العام :
+                            </Label>
+                            <Input
+                              id="apparence"
+                              placeholder="أدخل العناية بالمظهر العام"
+                              variant="lg"
+                              value={apparenceValue}
+                              onChange={(e) => setApparenceValue(e.target.value)}
+                              onBlur={() => handleInputBlur(apparenceValue, setApparenceValue)}
+                              className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                            />
+                            {apparenceValue && (
+                              <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
+                                <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* إحترام توقيت الحضور */}
+                          <div
+                            className={`border rounded-md px-2 pt-2 relative ${
+                              respectHoraireValue
+                                ? "border-[#339370]"
+                                : showStep3ValidationErrors
+                                  ? "border-red-500 dark:border-red-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                            }`}
+                          >
+                            <Label
+                              htmlFor="respectHoraire"
+                              className={`font-noto-naskh-arabic text-[12px] font-semibold -mt-0.5 pb-1 ${
+                                respectHoraireValue
+                                  ? "text-[#339370]"
+                                  : showStep3ValidationErrors
+                                    ? "text-red-500 dark:text-red-500"
+                                    : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              إحترام توقيت الحضور :
+                            </Label>
+                            <Input
+                              id="respectHoraire"
+                              placeholder="أدخل إحترام توقيت الحضور"
+                              variant="lg"
+                              value={respectHoraireValue}
+                              onChange={(e) => setRespectHoraireValue(e.target.value)}
+                              onBlur={() => handleInputBlur(respectHoraireValue, setRespectHoraireValue)}
+                              className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                            />
+                            {respectHoraireValue && (
+                              <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
+                                <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Ligne 2: السيرة و السلوك et الدافهية للعمل */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-9">
+                          {/* السيرة و السلوك */}
+                          <div
+                            className={`border rounded-md px-2 pt-2 relative ${
+                              conduiteValue
+                                ? "border-[#339370]"
+                                : showStep3ValidationErrors
+                                  ? "border-red-500 dark:border-red-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                            }`}
+                          >
+                            <Label
+                              htmlFor="conduite"
+                              className={`font-noto-naskh-arabic text-[12px] font-semibold -mt-0.5 pb-1 ${
+                                conduiteValue
+                                  ? "text-[#339370]"
+                                  : showStep3ValidationErrors
+                                    ? "text-red-500 dark:text-red-500"
+                                    : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              السيرة و السلوك :
+                            </Label>
+                            <Input
+                              id="conduite"
+                              placeholder="أدخل السيرة و السلوك"
+                              variant="lg"
+                              value={conduiteValue}
+                              onChange={(e) => setConduiteValue(e.target.value)}
+                              onBlur={() => handleInputBlur(conduiteValue, setConduiteValue)}
+                              className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                            />
+                            {conduiteValue && (
+                              <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
+                                <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* الدافهية للعمل */}
+                          <div
+                            className={`border rounded-md px-2 pt-2 relative ${
+                              motivationValue
+                                ? "border-[#339370]"
+                                : showStep3ValidationErrors
+                                  ? "border-red-500 dark:border-red-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                            }`}
+                          >
+                            <Label
+                              htmlFor="motivation"
+                              className={`font-noto-naskh-arabic text-[12px] font-semibold -mt-0.5 pb-1 ${
+                                motivationValue
+                                  ? "text-[#339370]"
+                                  : showStep3ValidationErrors
+                                    ? "text-red-500 dark:text-red-500"
+                                    : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              الدافعية للعمل :
+                            </Label>
+                            <Input
+                              id="motivation"
+                              placeholder="أدخل الدافعية للعمل"
+                              variant="lg"
+                              value={motivationValue}
+                              onChange={(e) => setMotivationValue(e.target.value)}
+                              onBlur={() => handleInputBlur(motivationValue, setMotivationValue)}
+                              className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                            />
+                            {motivationValue && (
+                              <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
+                                <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Ligne 3: التكيف مع المجموعة et التواصل مع المواطنين */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-9">
+                          {/* التكيف مع المجموعة */}
+                          <div
+                            className={`border rounded-md px-2 pt-2 relative ${
+                              adaptationValue
+                                ? "border-[#339370]"
+                                : showStep3ValidationErrors
+                                  ? "border-red-500 dark:border-red-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                            }`}
+                          >
+                            <Label
+                              htmlFor="adaptation"
+                              className={`font-noto-naskh-arabic text-[12px] font-semibold -mt-0.5 pb-1 ${
+                                adaptationValue
+                                  ? "text-[#339370]"
+                                  : showStep3ValidationErrors
+                                    ? "text-red-500 dark:text-red-500"
+                                    : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              التكيف مع المجموعة :
+                            </Label>
+                            <Input
+                              id="adaptation"
+                              placeholder="أدخل التكيف مع المجموعة"
+                              variant="lg"
+                              value={adaptationValue}
+                              onChange={(e) => setAdaptationValue(e.target.value)}
+                              onBlur={() => handleInputBlur(adaptationValue, setAdaptationValue)}
+                              className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                            />
+                            {adaptationValue && (
+                              <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
+                                <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* التواصل مع المواطنين */}
+                          <div
+                            className={`border rounded-md px-2 pt-2 relative ${
+                              communicationValue
+                                ? "border-[#339370]"
+                                : showStep3ValidationErrors
+                                  ? "border-red-500 dark:border-red-500"
+                                  : "border-gray-300 dark:border-gray-600"
+                            }`}
+                          >
+                            <Label
+                              htmlFor="communication"
+                              className={`font-noto-naskh-arabic text-[12px] font-semibold -mt-0.5 pb-1 ${
+                                communicationValue
+                                  ? "text-[#339370]"
+                                  : showStep3ValidationErrors
+                                    ? "text-red-500 dark:text-red-500"
+                                    : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              التواصل مع المواطنين :
+                            </Label>
+                            <Input
+                              id="communication"
+                              placeholder="أدخل التواصل مع المواطنين"
+                              variant="lg"
+                              value={communicationValue}
+                              onChange={(e) => setCommunicationValue(e.target.value)}
+                              onBlur={() => handleInputBlur(communicationValue, setCommunicationValue)}
+                              className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                            />
+                            {communicationValue && (
+                              <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
+                                <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Note en bas */}
+                      <div className="mt-3 text-start">
+                        <p className="text-[12px] text-gray-600 dark:text-gray-400 font-noto-naskh-arabic">
+                          <span className="font-semibold ">مـلاحظــة:</span> يتـم تعمييـر التقييـم مـن طــرف مديـر أو رئيـس إدارة
+                          أو مـا يعادلـه.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </motion.div>
+                )}
               </AnimatePresence>
             </div>
 
             {/* Ligne des boutons */}
-            <CardFooter className="flex justify-between gap-3 pt-6">
+            <CardFooter className="flex justify-between gap-3 pt-3">
               <Button
                 tabIndex={-1}
                 variant="outline"
@@ -1216,10 +1857,10 @@ export default function DemandeMutationPage() {
               </Button>
               <Button
                 tabIndex={-1}
-                onClick={currentStep === 1 ? handleNext : handleSave}
+                onClick={currentStep === 3 ? handleSave : handleNext}
                 className="font-noto-naskh-arabic px-8 h-11 rounded-md bg-[#076784] hover:bg-[#2B778F] dark:bg-gray-700 dark:hover:bg-gray-800 text-white cursor-pointer"
               >
-                {currentStep === 1 ? "التــالــي" : "حــفـــظ"}
+                {currentStep === 3 ? "حــفـــظ" : "التــالــي"}
               </Button>
             </CardFooter>
           </Card>
