@@ -447,7 +447,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
     <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="mb-8">
         <h1 className={`text-2xl ${isRTL ? 'font-jazeera-bold' : 'font-medium'} text-foreground`}>
-          {isRTL ? "لوحة المعلومات" : "Tableau de bord"}
+          {isRTL ? "لـوحـة المعلـومــات" : "Tableau de bord"}
         </h1>
       </div>
 
@@ -821,7 +821,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
         {/* Graphique radial affichant la répartition hommes/femmes des employés */}
         <div className={`${cardStyles} p-6`}>
           <h2 className={`text-lg font-semibold text-foreground mb-2 text-center ${isRTL ? 'font-noto-naskh-arabic text-[18px] text-gray-700 dark:text-gray-300' : 'text-[18px] text-gray-700 dark:text-gray-300'}`}>
-            {isRTL ? "التوزيع حسب الجنس" : "Répartition par Genre"}
+            {isRTL ? "التوزيع حسب الجنـس" : "Répartition par Genre"}
           </h2>
           <GenderRadialChart />
         </div>
@@ -841,7 +841,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
               className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none focus:outline-none ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
               style={{ color: viewAllButtonTextColor }}
             >
-              {isRTL ? "عرض الكل" : "View All"}
+              {isRTL ? "عــرض الكــل" : "View All"}
             </Link>
           </div>
           <div className="px-6 pb-6">
@@ -854,7 +854,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
                         isRTL ? "text-[15px]" : "text-xs"
                       } font-semibold uppercase tracking-wider text-[#076784] dark:text-[#076784] ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                     >
-                      {isRTL ? "الـــــــوحــــــــدة" : "Nom Unité"}
+                      {isRTL ? "الــــوحــــــــدة" : "Nom Unité"}
                     </th>
                     <th
                       className={`px-6 py-4 text-start ${
@@ -955,7 +955,7 @@ export function DashboardContent({ data }: DashboardContentProps) {
               className={`${viewAllButtonBaseClasses} hover:bg-[#D9E7EB] active:bg-[#C8D7E0] dark:hover:bg-[#2B3839] rounded-none focus:outline-none ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
               style={{ color: viewAllButtonTextColor }}
             >
-              {isRTL ? "عرض الكل" : "View All"}
+              {isRTL ? "عــرض الكــل" : "View All"}
             </Link>
           </div>
           <div className="px-6 pb-6">

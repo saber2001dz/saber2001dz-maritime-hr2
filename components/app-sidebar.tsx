@@ -104,11 +104,11 @@ function useNavigationData() {
         icon: ArrowLeftRight,
         items: [
           {
-            title: "طلبـــات النـقــل",
+            title: "مطلـــب نـقـلــــة",
             url: `/${locale}/dashboard/employees/mutations/demande/nouvelle-demande`,
           },
           {
-            title: "قـائمــــة النـقــل",
+            title: "مطـالـب النـقـــل",
             url: `/${locale}/dashboard/employees/mutations/table-mutations`,
           },
         ],

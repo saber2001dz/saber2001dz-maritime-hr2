@@ -82,7 +82,7 @@ export function SuspendedEmployeesPopover({ triggerClassName = "" }: SuspendedEm
                 {isRTL ? "تاريخ البداية" : "Date début"}
               </th>
               <th className={`px-3 py-2 text-start text-xs font-semibold ${cardSubtitleFontClass}`}>
-                {isRTL ? "تاريخ النهاية" : "Date fin"}
+                {isRTL ? "تـاريــخ النهـايــة" : "Date fin"}
               </th>
             </tr>
           </thead>

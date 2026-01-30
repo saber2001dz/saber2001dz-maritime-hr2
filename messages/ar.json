@@ -105,7 +105,7 @@
       "loadingError": "خطأ في تحميل البيانات",
       "noDataAvailable": "لا توجد بيانات متاحة",
       "effectif": "العدد",
-      "genderDistribution": "التوزيع حسب الجنس"
+      "genderDistribution": "التوزيـع حســب الجنــس"
     },
     "grades": {
       "colonelMajor": "عميد",
@@ -179,9 +179,9 @@
     "tables": {
       "unitsList": "قــائمــــة الــوحــــدات",
       "employeesList": "قــائمــــة المــوظفيــــن",
-      "viewAll": "عرض الكل",
+      "viewAll": "عــرض الكــل",
       "unitColumns": {
-        "unitName": "الـــــــوحــــــــدة",
+        "unitName": "الــــوحــــــــدة",
         "type": "النـــــــــــــوع",
         "nature": "طبيعــة الوحــــدة"
       },
@@ -484,23 +484,23 @@
           "contactInfo": "معلومات الاتصال",
           "otherInfo": "معلومات أخرى",
           "tags": "العلامات",
-          "firstName": "الاسم الأول",
+          "firstName": "الإســم الأول",
           "lastName": "اللقب",
-          "fatherName": "اسم الأب",
-          "grandfatherName": "اسم الجد",
+          "fatherName": "إســم الأب",
+          "grandfatherName": "إســم الجد",
           "motherName": "هوية الأم",
-          "gender": "الجنس",
-          "birthDate": "تاريخ الميلاد",
-          "birthPlace": "مكان الميلاد",
-          "mainAddress": "العنوان الرئيسي",
-          "currentAddress": "العنوان الحالي",
-          "notes": "ملاحظات",
-          "personalContact": "الاتصال الشخصي",
+          "gender": "الجنــس",
+          "birthDate": "تاريخ الميــلاد",
+          "birthPlace": "مكان الميــلاد",
+          "mainAddress": "العنـوان الـرئيسي",
+          "currentAddress": "العنـوان الحـالي",
+          "notes": "مـلاحظـــات",
+          "personalContact": "",
           "mobileNumber": "رقم الهاتف المحمول",
           "email": "البريد الإلكتروني",
-          "otherContact": "اتصال آخر",
+          "otherContact": "وســائــل أخــرى",
           "mobileNumber2": "رقم الهاتف المحمول 2",
-          "whatsapp": "واتساب",
+          "whatsapp": "واتســـاب",
           "maritalStatus": "الحالة المدنية",
           "childrenCount": "عدد الأطفال",
           "idCard": "بطاقة الهوية",
@@ -533,7 +533,7 @@
         "place": "المكان",
         "diplomaDescription": "وصف الشهادة",
         "startDate": "تاريخ البداية",
-        "endDate": "تاريخ النهاية",
+        "endDate": "تـاريــخ النهـايــة",
         "result": "النتيجة",
         "status": "الحالة",
         "educationLevel": "المستوى التعليمي",
@@ -545,7 +545,7 @@
         "cancel": "إلـغــــاء",
         "save": "حفظ",
         "add": "إضافة",
-        "close": "إغـــلاق",
+        "close": "إغـــــلاق",
         "saving": "جاري الحفظ...",
         "actions": "الإجراءات",
         "modify": "تعديل",
@@ -639,8 +639,8 @@
       "matriculeExists": "رقم التسجيل هذا مستخدم بالفعل",
       "verificationError": "خطأ في التحقق",
       "matriculeChecking": "جاري التحقق من رقم التسجيل...",
-      "birthDateRequired": "تاريخ الميلاد مطلوب",
-      "genderRequired": "الجنس مطلوب"
+      "birthDateRequired": "تاريخ الميــلاد مطلوب",
+      "genderRequired": "الجنــس مطلوب"
     },
     "confirmation": {
       "title": "تأكيد الحفظ",
@@ -814,12 +814,12 @@
         "tags": "العلامات"
       },
       "labels": {
-        "firstName": "الاسم الأول",
+        "firstName": "الاســم الأول",
         "lastName": "اللقب",
-        "fatherName": "اسم الأب",
-        "grandfatherName": "اسم الجد",
+        "fatherName": "إســم الأب",
+        "grandfatherName": "إســم الجد",
         "motherIdentity": "هوية الأم",
-        "gender": "الجنس",
+        "gender": "الجنــس",
         "birthDate": "تاريخ الميلاد",
         "birthPlace": "مكان الميلاد"
       }

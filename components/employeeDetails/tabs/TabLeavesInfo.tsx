@@ -594,7 +594,7 @@ function LeavesTabsComponent({
                     <th
                       className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-32 ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "تاريخ النهاية" : "Date Fin"}
+                      {isRTL ? "تـاريــخ النهـايــة" : "Date Fin"}
                     </th>
                     <th
                       className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-40 ${cardSubtitleFontClass}`}

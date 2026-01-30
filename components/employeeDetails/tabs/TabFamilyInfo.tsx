@@ -254,7 +254,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
       <div className="lg:col-span-2 space-y-6">
         {/* Informations Familiales */}
         <Card
-          title={isRTL ? "المعلومات العائلية" : "Informations Familiales"}
+          title={isRTL ? "المعلومــات العـائليــة" : "Informations Familiales"}
           icon={Heart}
           edit
           animationDelay="0.2s"
@@ -264,34 +264,34 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Field
-              label={isRTL ? "الحالة الزوجية" : "Statut Marital"}
+              label={isRTL ? "الحـالــة المــدنيـــة" : "Statut Marital"}
               value={statutMarital}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <Field
-              label={isRTL ? "عدد الأطفال" : "Nombre d'Enfants"}
+              label={isRTL ? "عــدد الأبنـــاء" : "Nombre d'Enfants"}
               value={enfants.length.toString()}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <Divider />
             <Field
-              label={isRTL ? "اسم الزوج/الزوجة" : "Prénom Nom Conjoint"}
+              label={isRTL ? "هويـة الزوج / الزوجة" : "Prénom Nom Conjoint"}
               value={conjointInfo.fullName}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <Field
-              label={isRTL ? "عمل الزوج/الزوجة" : "Travail Conjoint"}
+              label={isRTL ? "عمــل الزوج / الزوجة" : "Travail Conjoint"}
               value={conjointInfo.travail}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <Divider />
             <Field
-              label={isRTL ? "رقم التأمين" : "Numéro Mutuel"}
-              value={employee.matricule_mutuel || (isRTL ? "غير محدد" : "Non défini")}
+              label={isRTL ? "رقــم التعـاونيــة" : "Numéro Mutuel"}
+              value={employee.matricule_mutuel || (isRTL ? "غيــر محــدد" : "Non défini")}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
@@ -300,7 +300,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
 
         {/* Table des Enfants */}
         <Card
-          title={isRTL ? "الأطفال" : "Enfants"}
+          title={isRTL ? "الأبنـــاء" : "Enfants"}
           icon={Users}
           edit
           animationDelay="0.4s"
@@ -311,7 +311,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
           <div className="overflow-x-auto">
             {enfants.length === 0 ? (
               <div className={`text-center py-8 text-gray-500 dark:text-gray-400 ${cardSubtitleFontClass}`}>
-                {isRTL ? "لم يتم تسجيل أي طفل" : "Aucun enfant enregistré"}
+                {isRTL ? "لـم يتـم تسجيـل أي إبــن" : "Aucun enfant enregistré"}
               </div>
             ) : (
               <table className="w-full">
@@ -320,27 +320,27 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
                     <th
                       className={`px-3 py-3 text-start text-xs font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wider w-[25%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "اسم الطفل" : "Prénom de l'enfant"}
+                      {isRTL ? "إســم الطفـل" : "Prénom de l'enfant"}
                     </th>
                     <th
                       className={`px-3 py-3 text-start text-xs font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wider w-[20%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "الجنس" : "Genre"}
+                      {isRTL ? "الجنــس" : "Genre"}
                     </th>
                     <th
                       className={`px-3 py-3 text-start text-xs font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wider w-[20%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "تاريخ الميلاد" : "Date Naissance"}
+                      {isRTL ? "تاريخ الميــلاد" : "Date Naissance"}
                     </th>
                     <th
                       className={`px-3 py-3 text-start text-xs font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wider w-[15%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "العمر" : "Age"}
+                      {isRTL ? "العمـــر" : "Age"}
                     </th>
                     <th
                       className={`px-3 py-3 text-start text-xs font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wider w-[20%] ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "المستوى الدراسي" : "Niveau Scolaire"}
+                      {isRTL ? "المستـوى الدراســي" : "Niveau Scolaire"}
                     </th>
                   </tr>
                 </thead>
@@ -356,7 +356,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
                         >
                           <div className="flex items-center gap-2">
                             <Baby className="w-4 h-4 text-[#076784]" />
-                            <span className="truncate">{enfant.prenom || (isRTL ? "غير محدد" : "Non défini")}</span>
+                            <span className="truncate">{enfant.prenom || (isRTL ? "غيــر محـــدد" : "Non défini")}</span>
                           </div>
                         </td>
                         <td className="px-3 py-4 text-sm text-gray-700 dark:text-gray-300 w-[15%]">
@@ -391,7 +391,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
                         <td
                           className={`px-3 py-4 text-sm text-gray-700 dark:text-gray-300 w-[30%] ${tableNotoFontClass}`}
                         >
-                          {enfant.niveau_scolaire || (isRTL ? "غير محدد" : "Non défini")}
+                          {enfant.niveau_scolaire || (isRTL ? "غيـر محـــدد" : "Non défini")}
                         </td>
                       </tr>
                     ))}
@@ -423,12 +423,12 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
               </div>
               <div className="flex-1">
                 <h3 className={`text-sm font-medium text-red-900 dark:text-red-100 mb-1 ${jazeeraFontClass}`}>
-                  {urgentContacts.prenom_nom || (isRTL ? "غير محدد" : "Non défini")}
+                  {urgentContacts.prenom_nom || (isRTL ? "غيـر محــدد" : "Non défini")}
                 </h3>
                 <div className="flex items-center gap-1">
                   <Phone className="w-3.5 h-3.5 text-red-600 dark:text-red-400 shrink-0" />
                   <span className={`text-sm text-red-700 dark:text-red-200 ${jazeeraFontClass}`}>
-                    {urgentContacts.phone || (isRTL ? "غير محدد" : "Non défini")}
+                    {urgentContacts.phone || (isRTL ? "غيـر محــدد" : "Non défini")}
                   </span>
 
                   {urgentContacts.relationship && (
@@ -451,7 +451,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
 
         {/* Statistiques Familiales */}
         <Card
-          title={isRTL ? "الإحصائيات العائلية" : "Statistiques Familiales"}
+          title={isRTL ? "الإحصائيــات العـائليــة" : "Statistiques Familiales"}
           icon={Shield}
           animationDelay="0.5s"
           isRTL={isRTL}
@@ -462,7 +462,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
               <div className="flex items-center gap-2">
                 <Heart className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span className={`text-sm text-blue-900 dark:text-blue-100 ${cardSubtitleFontClass}`}>
-                  {isRTL ? "الوضعية" : "Situation"}
+                  {isRTL ? "الـوضـعـيــــة" : "Situation"}
                 </span>
               </div>
               <span className={`text-[13px] font-medium text-blue-800 dark:text-blue-200 ${jazeeraFontClass}`}>
@@ -473,7 +473,7 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-green-600 dark:text-green-400" />
                 <span className={`text-sm text-green-900 dark:text-green-100 ${cardSubtitleFontClass}`}>
-                  {isRTL ? "عدد الأطفال" : "Nombre d'enfants"}
+                  {isRTL ? "عــدد الأبنـــاء" : "Nombre d'enfants"}
                 </span>
               </div>
               <span className={`text-sm font-medium text-green-800 dark:text-green-200 ${jazeeraFontClass}`}>
@@ -484,11 +484,11 @@ export default function TabFamilyInfo({ data }: TabFamilyInfoProps) {
               <div className="flex items-center gap-2">
                 <UserCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 <span className={`text-sm text-purple-900 dark:text-purple-100 ${cardSubtitleFontClass}`}>
-                  {isRTL ? "عمل الزوج/الزوجة" : "Travail Conjoint"}
+                  {isRTL ? "عمل الزوج / الزوجة" : "Travail Conjoint"}
                 </span>
               </div>
               <span className={`text-[13px] font-medium text-purple-800 dark:text-purple-200 ${jazeeraFontClass}`}>
-                {conjointInfo.travail || (isRTL ? "غير محدد" : "Non défini")}
+                {conjointInfo.travail || (isRTL ? "غيـر محـدد" : "Non défini")}
               </span>
             </div>
           </div>

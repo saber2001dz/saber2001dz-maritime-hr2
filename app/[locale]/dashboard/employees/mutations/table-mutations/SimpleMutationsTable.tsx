@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Trash2,
   Loader2,
+  Pencil,
 } from "lucide-react"
 import * as XLSX from "xlsx"
 import { useEffect, useState, useCallback, useMemo, useRef } from "react"
@@ -945,7 +946,15 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                           </span>
                         </td>
                         <td className="px-4 py-2.5 w-24">
-                          <div className="flex items-center justify-center gap-1">
+                          <div className="flex items-center justify-center">
+                            <Link
+                              href={`/${params.locale}/dashboard/employees/mutations/details-mutation?id=${mutation.id}`}
+                              className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors cursor-pointer focus:outline-none"
+                              title="تعديل"
+                              onClick={() => saveCurrentParams(mutation.id)}
+                            >
+                              <Pencil className="w-3.5 h-3.5 text-blue-500" />
+                            </Link>
                             <MutationUnitesPopover mutationId={mutation.id} />
                             <button
                               onClick={() => setMutationToDelete(mutation)}
@@ -1017,7 +1026,7 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
 
       {/* AlertDialog de confirmation de suppression */}
       <AlertDialog open={!!mutationToDelete} onOpenChange={(open) => !open && setMutationToDelete(null)}>
-        <AlertDialogContent dir="rtl" className="font-noto-naskh-arabic sm:max-w-md">
+        <AlertDialogContent dir="rtl" className="font-noto-naskh-arabic sm:max-w-lg">
           <AlertDialogHeader className="gap-3">
             <AlertDialogTitle className="text-start text-lg font-noto-naskh-arabic">
               تأكيد حذف طلب النقلة
@@ -1030,7 +1039,7 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
               ؟
               <br />
               <span className="text-red-500 dark:text-red-400 mt-1 block">
-                سيتم حذف جميع الوحدات المطلوبة المرتبطة بهذا الطلب.
+                سيتم حذف جميع الوحـدات المطلـوبــة المرتبطة بهذا الطلب.
               </span>
             </AlertDialogDescription>
           </AlertDialogHeader>

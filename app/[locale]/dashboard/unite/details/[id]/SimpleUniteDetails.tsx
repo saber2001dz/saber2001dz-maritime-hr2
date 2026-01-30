@@ -1953,7 +1953,7 @@ export default function SimpleUniteDetails({ initialData, uniteId }: SimpleUnite
                       className={`px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer hover:bg-[#D9E7EB] active:bg-[#C8D7E0] rounded-none font-noto-naskh-arabic`}
                       style={{ color: "#197791" }}
                     >
-                      {isRTL ? "عرض الكل" : "View All"}
+                      {isRTL ? "عــرض الكــل" : "View All"}
                     </button>
                   </div>
                   <div className="px-6 pb-6">

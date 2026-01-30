@@ -55,7 +55,7 @@ function Dialog({
 
   // Largeur spécifique pour le dialogue "Autres Informations" ou "تعديل المعلومات الأخرى"
   const maxWidth =
-    title === "Modifier les Autres Informations" || title === "تعديل المعلومات الأخرى" ? "max-w-2xl" : "max-w-3xl"
+    title === "Modifier les Autres Informations" || title === "تعـديـل المعلومـات الأخــرى" ? "max-w-2xl" : "max-w-3xl"
 
   return (
     <div
@@ -953,13 +953,13 @@ export default function EditDialogs({
         isOpen={activeDialog === "identity"}
         isClosing={isClosing}
         onClose={handleDialogClose}
-        title={isRTL ? "تعديل معلومات الهوية" : "Modifier les Informations d'Identité"}
+        title={isRTL ? "تعـديـل معلـومــات الهـويــة" : "Modifier les Informations d'Identité"}
         icon={User}
         isRTL={isRTL}
       >
         <div className="flex gap-12">
           {/* Section Photo à gauche */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <div className="relative">
               {/* Photo */}
               <div className="w-40 h-40 rounded-full overflow-hidden bg-gray-100 border-4 border-gray-200 shadow-lg">
@@ -1014,43 +1014,43 @@ export default function EditDialogs({
                 isRTL={isRTL}
               />
               <InputField
-                label={isRTL ? "اللقب" : "Nom"}
+                label={isRTL ? "اللقــب" : "Nom"}
                 value={identityData.nom}
                 onChange={(value) => setIdentityData({ ...identityData, nom: value })}
-                placeholder={isRTL ? "أدخل اللقب" : "Entrer le nom"}
+                placeholder={isRTL ? "أدخل اللقــب" : "Entrer le nom"}
                 isRTL={isRTL}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <InputField
-                label={isRTL ? "اسم الأب" : "Prénom du Père"}
+                label={isRTL ? "إســم الأب" : "Prénom du Père"}
                 value={identityData.prenom_pere}
                 onChange={(value) => setIdentityData({ ...identityData, prenom_pere: value })}
-                placeholder={isRTL ? "أدخل اسم الأب" : "Entrer le prénom du père"}
+                placeholder={isRTL ? "أدخل إســم الأب" : "Entrer le prénom du père"}
                 isRTL={isRTL}
               />
               <InputField
-                label={isRTL ? "اسم الجد" : "Prénom du Grand-Père"}
+                label={isRTL ? "إســم الجــد" : "Prénom du Grand-Père"}
                 value={identityData.prenom_grand_pere}
                 onChange={(value) => setIdentityData({ ...identityData, prenom_grand_pere: value })}
-                placeholder={isRTL ? "أدخل اسم الجد" : "Entrer le prénom du grand-père"}
+                placeholder={isRTL ? "أدخل إســم الجــد" : "Entrer le prénom du grand-père"}
                 isRTL={isRTL}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <InputField
-                label={isRTL ? "هوية الأم" : "Identité de la Mère"}
+                label={isRTL ? "هـويــة الأم" : "Identité de la Mère"}
                 value={identityData.mere}
                 onChange={(value) => setIdentityData({ ...identityData, mere: value })}
                 placeholder={isRTL ? "أدخل هوية الأم" : "Entrer l'identité de la mère"}
                 isRTL={isRTL}
               />
               <SelectField
-                label={isRTL ? "الجنس" : "Genre"}
+                label={isRTL ? "الجنــس" : "Genre"}
                 value={identityData.sexe}
                 onChange={(value) => setIdentityData({ ...identityData, sexe: value })}
                 options={getTranslatedOptions(genderOptions, isRTL)}
-                placeholder={isRTL ? "اختر الجنس" : "Sélectionner le genre"}
+                placeholder={isRTL ? "اختر الجنــس" : "Sélectionner le genre"}
                 isRTL={isRTL}
               />
             </div>
@@ -1061,7 +1061,7 @@ export default function EditDialogs({
                     isRTL ? "font-noto-naskh-arabic" : ""
                   }`}
                 >
-                  {isRTL ? "تاريخ الميلاد" : "Date de Naissance"}
+                  {isRTL ? "تـاريخ الميــلاد" : "Date de Naissance"}
                 </label>
                 <I18nProvider locale="fr-FR">
                   <DateField
@@ -1100,7 +1100,7 @@ export default function EditDialogs({
         isOpen={activeDialog === "residence"}
         isClosing={isClosing}
         onClose={handleDialogClose}
-        title={isRTL ? "تعديل معلومات السكن" : "Modifier les Informations de Résidence"}
+        title={isRTL ? "تعـديـل معلـومــات السكــن" : "Modifier les Informations de Résidence"}
         icon={MapPin}
         isRTL={isRTL}
       >
@@ -1111,24 +1111,24 @@ export default function EditDialogs({
                 isRTL ? cardSubtitleFontClass : ""
               }`}
             >
-              {isRTL ? "العنوان الرئيسي" : "Adresse Principale"}
+              {isRTL ? "العنـوان الـرئيسي" : "Adresse Principale"}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <InputField
-                  label={isRTL ? "العنوان" : "Adresse"}
+                  label={isRTL ? "العنـــوان" : "Adresse"}
                   value={residenceData.adresse}
                   onChange={(value) => setResidenceData({ ...residenceData, adresse: value })}
-                  placeholder={isRTL ? "أدخل العنوان الكامل" : "Entrer l'adresse complète"}
+                  placeholder={isRTL ? "أدخل العنــوان الكامل" : "Entrer l'adresse complète"}
                   isRTL={isRTL}
                 />
               </div>
               <SelectField
-                label={isRTL ? "الولاية" : "Gouvernorat"}
+                label={isRTL ? "الولايـــة" : "Gouvernorat"}
                 value={residenceData.gouvernorat}
                 onChange={(value) => setResidenceData({ ...residenceData, gouvernorat: value })}
                 options={getTranslatedOptions(gouvernoratOptions, isRTL)}
-                placeholder={isRTL ? "اختر الولاية" : "Sélectionner le gouvernorat"}
+                placeholder={isRTL ? "اختر الولايـــة" : "Sélectionner le gouvernorat"}
                 isRTL={isRTL}
               />
             </div>
@@ -1139,7 +1139,7 @@ export default function EditDialogs({
                 isRTL ? cardSubtitleFontClass : ""
               }`}
             >
-              {isRTL ? "العنوان الحالي" : "Adresse Actuelle"}
+              {isRTL ? "العنـوان الحــالي" : "Adresse Actuelle"}
             </h3>
 
             {/* Case à cocher pour indiquer si c'est la même adresse */}
@@ -1153,7 +1153,7 @@ export default function EditDialogs({
               />
               <label htmlFor="sameAsMainAddress" className="text-sm text-gray-700 dark:text-gray-400 cursor-pointer">
                 {isRTL ? (
-                  <span className="font-noto-naskh-arabic">نفس العنوان الرئيسي</span>
+                  <span className="font-noto-naskh-arabic">نفـس العنـوان الـرئيسي</span>
                 ) : (
                   "Même adresse que l'adresse principale"
                 )}
@@ -1163,7 +1163,7 @@ export default function EditDialogs({
             <div className="grid grid-cols-1 text-start md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <InputField
-                  label={isRTL ? "العنوان الحالي" : "Adresse Actuelle"}
+                  label={isRTL ? "العنـوان الحـالي" : "Adresse Actuelle"}
                   value={residenceData.adresse_actuelle}
                   onChange={(value) => {
                     setResidenceData({ ...residenceData, adresse_actuelle: value })
@@ -1172,14 +1172,14 @@ export default function EditDialogs({
                     }
                   }}
                   placeholder={
-                    isRTL ? "أدخل العنوان الحالي (إذا كان مختلفًا)" : "Entrer l'adresse actuelle (si différente)"
+                    isRTL ? "أدخل العنـوان الحــالي (إذا كان مختلفًا)" : "Entrer l'adresse actuelle (si différente)"
                   }
                   disabled={sameAsMainAddress}
                   isRTL={isRTL}
                 />
               </div>
               <SelectField
-                label={isRTL ? "الولاية الحالية" : "Gouvernorat Actuel"}
+                label={isRTL ? "الولايـــة الحاليــة" : "Gouvernorat Actuel"}
                 value={residenceData.gouvernorat_actuel}
                 onChange={(value) => {
                   setResidenceData({ ...residenceData, gouvernorat_actuel: value })
@@ -1188,7 +1188,7 @@ export default function EditDialogs({
                   }
                 }}
                 options={getTranslatedOptions(gouvernoratOptions, isRTL)}
-                placeholder={isRTL ? "اختر الولاية الحالية" : "Sélectionner le gouvernorat actuel"}
+                placeholder={isRTL ? "اختر الولايـة الحاليـة" : "Sélectionner le gouvernorat actuel"}
                 disabled={sameAsMainAddress}
                 isRTL={isRTL}
               />
@@ -1204,7 +1204,7 @@ export default function EditDialogs({
         isOpen={activeDialog === "contact"}
         isClosing={isClosing}
         onClose={handleDialogClose}
-        title={isRTL ? "تعديل معلومات الاتصال" : "Modifier les Informations de Contact"}
+        title={isRTL ? "تعديـل المعلومـات الإتصـاليــة" : "Modifier les Informations de Contact"}
         icon={Phone}
         isRTL={isRTL}
       >
@@ -1215,7 +1215,7 @@ export default function EditDialogs({
                 isRTL ? cardSubtitleFontClass : ""
               }`}
             >
-              {isRTL ? "الاتصال الشخصي" : "Contact Personnel"}
+              {isRTL ? "رقــم الهـاتـف و البـريــد" : "Contact Personnel"}
             </h3>
             <div className="grid grid-cols-1 text-start md:grid-cols-2 gap-4">
               <PhoneInputField
@@ -1239,7 +1239,7 @@ export default function EditDialogs({
                 isRTL ? cardSubtitleFontClass : ""
               }`}
             >
-              {isRTL ? "اتصال آخر" : "Autre Contact"}
+              {isRTL ? "وســائــل أخــرى" : "Autre Contact"}
             </h3>
             <div className="grid grid-cols-1 text-start md:grid-cols-2 gap-4">
               <PhoneInputField
@@ -1249,7 +1249,7 @@ export default function EditDialogs({
                 isRTL={isRTL}
               />
               <PhoneInputField
-                label={isRTL ? "واتساب" : "WhatsApp"}
+                label={isRTL ? "واتســـاب" : "WhatsApp"}
                 value={contactData.whatsapp}
                 onChange={(value) => setContactData({ ...contactData, whatsapp: value })}
                 isRTL={isRTL}
@@ -1265,7 +1265,7 @@ export default function EditDialogs({
         isOpen={activeDialog === "otherInfo"}
         isClosing={isClosing}
         onClose={handleDialogClose}
-        title={isRTL ? "تعديل المعلومات الأخرى" : "Modifier les Autres Informations"}
+        title={isRTL ? "تعـديـل المعلـومــات الأخــرى" : "Modifier les Autres Informations"}
         icon={Briefcase}
         isRTL={isRTL}
       >
@@ -1296,7 +1296,7 @@ export default function EditDialogs({
         isOpen={activeDialog === "tags"}
         isClosing={isClosing}
         onClose={handleDialogClose}
-        title={isRTL ? "تعديل العلامات" : "Modifier les Tags"}
+        title={isRTL ? "تعــديـــل العــلامــــات" : "Modifier les Tags"}
         icon={Tag}
         isRTL={isRTL}
       >
@@ -1319,8 +1319,8 @@ export default function EditDialogs({
               }`}
               dir={isRTL ? "rtl" : "ltr"}
             />
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {isRTL ? "مثال: كفوء، منضبط، قائد" : "Exemple: compétent, ponctuel, leader"}
+            <p className="text-sm text-start text-gray-500 dark:text-gray-400 mt-1 font-noto-naskh-arabic">
+              {isRTL ? "مثــال: كــفء، منضبــط، إلــخ..." : "Exemple: compétent, ponctuel, leader"}
             </p>
           </div>
           <ActionButtons onCancel={handleCancel} onSave={handleSaveTags} isLoading={isLoading} isRTL={isRTL} />
@@ -1334,7 +1334,7 @@ export default function EditDialogs({
         onClose={handleNotesDialogClose}
         title={
           isRTL
-            ? `ملاحظات - ${notesDialog?.type === "principale" ? "العنوان الرئيسي" : "العنوان الحالي"}`
+            ? `مــلاحظــات - ${notesDialog?.type === "principale" ? "العنـوان الـرئيسي" : "العنـوان الحـالي"}`
             : `Notes - ${notesDialog?.type === "principale" ? "Adresse Principale" : "Adresse Actuelle"}`
         }
         icon={NotebookPen}

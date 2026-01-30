@@ -35,7 +35,7 @@ const notoNaskhArabic = localFont({
 // Hardcoded translations for breadcrumbs
 const BREADCRUMB_LABELS = {
   maritimeHR: "الموارد البشرية البحرية",
-  dashboard: "لوحـة المعلـومـات",
+  dashboard: "لوحــة المعلـومــات",
   personnel: "المـوظـفــون",
   personnelList: "قائمة الموظفين",
   newAgent: "مـوظـف جـديـد",
@@ -44,7 +44,8 @@ const BREADCRUMB_LABELS = {
   retirement: "بـاب التـقاعـد",
   mutations: "النـقـــل",
   mutationRequest: "طـلـب نـقـلــة",
-  mutationsList: "قائمـة النـقـل",
+  mutationsList: "مطـالــب النـقـــل",
+  mutationDetails: "تفـاصيــل مطلــب النقلــة",
   marineUnits: "الوحـدات البحـريـة",
   unitsList: "قائمـة الـوحــدات",
   newUnit: "وحـدة جـديـدة",
@@ -111,6 +112,16 @@ const getPageConfig = () => ({
       { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
       { label: BREADCRUMB_LABELS.mutations, href: "/dashboard/employees/mutations" },
       { label: BREADCRUMB_LABELS.mutationsList },
+    ],
+  },
+  "/dashboard/employees/mutations/details-mutation": {
+    title: BREADCRUMB_LABELS.mutationDetails,
+    breadcrumbs: [
+      { label: BREADCRUMB_LABELS.maritimeHR, href: "/dashboard" },
+      { label: BREADCRUMB_LABELS.personnel, href: "/dashboard/employees" },
+      { label: BREADCRUMB_LABELS.mutations, href: "/dashboard/employees/mutations" },
+      { label: BREADCRUMB_LABELS.mutationsList, href: "/dashboard/employees/mutations/table-mutations" },
+      { label: BREADCRUMB_LABELS.mutationDetails },
     ],
   },
   // Pages Unités Maritimes

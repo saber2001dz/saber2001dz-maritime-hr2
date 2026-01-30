@@ -102,8 +102,8 @@ function Dialog({
             ? "w-full max-w-md"
             : title === "Modifier la Situation Administrative" ||
               title === "Modifier la Durée du Contrat" ||
-              title === "تعديل الوضع الإداري" ||
-              title === "تعديل مدة العمل"
+              title === "تعـديــل الـوضعيــة الإداريــة" ||
+              title === "تعـديــل مــدة العـمـــل"
             ? "w-full max-w-2xl"
             : "w-full max-w-7xl"
         }`}
@@ -1762,7 +1762,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
           isOpen={true}
           onClose={handleDialogClose}
           isClosing={isClosing}
-          title={isRTL ? "تعديل مدة العمل" : "Modifier la Durée du Contrat"}
+          title={isRTL ? "تعـديــل مــدة العـمـــل" : "Modifier la Durée du Contrat"}
           icon={Calendar}
           isRTL={isRTL}
         >
@@ -1774,7 +1774,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                     isRTL ? "font-noto-naskh-arabic" : ""
                   }`}
                 >
-                  {isRTL ? "تاريخ الإنتداب" : "Date de Recrutement"}
+                  {isRTL ? "تـاريــخ الإنتــداب" : "Date de Recrutement"}
                 </label>
                 <I18nProvider locale="fr-FR">
                   <DateField
@@ -1810,7 +1810,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
           isOpen={true}
           onClose={handleDialogClose}
           isClosing={isClosing}
-          title={isRTL ? "تعديل الوضع الإداري" : "Modifier la Situation Administrative"}
+          title={isRTL ? "تعـديــل الـوضعيــة الإداريــة" : "Modifier la Situation Administrative"}
           icon={Briefcase}
           isRTL={isRTL}
         >
@@ -1824,10 +1824,10 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 isRTL={isRTL}
               />
               <InputField
-                label={isRTL ? "المعرف الفريد" : "Identifiant Unique"}
+                label={isRTL ? "المعــرف الــوحيــد" : "Identifiant Unique"}
                 value={situationData.identifiant_unique}
                 onChange={(value) => setSituationData({ ...situationData, identifiant_unique: value })}
-                placeholder={isRTL ? "أدخل المعرف الفريد" : "Entrer l'identifiant unique"}
+                placeholder={isRTL ? "أدخل المعــرف الــوحيــد" : "Entrer l'identifiant unique"}
                 isRTL={isRTL}
               />
             </div>
@@ -1863,11 +1863,11 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                         isRTL ? titleFontClass : ""
                       }`}
                     >
-                      {isRTL ? "ملف شخصي خاص" : "Profil Privé"}
+                      {isRTL ? "مـلـف شـخـصــي خـــاص" : "Profil Privé"}
                     </h3>
                     <p className={`text-[10px] text-gray-500 mt-0.5 ${isRTL ? cardSubtitleFontClass : ""}`}>
                       {isRTL
-                        ? "تفعيل هذا الخيار لجعل الملف الشخصي خاصاً"
+                        ? "تفعيـل هـذا الخيـار لجعــل المـلـف الشخصــي خـاصــا"
                         : "Activer cette option pour rendre le profil privé"}
                     </p>
                   </div>
@@ -1979,7 +1979,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
           isOpen={true}
           onClose={handleDialogClose}
           isClosing={isClosing}
-          title={isRTL ? "إدارة الرتب" : "Gestion des Grades"}
+          title={isRTL ? "إدارة الـــرتب" : "Gestion des Grades"}
           icon={Award}
           isRTL={isRTL}
         >
@@ -1988,7 +1988,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
               <h3
                 className={`text-md font-medium text-gray-900 dark:text-gray-300 ${isRTL ? cardSubtitleFontClass : ""}`}
               >
-                {isRTL ? "قائمة الرتب" : "Liste des Grades"}
+                {isRTL ? "قــائمـــة الـــرتب" : "Liste des Grades"}
               </h3>
               <button
                 onClick={addGrade}
@@ -2004,7 +2004,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       ? "يجب حفظ أو إلغاء التعديلات قبل إضافة رتبة جديدة"
                       : "Veuillez sauvegarder ou annuler avant d'ajouter un grade"
                     : isRTL
-                    ? "إضافة رتبة"
+                    ? "إضـافــة رتبــة"
                     : "Ajouter un grade"
                 }
               >
@@ -2022,7 +2022,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "180px" }}
                     >
-                      {isRTL ? "الرتبة" : "Grade"}
+                      {isRTL ? "الـرتبـــة" : "Grade"}
                     </th>
                     <th
                       className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2030,7 +2030,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "140px" }}
                     >
-                      {isRTL ? "تاريخ الحصول" : "Date d'obtention"}
+                      {isRTL ? "تـاريــخ الحصــول" : "Date d'obtention"}
                     </th>
                     <th
                       className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2038,7 +2038,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "140px" }}
                     >
-                      {isRTL ? "تاريخ الانتهاء" : "Date de fin"}
+                      {isRTL ? "تـاريـخ الانتهـــاء" : "Date de fin"}
                     </th>
                     <th
                       className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2046,7 +2046,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "120px" }}
                     >
-                      {isRTL ? "المرجع" : "Référence"}
+                      {isRTL ? "المــرجـــع" : "Référence"}
                     </th>
                     <th
                       className={`px-4 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2054,7 +2054,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "120px" }}
                     >
-                      {isRTL ? "الإجراءات" : "Actions"}
+                      {isRTL ? "الإجـــراءات" : "Actions"}
                     </th>
                   </tr>
                 </thead>
@@ -2079,7 +2079,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                                 : "text-[#076784] hover:text-[#065a72] cursor-pointer"
                             }`}
                           >
-                            {isRTL ? "إضافة الرتبة الأولى" : "Ajouter le premier grade"}
+                            {isRTL ? "إضافـة الرتبــة الأولــى" : "Ajouter le premier grade"}
                           </button>
                         </div>
                       </td>
@@ -2252,7 +2252,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــلاق" : "Fermer"}</span>
+                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــــلاق" : "Fermer"}</span>
               </button>
             </div>
           </div>
@@ -2265,7 +2265,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
           isOpen={true}
           onClose={handleDialogClose}
           isClosing={isClosing}
-          title={isRTL ? "إدارة المهام" : "Gestion des Fonctions"}
+          title={isRTL ? "إدارة الخـــطط الـوظيفيــة" : "Gestion des Fonctions"}
           isRTL={isRTL}
           icon={Briefcase}
         >
@@ -2274,7 +2274,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
               <h3
                 className={`text-md font-medium text-gray-900 dark:text-gray-300 ${isRTL ? cardSubtitleFontClass : ""}`}
               >
-                {isRTL ? "قائمة المهام" : "Liste des Fonctions"}
+                {isRTL ? "قـائمــة الخـــطط الـوظيفيــة" : "Liste des Fonctions"}
               </h3>
               <button
                 onClick={addFonction}
@@ -2287,10 +2287,10 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 title={
                   hasUnsavedFonction()
                     ? isRTL
-                      ? "يجب حفظ أو إلغاء التعديلات قبل إضافة مهمة جديدة"
+                      ? "يجب حفظ أو إلغاء التعديلات قبل إضافة خطة وظيفية جديدة"
                       : "Veuillez sauvegarder ou annuler avant d'ajouter une fonction"
                     : isRTL
-                    ? "إضافة مهمة"
+                    ? "إضـافــة خـطــة وظيفيــة"
                     : "Ajouter une fonction"
                 }
               >
@@ -2308,7 +2308,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "180px" }}
                     >
-                      {isRTL ? "المهمة" : "Fonction"}
+                      {isRTL ? "الخـطــة الـوظيفيــة" : "Fonction"}
                     </th>
                     <th
                       className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2316,7 +2316,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "140px" }}
                     >
-                      {isRTL ? "تاريخ الحصول" : "Date d'obtention"}
+                      {isRTL ? "تـاريــخ الحصــول" : "Date d'obtention"}
                     </th>
                     <th
                       className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2324,7 +2324,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "140px" }}
                     >
-                      {isRTL ? "تاريخ الانتهاء" : "Date de fin"}
+                      {isRTL ? "تـاريــخ الانتهــاء" : "Date de fin"}
                     </th>
                     <th
                       className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2332,7 +2332,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "120px" }}
                     >
-                      {isRTL ? "المرجع" : "Référence"}
+                      {isRTL ? "المــرجـــع" : "Référence"}
                     </th>
                     <th
                       className={`px-4 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2340,7 +2340,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "120px" }}
                     >
-                      {isRTL ? "الإجراءات" : "Actions"}
+                      {isRTL ? "الإجــــراءات" : "Actions"}
                     </th>
                   </tr>
                 </thead>
@@ -2355,7 +2355,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       >
                         <div className="flex flex-col items-center">
                           <Briefcase className="w-8 h-8 text-gray-300 dark:text-gray-600 mb-2" />
-                          <span>{isRTL ? "لا توجد مهام مسجلة" : "Aucune fonction enregistrée"}</span>
+                          <span>{isRTL ? "لا توجــد خــطط وظيفيــة مسجلة" : "Aucune fonction enregistrée"}</span>
                           <button
                             onClick={addFonction}
                             disabled={hasUnsavedFonction()}
@@ -2365,7 +2365,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                                 : "text-[#076784] hover:text-[#065a72] cursor-pointer"
                             }`}
                           >
-                            {isRTL ? "إضافة المهمة الأولى" : "Ajouter la première fonction"}
+                            {isRTL ? "إضـافــة الخطــة الـوظيفيـة الأولـى" : "Ajouter la première fonction"}
                           </button>
                         </div>
                       </td>
@@ -2562,7 +2562,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــلاق" : "Fermer"}</span>
+                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــــلاق" : "Fermer"}</span>
               </button>
             </div>
           </div>
@@ -2584,12 +2584,12 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
               <h3
                 className={`text-md font-medium text-gray-900 dark:text-gray-300 ${isRTL ? cardSubtitleFontClass : ""}`}
               >
-                {isRTL ? "قائمة التعيينـات" : "Liste des Affectations"}
+                {isRTL ? "قائمــة التعيينـات" : "Liste des Affectations"}
               </h3>
               <button
                 onClick={addAffectation}
                 className="group p-1 text-[#076784] hover:text-[#065a72] transition-all duration-200 cursor-pointer hover:shadow-sm rounded"
-                title={isRTL ? "إضافة تعيين" : "Ajouter une affectation"}
+                title={isRTL ? "إضـافــة تعييــن" : "Ajouter une affectation"}
               >
                 <Plus className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
               </button>
@@ -2629,7 +2629,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "120px" }}
                     >
-                      {isRTL ? "تاريخ النهاية" : "Date fin"}
+                      {isRTL ? "تـاريخ النهـايــة" : "Date fin"}
                     </th>
                     <th
                       className={`px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2645,7 +2645,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "100px" }}
                     >
-                      {isRTL ? "الإجراءات" : "Actions"}
+                      {isRTL ? "الإجــراءات" : "Actions"}
                     </th>
                   </tr>
                 </thead>
@@ -2890,7 +2890,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــلاق" : "Fermer"}</span>
+                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــــلاق" : "Fermer"}</span>
               </button>
             </div>
           </div>
@@ -2903,7 +2903,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
           isOpen={true}
           onClose={handleDialogClose}
           isClosing={isClosing}
-          title={isRTL ? "إدارة الهوية البنكية" : "Gestion de l'Identité Bancaire"}
+          title={isRTL ? "إدارة الحسـابـات البنكيــة" : "Gestion de l'Identité Bancaire"}
           isRTL={isRTL}
           icon={CreditCard}
         >
@@ -2912,7 +2912,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
               <h3
                 className={`text-md font-medium text-gray-900 dark:text-gray-300 ${isRTL ? cardSubtitleFontClass : ""}`}
               >
-                {isRTL ? "قائمة الحسابات المصرفية" : "Liste des Comptes Bancaires"}
+                {isRTL ? "قائمـة الحسـابـات البنكيـة" : "Liste des Comptes Bancaires"}
               </h3>
               <button
                 onClick={addBanque}
@@ -2941,7 +2941,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "300px" }}
                     >
-                      {isRTL ? "البنك" : "Banque"}
+                      {isRTL ? "البنــــك" : "Banque"}
                     </th>
                     <th
                       className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2965,7 +2965,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "100px" }}
                     >
-                      {isRTL ? "الحالة" : "Statut"}
+                      {isRTL ? "الحــالـــة" : "Statut"}
                     </th>
                     <th
                       className={`px-4 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -2973,7 +2973,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       }`}
                       style={{ width: "100px" }}
                     >
-                      {isRTL ? "الإجراءات" : "Actions"}
+                      {isRTL ? "الإجـــراءات" : "Actions"}
                     </th>
                   </tr>
                 </thead>
@@ -2988,7 +2988,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       >
                         <div className="flex flex-col items-center">
                           <CreditCard className="w-8 h-8 text-gray-300 dark:text-gray-600 mb-2" />
-                          <span>{isRTL ? "لا توجد حسابات مصرفية مسجلة" : "Aucun compte bancaire enregistré"}</span>
+                          <span>{isRTL ? "لا توجـد حسـابــات بنكيـة مسجلـة" : "Aucun compte bancaire enregistré"}</span>
                           <button
                             onClick={addBanque}
                             className={`mt-2 text-[#076784] hover:text-[#065a72] text-sm underline cursor-pointer ${
@@ -3194,7 +3194,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــلاق" : "Fermer"}</span>
+                <span className={isRTL ? "font-noto-naskh-arabic" : ""}>{isRTL ? "إغـــــلاق" : "Fermer"}</span>
               </button>
             </div>
           </div>
@@ -3473,7 +3473,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={cardSubtitleFontClass}>إغـــلاق</span>
+                <span className={cardSubtitleFontClass}>إغـــــلاق</span>
               </button>
             </div>
           </div>
@@ -3546,7 +3546,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                       >
                         <div className="flex flex-col items-center">
                           <Award className="w-8 h-8 text-gray-300 dark:text-gray-600 mb-2" />
-                          <span>لم يتم تسجيل أي عــدد سنوي</span>
+                          <span>لم يتم تسجيل أي عــدد سنــوي</span>
                           <button
                             onClick={addNoteAnnuelle}
                             disabled={editingNoteAnnuelleIndex !== null}
@@ -3689,7 +3689,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 onClick={handleDialogClose}
                 className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
               >
-                <span className={cardSubtitleFontClass}>إغـــلاق</span>
+                <span className={cardSubtitleFontClass}>إغـــــلاق</span>
               </button>
             </div>
           </div>

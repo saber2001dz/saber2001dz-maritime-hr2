@@ -277,7 +277,7 @@ function SanctionTypeDialog({
           {showDates && (
             <div>
               <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 ${isRTL ? "font-noto-naskh-arabic" : ""}`}>
-                {isRTL ? "تاريخ النهاية" : "Date de fin"}
+                {isRTL ? "تـاريــخ النهـايــة" : "Date de fin"}
               </label>
               <I18nProvider locale="fr-FR">
                 <DateField
@@ -991,7 +991,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
                 isRTL ? "font-noto-naskh-arabic" : ""
               }`}
             >
-              {isRTL ? "إغـــلاق" : "Fermer"}
+              {isRTL ? "إغـــــلاق" : "Fermer"}
             </button>
           </div>
         </div>
@@ -1295,7 +1295,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose }: Edi
                 isRTL ? "font-noto-naskh-arabic" : ""
               }`}
             >
-              {isRTL ? "إغـــلاق" : "Fermer"}
+              {isRTL ? "إغـــــلاق" : "Fermer"}
             </button>
           </div>
         </div>

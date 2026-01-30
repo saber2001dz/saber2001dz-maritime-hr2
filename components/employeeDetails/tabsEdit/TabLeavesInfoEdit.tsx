@@ -897,7 +897,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, onEmp
                     }`}
                     style={{ width: "140px" }}
                   >
-                    {isRTL ? "تاريخ النهاية" : "Date Fin"}
+                    {isRTL ? "تـاريــخ النهـايــة" : "Date Fin"}
                   </th>
                   <th
                     className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -1168,7 +1168,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, onEmp
                 isRTL ? "font-noto-naskh-arabic" : ""
               }`}
             >
-              {isRTL ? "إغـــلاق" : "Fermer"}
+              {isRTL ? "إغـــــلاق" : "Fermer"}
             </button>
           </div>
         </div>
@@ -1239,7 +1239,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, onEmp
                     }`}
                     style={{ width: "140px" }}
                   >
-                    {isRTL ? "تاريخ النهاية" : "Date Fin"}
+                    {isRTL ? "تـاريــخ النهـايــة" : "Date Fin"}
                   </th>
                   <th
                     className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${
@@ -1486,7 +1486,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, onEmp
                 isRTL ? "font-noto-naskh-arabic" : ""
               }`}
             >
-              {isRTL ? "إغـــلاق" : "Fermer"}
+              {isRTL ? "إغـــــلاق" : "Fermer"}
             </button>
           </div>
         </div>

@@ -1,8 +1,8 @@
 import React from "react"
 import { PageLoading } from "@/components/ui/page-loading"
 
-const MutationsTableLoading = () => {
+const NouvelleMutationLoading = () => {
   return <PageLoading text="جــاري تـحـمـيــل البـيـــانــات" />
 }
 
-export default MutationsTableLoading
+export default NouvelleMutationLoading

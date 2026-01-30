@@ -713,7 +713,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                     isRTL ? "font-noto-naskh-arabic" : ""
                   }`}
                 >
-                  {isRTL ? "تاريخ النهاية" : "Date de Fin"}
+                  {isRTL ? "تـاريخ النهـايــة" : "Date de Fin"}
                 </label>
                 <I18nProvider locale="fr-FR">
                   <DateField
@@ -876,7 +876,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                     isRTL ? "font-noto-naskh-arabic" : ""
                   }`}
                 >
-                  {isRTL ? "تاريخ النهاية" : "Date de Fin"}
+                  {isRTL ? "تـاريــخ النهـايــة" : "Date de Fin"}
                 </label>
                 <I18nProvider locale="fr-FR">
                   <DateField
@@ -1234,7 +1234,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 isRTL ? "font-noto-naskh-arabic" : ""
               }`}
             >
-              {isRTL ? "إغـــلاق" : "Fermer"}
+              {isRTL ? "إغـــــلاق" : "Fermer"}
             </button>
           </div>
         </div>

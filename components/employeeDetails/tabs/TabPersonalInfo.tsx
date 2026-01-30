@@ -265,46 +265,46 @@ export default function TabPersonalInfo({ data }: TabPersonalInfoProps) {
               valueFontClass={jazeeraFontClass}
             />
             <Field
-              label={isRTL ? "اللقــب" : "Nom"}
+              label={isRTL ? "الـلقــــب" : "Nom"}
               value={employee.nom || (isRTL ? "غير محدد" : "Non défini")}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <Divider />
             <Field
-              label={isRTL ? "اسم الأب" : "Prénom Père"}
+              label={isRTL ? "إســم الأب" : "Prénom Père"}
               value={employee.prenom_pere || (isRTL ? "غير محدد" : "Non défini")}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <Field
-              label={isRTL ? "اسم الجد" : "Prénom G. Père"}
+              label={isRTL ? "إســم الجــد" : "Prénom G. Père"}
               value={employee.prenom_grand_pere || (isRTL ? "غير محدد" : "Non défini")}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <Divider />
             <Field
-              label={isRTL ? "هويـة الأم" : "Identité Mère"}
+              label={isRTL ? "هـويــة الأم" : "Identité Mère"}
               value={employee.mere || (isRTL ? "غير محدد" : "Non défini")}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <Field
-              label={isRTL ? "الجنس" : "Genre"}
+              label={isRTL ? "الجنــس" : "Genre"}
               value={employee.sexe || (isRTL ? "غير محدد" : "Non défini")}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <Divider />
             <Field
-              label={isRTL ? "تاريخ الميلاد" : "Date de Naissance"}
+              label={isRTL ? "تـاريخ الميــلاد" : "Date de Naissance"}
               value={formatDate(employee.date_naissance)}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <Field
-              label={isRTL ? "مكان الولادة" : "Lieu de Naissance"}
+              label={isRTL ? "مكــان الــولادة" : "Lieu de Naissance"}
               value={employee.lieu_naissance || (isRTL ? "غير محدد" : "Non défini")}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
@@ -326,14 +326,14 @@ export default function TabPersonalInfo({ data }: TabPersonalInfoProps) {
           />
           <div className="space-y-4">
             <AddressBlock
-              label={isRTL ? "العنوان الرئيسي" : "Adresse Principale"}
+              label={isRTL ? "العنـوان الـرئيسي" : "Adresse Principale"}
               value={mainAddress}
               isRTL={isRTL}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <NoteField
-              label={isRTL ? "ملاحظات" : "Notes"}
+              label={isRTL ? "مــلاحظــات" : "Notes"}
               note={mainContact.adresse_note || ""}
               onEdit={() => setNotesDialog({ isOpen: true, type: "principale" })}
               isRTL={isRTL}
@@ -342,14 +342,14 @@ export default function TabPersonalInfo({ data }: TabPersonalInfoProps) {
             />
             <hr className="py-1 border-gray-200" />
             <AddressBlock
-              label={isRTL ? "العنوان الحالي" : "Adresse Actuelle"}
+              label={isRTL ? "العنـوان الحــالي" : "Adresse Actuelle"}
               value={currentAddress}
               isRTL={isRTL}
               labelFontClass={cardSubtitleFontClass}
               valueFontClass={jazeeraFontClass}
             />
             <NoteField
-              label={isRTL ? "ملاحظات" : "Notes"}
+              label={isRTL ? "مــلاحظــات" : "Notes"}
               note={mainContact.adresse_actuelle_note || ""}
               onEdit={() => setNotesDialog({ isOpen: true, type: "actuelle" })}
               isRTL={isRTL}
@@ -369,14 +369,14 @@ export default function TabPersonalInfo({ data }: TabPersonalInfoProps) {
         >
           <SectionHeader
             icon={Phone}
-            title={isRTL ? "معلومات الاتصال" : "Information de Contact"}
+            title={isRTL ? "المعلـومـات الإتصـاليــة" : "Information de Contact"}
             onEdit={() => openDialog("contact")}
             isRTL={isRTL}
             titleFontClass={titleFontClass}
           />
           <div className="space-y-4">
             <p className={`text-gray-900 dark:text-white text-start font-medium mb-2.5 ${cardSubtitleFontClass}`}>
-              {isRTL ? "الاتصال الشخصي" : "Contact Personnel"}
+              {isRTL ? "رقــم الهـاتـف و البـريــد" : "Contact Personnel"}
             </p>
             <div className="grid grid-cols-2 gap-6">
               <BadgeField
@@ -393,7 +393,7 @@ export default function TabPersonalInfo({ data }: TabPersonalInfoProps) {
             <div className="border-t border-gray-200 my-4" />
 
             <p className={`text-gray-900 dark:text-white text-start font-medium mb-2 ${cardSubtitleFontClass}`}>
-              {isRTL ? "اتصال آخر" : "Autre Contact"}
+              {isRTL ? "وســائــل أخــرى" : "Autre Contact"}
             </p>
             <div className="grid grid-cols-2 gap-6">
               <Field
@@ -406,7 +406,7 @@ export default function TabPersonalInfo({ data }: TabPersonalInfoProps) {
                 valueLetterSpacing={"tracking-wide"}
               />
               <Field
-                label={isRTL ? "واتساب" : "WhatsApp"}
+                label={isRTL ? "واتســـاب" : "WhatsApp"}
                 value={formatPhoneNumber(mainContact.whatsapp) || (isRTL ? "غير محدد" : "Non défini")}
                 labelFontClass={cardSubtitleFontClass}
                 valueFontClass={geistFont}

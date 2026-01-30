@@ -188,7 +188,7 @@ function TabsComponent({
         >
           <div className={`flex items-center justify-center gap-2`}>
             <Shield className="w-4 h-4" />
-            <span className={cardSubtitleFontClass}>{isRTL ? "الوظائف الإداريــة" : "Fonctions Administratives"}</span>
+            <span className={cardSubtitleFontClass}>{isRTL ? "الخــطط الـوظيفيــة" : "Fonctions Administratives"}</span>
           </div>
         </button>
         {/* Afficher l'onglet rendements uniquement en mode RTL */}
@@ -256,7 +256,7 @@ function TabsComponent({
                     <th
                       className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-38 ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "تاريخ النهاية" : "Date Fin"}
+                      {isRTL ? "تـاريــخ النهـايــة" : "Date Fin"}
                     </th>
                     <th
                       className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-32 ${cardSubtitleFontClass}`}
@@ -308,7 +308,7 @@ function TabsComponent({
           <div className="h-full overflow-y-auto overflow-x-auto">
             {fonctions.length === 0 ? (
               <div className={`text-center py-8 text-gray-500 dark:text-gray-400 ${cardSubtitleFontClass}`}>
-                {isRTL ? "لم يتم تسجيل أي وظيفة" : "Aucune fonction enregistrée"}
+                {isRTL ? "لم يتم تسجيل أي خـطــة وظيفيــة" : "Aucune fonction enregistrée"}
               </div>
             ) : (
               <table className="w-full table-fixed">
@@ -322,22 +322,22 @@ function TabsComponent({
                     <th
                       className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-40 ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "الوظيفة" : "Fonction"}
+                      {isRTL ? "الخـطــة الـوظيفيــة" : "Fonction"}
                     </th>
                     <th
                       className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-38 ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "تاريخ الحصول" : "Date Obtention"}
+                      {isRTL ? "تـاريـخ الحصــول" : "Date Obtention"}
                     </th>
                     <th
                       className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-38 ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "تاريخ النهاية" : "Date Fin"}
+                      {isRTL ? "تـاريــخ النهـايــة" : "Date Fin"}
                     </th>
                     <th
                       className={`px-3 py-3 text-start text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-32 ${cardSubtitleFontClass}`}
                     >
-                      {isRTL ? "المرجع" : "Référence"}
+                      {isRTL ? "المــرجـــع" : "Référence"}
                     </th>
                   </tr>
                 </thead>
@@ -367,7 +367,7 @@ function TabsComponent({
                           {formatDate(item.date_obtention_fonction, isRTL)}
                         </td>
                         <td className={`px-3 py-4 text-sm text-gray-700 dark:text-gray-300 ${tableNotoFontClass}`}>
-                          {item.date_fin ? formatDate(item.date_fin, isRTL) : isRTL ? "جاري" : "En cours"}
+                          {item.date_fin ? formatDate(item.date_fin, isRTL) : isRTL ? "جــاري" : "En cours"}
                         </td>
                         <td className="px-3 py-4 text-sm">
                           <span
@@ -389,7 +389,7 @@ function TabsComponent({
           <div className="h-full overflow-y-auto overflow-x-auto">
             {rendements.length === 0 ? (
               <div className={`text-center py-8 text-gray-500 dark:text-gray-400 ${cardSubtitleFontClass}`}>
-                لم يتم تسجيل أي عــدد أداء
+                لم يتـم تسجيـل أي عــدد أداء
               </div>
             ) : (
               <table className="w-full table-fixed">
@@ -464,7 +464,7 @@ function TabsComponent({
           <div className="h-full overflow-y-auto overflow-x-auto">
             {notesAnnuelles.length === 0 ? (
               <div className={`text-center py-8 text-gray-500 dark:text-gray-400 ${cardSubtitleFontClass}`}>
-                لم يتم تسجيل أي عــدد سنوي
+                لم يتم تسجيل أي عــدد سنــوي
               </div>
             ) : (
               <table className="w-full table-fixed">
@@ -950,7 +950,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
               <p className={`text-gray-500 dark:text-gray-400 text-sm ${cardSubtitleFontClass}`}>
                 {isRTL ? "تـاريـخ الإنتــــداب" : "Début du contrat"}
               </p>
-              <p className={`text-gray-900 dark:text-gray-300 font-medium mt-2 ${jazeeraFontClass}`}>
+              <p className={`text-gray-900 dark:text-gray-300 font-sm mt-2 ${jazeeraFontClass}`}>
                 {formatDate(employee.date_recrutement, isRTL)}
               </p>
             </div>
@@ -966,20 +966,20 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
             <div className="flex space-x-2">
               <button
                 onClick={() => openDialog("prolongation")}
-                className="text-sm px-3 py-1.5 rounded bg-gray-900 text-white hover:bg-gray-600 cursor-pointer font-semibold"
+                className="text-sm px-3 py-1.5 rounded bg-gray-900 text-white hover:bg-gray-600 cursor-pointer font-semibold font-noto-naskh-arabic"
               >
                 {isRTL ? "تـمــد يــد" : "Prolonger"}
               </button>
             </div>
           </div>
           <div className={`text-sm text-gray-500 dark:text-gray-400 ${cardSubtitleFontClass}`}>
-            {calculateRemainingContractDuration} {isRTL ? "قبل التقاعد" : "avant la retraite"}
+            {calculateRemainingContractDuration} {isRTL ? "قبــل التقـاعـــد" : "avant la retraite"}
           </div>
         </Card>
 
         {/* Situation Administrative */}
         <Card
-          title={isRTL ? "الوضعية الإدارية" : "Situation Administrative"}
+          title={isRTL ? "الـوضعيــة الإداريــة" : "Situation Administrative"}
           icon={Briefcase}
           edit
           animationDelay="0.3s"
@@ -1126,32 +1126,32 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                             <th
                               className={`px-3 py-2 text-start text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${cardSubtitleFontClass}`}
                             >
-                              {isRTL ? "الوحدة" : "Unité"}
+                              {isRTL ? "الــوحـــــدة" : "Unité"}
                             </th>
                             <th
                               className={`px-3 py-2 text-start text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${cardSubtitleFontClass}`}
                             >
-                              {isRTL ? "المسؤولية" : "Responsabilité"}
+                              {isRTL ? "المســؤوليـــة" : "Responsabilité"}
                             </th>
                             <th
                               className={`px-3 py-2 text-start text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${cardSubtitleFontClass}`}
                             >
-                              {isRTL ? "تاريخ البداية" : "Date Début"}
+                              {isRTL ? "تـاريــخ البدايــة" : "Date Début"}
                             </th>
                             <th
                               className={`px-3 py-2 text-start text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${cardSubtitleFontClass}`}
                             >
-                              {isRTL ? "تاريخ النهاية" : "Date Fin"}
+                              {isRTL ? "تـاريــخ النهـايــة" : "Date Fin"}
                             </th>
                             <th
                               className={`px-3 py-2 text-start text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${cardSubtitleFontClass}`}
                             >
-                              {isRTL ? "المدة" : "Durée"}
+                              {isRTL ? "المــــدة" : "Durée"}
                             </th>
                             <th
                               className={`px-3 py-2 text-start text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${cardSubtitleFontClass}`}
                             >
-                              {isRTL ? "الحالة" : "Statut"}
+                              {isRTL ? "الحــالــــة" : "Statut"}
                             </th>
                           </tr>
                         </thead>
@@ -1185,7 +1185,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                                       status
                                     )} ${cardSubtitleFontClass}`}
                                   >
-                                    {status === "actuel" ? (isRTL ? "جاري" : "En cours") : isRTL ? "منتهي" : "Terminé"}
+                                    {status === "actuel" ? (isRTL ? "جـــاري" : "En cours") : isRTL ? "منتهـي" : "Terminé"}
                                   </span>
                                 </td>
                               </tr>
@@ -1279,7 +1279,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
           {!currentBanque ? (
             <div className={`text-center py-8 text-gray-500 ${cardSubtitleFontClass}`}>
               <CreditCard className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>{isRTL ? "لم يتم تسجيل أي معلومات مصرفية" : "Aucune information bancaire enregistrée"}</p>
+              <p>{isRTL ? "لم يتم تسجيل أي معلومات بنكيـة" : "Aucune information bancaire enregistrée"}</p>
             </div>
           ) : (
             <div className="space-y-4">

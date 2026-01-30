@@ -306,17 +306,17 @@ function FilterControls({
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-[#076784]" />
           <span className={`text-lg font-semibold text-[#076784] ${cardSubtitleFontClass}`}>
-            {isRTL ? "فلاتر" : "Filtres"}
+            {isRTL ? "محــرك البـحــث" : "Filtres"}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={onEdit}
             className="flex items-center space-x-1 text-[#076784] hover:text-[#065a72] transition-colors cursor-pointer gap-1"
-            title={isRTL ? "إضافة تكوين" : "Ajouter une formation"}
+            title={isRTL ? "إضافــة تكـويــن" : "Ajouter une formation"}
           >
             <Plus className="h-4 w-4" />
-            <span className={`text-sm ${cardSubtitleFontClass}`}>{isRTL ? "إضافة" : "Ajouter"}</span>
+            <span className={`text-sm ${cardSubtitleFontClass}`}>{isRTL ? "إضـافــة" : "Ajouter"}</span>
           </button>
           <button
             onClick={onClearFilters}
@@ -332,7 +332,7 @@ function FilterControls({
         {/* Filtre par lieu */}
         <div>
           <label className={`block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 ${cardSubtitleFontClass}`}>
-            {isRTL ? "المكان" : "Lieu"}
+            {isRTL ? "المكــان" : "Lieu"}
           </label>
           <Select
             dir={isRTL ? "rtl" : "ltr"}
@@ -340,10 +340,10 @@ function FilterControls({
             onValueChange={(value) => onFilterChange("lieu", value)}
           >
             <SelectTrigger className={`w-full rounded text-[15px] ${notoSelectFontClass}`}>
-              <SelectValue placeholder={isRTL ? "جميع الأماكن" : "Tous les lieux"} />
+              <SelectValue placeholder={isRTL ? "جميــع الأمـاكــن" : "Tous les lieux"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{isRTL ? "جميع الأماكن" : "Tous les lieux"}</SelectItem>
+              <SelectItem value="all">{isRTL ? "جميــع الأمـاكــن" : "Tous les lieux"}</SelectItem>
               <SelectItem value="Tunisie">{isRTL ? "تونس" : "Tunisie"}</SelectItem>
               <SelectItem value="Étranger">{isRTL ? "الخارج" : "Étranger"}</SelectItem>
             </SelectContent>
@@ -353,7 +353,7 @@ function FilterControls({
         {/* Filtre par statut */}
         <div>
           <label className={`block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 ${cardSubtitleFontClass}`}>
-            {isRTL ? "الحالة" : "Statut"}
+            {isRTL ? "الحـالــــة" : "Statut"}
           </label>
           <Select
             dir={isRTL ? "rtl" : "ltr"}
@@ -361,10 +361,10 @@ function FilterControls({
             onValueChange={(value) => onFilterChange("statut", value)}
           >
             <SelectTrigger className={`w-full rounded text-[15px] ${notoSelectFontClass}`}>
-              <SelectValue placeholder={isRTL ? "جميع الحالات" : "Tous les statuts"} />
+              <SelectValue placeholder={isRTL ? "جميع الحــالات" : "Tous les statuts"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{isRTL ? "جميع الحالات" : "Tous les statuts"}</SelectItem>
+              <SelectItem value="all">{isRTL ? "جميع الحــالات" : "Tous les statuts"}</SelectItem>
               <SelectItem value="En cours">{translateStatus("En cours", isRTL)}</SelectItem>
               <SelectItem value="Terminé">{translateStatus("Terminé", isRTL)}</SelectItem>
               <SelectItem value="Interrompu">{translateStatus("Interrompu", isRTL)}</SelectItem>
@@ -376,7 +376,7 @@ function FilterControls({
         {/* Filtre par année */}
         <div>
           <label className={`block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 ${cardSubtitleFontClass}`}>
-            {isRTL ? "السنة" : "Année"}
+            {isRTL ? "السنــــة" : "Année"}
           </label>
           <Select
             dir={isRTL ? "rtl" : "ltr"}
@@ -402,19 +402,19 @@ function FilterControls({
       <div className="pt-3 border-t border-gray-200 dark:border-gray-600">
         <div className={`flex flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-400 ${cardSubtitleFontClass}`}>
           <span>
-            {isRTL ? "المجموع" : "Total"}: {stats.total}
+            {isRTL ? "المجمــوع" : "Total"}: {stats.total}
           </span>
           <span>|</span>
           <span>
-            {isRTL ? "منتهية" : "Terminées"}: {stats.terminees}
+            {isRTL ? "منتهيــة" : "Terminées"}: {stats.terminees}
           </span>
           <span>|</span>
           <span>
-            {isRTL ? "جارية" : "En cours"}: {stats.enCours}
+            {isRTL ? "جـاريـــة" : "En cours"}: {stats.enCours}
           </span>
           <span>|</span>
           <span>
-            {isRTL ? "متقطعة" : "Interrompues"}: {stats.interrompues}
+            {isRTL ? "منقطعـــة" : "Interrompues"}: {stats.interrompues}
           </span>
         </div>
       </div>
@@ -745,7 +745,7 @@ export default function TabTrainingInfo({ data }: TabTrainingInfoProps) {
             <div className="bg-white dark:bg-[#1C1C1C] rounded-sm shadow-sm p-6 text-center">
               <p className={`text-gray-500 dark:text-gray-400 ${cardSubtitleFontClass}`}>
                 {isRTL
-                  ? "لم يتم العثور على تكوينات بالفلاتر المطبقة."
+                  ? "لم يتم العثور على تكــويــن."
                   : "Aucune formation trouvée avec les filtres appliqués."}
               </p>
             </div>
@@ -755,7 +755,7 @@ export default function TabTrainingInfo({ data }: TabTrainingInfoProps) {
         {/* RIGHT COLUMN - 1/3 largeur */}
         <div className="space-y-6">
           <Card
-            title={isRTL ? "المسار الدراسي" : "Parcours Scolaire"}
+            title={isRTL ? "المســار الـــدراسي" : "Parcours Scolaire"}
             icon={GraduationCap}
             edit
             animationDelay="0.2s"

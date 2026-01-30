@@ -705,13 +705,13 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                     className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                     style={{ width: "140px" }}
                   >
-                    {isRTL ? "الجنس" : "Sexe"}
+                    {isRTL ? "الجنــس" : "Sexe"}
                   </th>
                   <th
                     className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? "font-noto-naskh-arabic" : ""}`}
                     style={{ width: "180px" }}
                   >
-                    {isRTL ? "تاريخ الميلاد" : "Date Naissance"}
+                    {isRTL ? "تـاريخ الميــلاد" : "Date Naissance"}
                   </th>
                   <th
                     className={`px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase ${isRTL ? "font-noto-naskh-arabic" : ""}`}
@@ -897,7 +897,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
               onClick={handleDialogClose}
               className="group px-4 py-2 text-[14px] text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-[#1C1C1C] hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 cursor-pointer hover:shadow-sm"
             >
-              {isRTL ? <span className="font-noto-naskh-arabic">إغـــلاق</span> : "Fermer"}
+              {isRTL ? <span className="font-noto-naskh-arabic">إغــــلاق</span> : "Fermer"}
             </button>
           </div>
         </div>

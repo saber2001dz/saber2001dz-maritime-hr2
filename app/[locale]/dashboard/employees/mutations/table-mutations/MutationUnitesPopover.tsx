@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Eye } from "lucide-react"
+import React from "react"
 
 interface MutationUnite {
   id: string
@@ -54,25 +55,23 @@ export function MutationUnitesPopover({ mutationId }: MutationUnitesPopoverProps
     }
   }, [isOpen, mutationId])
 
-  // Organiser les données par gouvernorat EN PRÉSERVANT L'ORDRE DE SAISIE
-  // Étape 1: Trier d'abord par ordre_saisie
-  const sortedUnites = [...unites].sort((a, b) => a.ordre_saisie - b.ordre_saisie)
+  // Créer un tableau de 6 lignes avec les données récupérées
+  const tableRows = Array.from({ length: 6 }, (_, index) => {
+    const unite = unites.find((u) => u.ordre_saisie === index + 1)
+    return {
+      ordre: index + 1,
+      gouvernorat: unite?.gouvernorat || "",
+      direction: unite?.direction || "",
+      unite: unite?.unite || "",
+    }
+  })
 
-  // Étape 2: Grouper par gouvernorat (ordre déjà préservé)
-  const organizedData = sortedUnites.reduce(
-    (acc, unite) => {
-      const gov = unite.gouvernorat || ""
-      if (!acc[gov]) {
-        acc[gov] = []
-      }
-      acc[gov].push(unite)
-      return acc
-    },
-    {} as Record<string, MutationUnite[]>
-  )
-
-  // Récupérer les gouvernorats uniques dans l'ordre d'apparition
-  const gouvernorats = Object.keys(organizedData)
+  // Grouper les lignes par gouvernorat (chaque gouvernorat a 2 lignes)
+  const groupedRows = [
+    { rows: [tableRows[0], tableRows[1]], gouvernoratIndex: 0 }, // Gouvernorat 1
+    { rows: [tableRows[2], tableRows[3]], gouvernoratIndex: 2 }, // Gouvernorat 2
+    { rows: [tableRows[4], tableRows[5]], gouvernoratIndex: 4 }, // Gouvernorat 3
+  ]
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -98,70 +97,76 @@ export function MutationUnitesPopover({ mutationId }: MutationUnitesPopoverProps
                 جاري التحميل...
               </p>
             </div>
-          ) : unites.length === 0 ? (
-            <div className="p-8 text-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-noto-naskh-arabic">
-                لا توجد وحدات مطلوبة لهذا الطلب
-              </p>
-            </div>
           ) : (
             <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">
               <table className="w-full border-collapse" dir="rtl">
                 <thead>
                   <tr className="bg-gray-100 dark:bg-gray-800">
-                    <th colSpan={2} className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b-2 border-b-gray-400 dark:border-b-gray-500 border-l border-l-gray-300 dark:border-l-gray-600 text-center">
+                    <th colSpan={2} className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-l border-gray-300 dark:border-gray-600 text-center">
                       الـــولایـــة
                     </th>
-                    <th className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b-2 border-b-gray-400 dark:border-b-gray-500 border-l border-l-gray-300 dark:border-l-gray-600 text-center">
-                      الإدارة / الإقلیم
+                    <th className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-l border-gray-300 dark:border-gray-600 text-center">
+                      الإدارة / الإقلیـم
                     </th>
-                    <th colSpan={2} className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b-2 border-b-gray-400 dark:border-b-gray-500 text-center">
-                      الوحدات المطلوبة
+                    <th colSpan={2} className="font-noto-naskh-arabic text-[14px] font-semibold text-gray-700 dark:text-gray-200 py-3 px-4 border-b border-gray-300 dark:border-gray-600 text-center">
+                      الوحــدات المطلـوبــة
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {gouvernorats.map((gouvernorat, govIndex) => {
-                    const govUnites = organizedData[gouvernorat]
-                    return govUnites.map((unite, uniteIndex) => (
-                      <tr
-                        key={unite.id}
-                        className={uniteIndex === govUnites.length - 1 && govIndex !== gouvernorats.length - 1 ? "border-b-2 border-gray-400 dark:border-gray-500" : ""}
-                      >
-                        {uniteIndex === 0 && (
-                          <>
-                            <td
-                              rowSpan={govUnites.length}
-                              className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12"
-                            >
-                              {govIndex + 1}
-                            </td>
-                            <td
-                              rowSpan={govUnites.length}
-                              className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card w-32"
-                            >
-                              <div className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 text-center">
-                                {gouvernorat || "-"}
-                              </div>
-                            </td>
-                          </>
-                        )}
-                        <td className={`py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card ${uniteIndex < govUnites.length - 1 ? "border-b border-gray-300 dark:border-gray-600" : ""}`}>
-                          <div className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300">
-                            {unite.direction || "-"}
+                  {groupedRows.map((group, groupIndex) => (
+                    <React.Fragment key={`gouvernorat-${groupIndex}`}>
+                      {/* Première ligne du gouvernorat */}
+                      <tr key={`${groupIndex}-1`} className="border-b border-gray-200 dark:border-gray-700">
+                        <td
+                          rowSpan={2}
+                          className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center align-middle bg-white dark:bg-card w-12"
+                        >
+                          {groupIndex + 1}
+                        </td>
+                        <td
+                          rowSpan={2}
+                          className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-32"
+                        >
+                          <div className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 text-center">
+                            {group.rows[0].gouvernorat || "-"}
                           </div>
                         </td>
-                        <td className={`font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12 ${uniteIndex < govUnites.length - 1 ? "border-b border-gray-300 dark:border-gray-600" : ""}`}>
-                          {unite.ordre_saisie}
-                        </td>
-                        <td className={`py-2 px-3 bg-white dark:bg-card ${uniteIndex < govUnites.length - 1 ? "border-b border-gray-300 dark:border-gray-600" : ""}`}>
+                        <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
                           <div className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300">
-                            {unite.unite || "-"}
+                            {group.rows[0].direction || "-"}
+                          </div>
+                        </td>
+                        <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
+                          {group.rows[0].ordre}
+                        </td>
+                        <td className="py-2 px-3 bg-white dark:bg-card">
+                          <div className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300">
+                            {group.rows[0].unite || "-"}
                           </div>
                         </td>
                       </tr>
-                    ))
-                  })}
+                      {/* Deuxième ligne du gouvernorat */}
+                      <tr
+                        key={`${groupIndex}-2`}
+                        className={groupIndex < 2 ? "border-b border-gray-300 dark:border-gray-600" : ""}
+                      >
+                        <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
+                          <div className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300">
+                            {group.rows[1].direction || "-"}
+                          </div>
+                        </td>
+                        <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
+                          {group.rows[1].ordre}
+                        </td>
+                        <td className="py-2 px-3 bg-white dark:bg-card">
+                          <div className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300">
+                            {group.rows[1].unite || "-"}
+                          </div>
+                        </td>
+                      </tr>
+                    </React.Fragment>
+                  ))}
                 </tbody>
               </table>
             </div>
