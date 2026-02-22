@@ -79,7 +79,7 @@ export const processEmployeeData = (emp: RawEmployeeData): DisplayEmployee => {
   // Vérifier si l'employé a une photo personnalisée
   if (emp.employee_photos && emp.employee_photos.length > 0 && emp.employee_photos[0]?.photo_url) {
     imageToDisplay = emp.employee_photos[0].photo_url
-  } 
+  }
   // Sinon, utiliser l'image par défaut basée sur le sexe
   else if (emp.sexe) {
     if (emp.sexe === "ذكر") {

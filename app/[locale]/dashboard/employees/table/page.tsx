@@ -53,7 +53,7 @@ export default async function EmployeesTablePage() {
           }
         })
 
-        employees = allEmployees.map(processEmployeeData)
+        employees = allEmployees.map(emp => processEmployeeData(emp))
       }
     }
   } catch (err) {

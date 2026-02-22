@@ -172,7 +172,7 @@ function PhoneInputField({
         placeholder="00 000 000"
         style={{ textAlign: "right", direction: "ltr" }}
         inputMode="numeric"
-        className="w-full px-3 py-2 !h-[40px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm font-geist-sans text-[15px] text-start"
+        className="w-full px-3 py-2 h-10! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm font-geist-sans text-[15px] text-start"
       />
     </div>
   )
@@ -213,7 +213,7 @@ function CINInputField({
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 !h-[40px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+        className={`w-full px-3 py-2 h-10! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
           isRTL ? "font-noto-naskh-arabic" : ""
         }`}
         dir={isRTL ? "rtl" : "ltr"}
@@ -254,7 +254,7 @@ function SelectField({
       </label>
       <Select dir={isRTL ? "rtl" : "ltr"} value={value} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger
-          className={`w-full px-3 py-2 text-sm !h-[40px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
+          className={`w-full px-3 py-2 text-sm h-10! border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#076784]/20 focus:border-[#076784] transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm ${
             isRTL ? "font-noto-naskh-arabic" : ""
           }`}
         >
@@ -1215,7 +1215,7 @@ export default function EditDialogs({
                 isRTL ? cardSubtitleFontClass : ""
               }`}
             >
-              {isRTL ? "رقــم الهـاتـف و البـريــد" : "Contact Personnel"}
+              {isRTL ? "الهـاتـف و البريد الإلكتروني" : "Contact Personnel"}
             </h3>
             <div className="grid grid-cols-1 text-start md:grid-cols-2 gap-4">
               <PhoneInputField

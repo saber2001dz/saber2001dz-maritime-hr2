@@ -54,13 +54,84 @@ const getStatusArabic = (status: string): string => {
     "مباشر": "مبـاشــر",
     "غير مباشر": "غير مباشر",
     "إجازة": "في إجازة",
+    "إجازة سنوية": "إجازة سنوية",
+    "إجازة طارئة": "إجازة طارئة",
+    "إجازة مرضية": "إجازة مرضية",
+    "إجازة زواج": "إجازة زواج",
+    "إجازة أمومة": "إجازة أمومة",
+    "إجازة بدون راتب": "إجازة بدون راتب",
+    "إجازة تقاعد": "إجازة تقاعد",
     "مرض": "مــــرض",
     "تدريب": "تكــويــن",
     "مهمة": "في مهمــة",
     "متغيب": "غائــب",
     "موقوف": "موقــوف"
   }
+
   return statusMap[status] || status || "غير محدد"
+}
+
+// Fonction pour obtenir les couleurs du badge selon le statut
+const getStatusColors = (status: string): { bg: string; dot: string } => {
+  // Tous les types de congés (sauf maladie et maternité) utilisent les couleurs bleues
+  if (status.includes("إجازة") && !status.includes("مرضية") && !status.includes("أمومة") && !status.includes("بدون راتب")) {
+    return {
+      bg: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+      dot: "bg-blue-500"
+    }
+  }
+
+  const colorMap: Record<string, { bg: string; dot: string }> = {
+    "مباشر": {
+      bg: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+      dot: "bg-green-500"
+    },
+    "غير مباشر": {
+      bg: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
+      dot: "bg-gray-500"
+    },
+    "إجازة مرضية": {
+      bg: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+      dot: "bg-orange-500"
+    },
+    "إجازة أمومة": {
+      bg: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
+      dot: "bg-pink-500"
+    },
+    "إجازة بدون راتب": {
+      bg: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
+      dot: "bg-gray-500"
+    },
+    "إجازة تقاعد": {
+      bg: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+      dot: "bg-purple-500"
+    },
+    "مرض": {
+      bg: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+      dot: "bg-orange-500"
+    },
+    "تدريب": {
+      bg: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+      dot: "bg-purple-500"
+    },
+    "مهمة": {
+      bg: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300",
+      dot: "bg-indigo-500"
+    },
+    "متغيب": {
+      bg: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+      dot: "bg-yellow-500"
+    },
+    "موقوف": {
+      bg: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+      dot: "bg-red-500"
+    }
+  }
+
+  return colorMap[status] || {
+    bg: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
+    dot: "bg-gray-500"
+  }
 }
 
 interface SortConfig {
@@ -210,7 +281,21 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
           }
         })
 
-        const processedEmployees = allEmployees.map(processEmployeeData)
+        // Récupérer les types de congés actifs pour les employés en congé
+        const employeesOnLeave = allEmployees.filter(emp => emp.actif === "إجازة" || emp.actif === "مرض")
+        const leaveTypePromises = employeesOnLeave.map(emp =>
+          supabase.rpc('get_active_leave_type', { employee_id_param: emp.id })
+        )
+
+        const leaveTypesResults = await Promise.all(leaveTypePromises)
+        const leaveTypeMap: Record<string, string | null> = {}
+
+        employeesOnLeave.forEach((emp, index) => {
+          const result = leaveTypesResults[index]
+          leaveTypeMap[emp.id] = result.data || null
+        })
+
+        const processedEmployees = allEmployees.map(emp => processEmployeeData(emp, leaveTypeMap[emp.id]))
         setEmployees(processedEmployees)
         console.log(`${processedEmployees.length} employés rechargés`)
       }
@@ -990,47 +1075,9 @@ export function SimpleEmployeeTable({ initialEmployees }: SimpleEmployeeTablePro
                           <span
                             className={`inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium ${
                               isRTL ? tableCellFontClass : ""
-                            } ${isRTL ? "text-[10px]" : ""} ${
-                              employee.actif === "مباشر"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                : employee.actif === "غير مباشر"
-                                ? "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
-                                : employee.actif === "إجازة"
-                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                                : employee.actif === "مرض"
-                                ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300"
-                                : employee.actif === "تدريب"
-                                ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-                                : employee.actif === "مهمة"
-                                ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300"
-                                : employee.actif === "متغيب"
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                : employee.actif === "موقوف"
-                                ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                                : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
-                            }`}
+                            } ${isRTL ? "text-[10px]" : ""} ${getStatusColors(employee.actif).bg}`}
                           >
-                            <span
-                              className={`w-1.5 h-1.5 me-1.5 rounded-full ${
-                                employee.actif === "مباشر"
-                                  ? "bg-green-500"
-                                  : employee.actif === "غير مباشر"
-                                  ? "bg-gray-500"
-                                  : employee.actif === "إجازة"
-                                  ? "bg-blue-500"
-                                  : employee.actif === "مرض"
-                                  ? "bg-orange-500"
-                                  : employee.actif === "تدريب"
-                                  ? "bg-purple-500"
-                                  : employee.actif === "مهمة"
-                                  ? "bg-indigo-500"
-                                  : employee.actif === "متغيب"
-                                  ? "bg-yellow-500"
-                                  : employee.actif === "موقوف"
-                                  ? "bg-red-500"
-                                  : "bg-gray-500"
-                              }`}
-                            />
+                            <span className={`w-1.5 h-1.5 me-1.5 rounded-full ${getStatusColors(employee.actif).dot}`} />
                             {getStatusArabic(employee.actif)}
                           </span>
                         </td>

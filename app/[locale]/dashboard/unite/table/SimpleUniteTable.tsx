@@ -195,31 +195,37 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
     // Vérifier que nous sommes côté client
     if (typeof window === "undefined") return
 
-    const savedParams = sessionStorage.getItem("uniteTableParams")
-    if (savedParams) {
-      const urlParams = new URLSearchParams(savedParams)
-      const urlSearchTerm = urlParams.get("search") || ""
-      const urlNatureFilter = urlParams.get("nature") || ""
-      const urlCategorieFilter = urlParams.get("categorie") || ""
-      const urlSortKey = urlParams.get("sortKey") as SortKey
-      const urlSortDirection = urlParams.get("sortDirection") as SortDirection
-      const urlPage = parseInt(urlParams.get("page") || "1")
+    // Vérifier si on revient de la page détails
+    const fromUniteDetails = sessionStorage.getItem("fromUniteDetails")
 
-      setSearchTerm(urlSearchTerm)
-      setNatureFilter(urlNatureFilter)
-      setCategorieFilter(urlCategorieFilter)
-      setCurrentPage(urlPage)
+    if (fromUniteDetails === "true") {
+      const savedParams = sessionStorage.getItem("uniteTableParams")
+      if (savedParams) {
+        const urlParams = new URLSearchParams(savedParams)
+        const urlSearchTerm = urlParams.get("search") || ""
+        const urlNatureFilter = urlParams.get("nature") || ""
+        const urlCategorieFilter = urlParams.get("categorie") || ""
+        const urlSortKey = urlParams.get("sortKey") as SortKey
+        const urlSortDirection = urlParams.get("sortDirection") as SortDirection
+        const urlPage = parseInt(urlParams.get("page") || "1")
 
-      if (urlSortKey && urlSortDirection) {
-        setSortConfig({
-          key: urlSortKey,
-          direction: urlSortDirection,
-        })
+        setSearchTerm(urlSearchTerm)
+        setNatureFilter(urlNatureFilter)
+        setCategorieFilter(urlCategorieFilter)
+        setCurrentPage(urlPage)
+
+        if (urlSortKey && urlSortDirection) {
+          setSortConfig({
+            key: urlSortKey,
+            direction: urlSortDirection,
+          })
+        }
       }
-
-      // Nettoyer le sessionStorage après restauration
-      sessionStorage.removeItem("uniteTableParams")
     }
+
+    // Nettoyer le sessionStorage après restauration
+    sessionStorage.removeItem("uniteTableParams")
+    sessionStorage.removeItem("fromUniteDetails")
   }, [])
 
   // Vérifier si une unité doit être mise en évidence au chargement
@@ -418,22 +424,9 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
     }
   }, [highlightedId, sortedUnites])
 
-  // Sauvegarder automatiquement l'état de la table dans sessionStorage
-  useEffect(() => {
-    if (typeof window === "undefined") return
-
-    const params = new URLSearchParams()
-    if (searchTerm) params.set("search", searchTerm)
-    if (natureFilter) params.set("nature", natureFilter)
-    if (categorieFilter) params.set("categorie", categorieFilter)
-    if (sortConfig.key && sortConfig.key !== null) {
-      params.set("sortKey", sortConfig.key)
-      params.set("sortDirection", sortConfig.direction)
-    }
-    if (currentPage > 1) params.set("page", currentPage.toString())
-
-    sessionStorage.setItem("uniteTableParams", params.toString())
-  }, [searchTerm, natureFilter, categorieFilter, sortConfig, currentPage])
+  // Note: La sauvegarde des paramètres se fait uniquement via saveCurrentParams()
+  // lorsque l'utilisateur clique sur un lien vers la page détails
+  // Cet effet a été supprimé pour éviter de sauvegarder automatiquement
 
   // Fonction pour sauvegarder l'état actuel avec position de scroll (pour les clics de navigation)
   const saveCurrentParams = useCallback(() => {
@@ -449,9 +442,10 @@ export function SimpleUniteTable({ initialUnites }: SimpleUniteTableProps) {
     }
     if (currentPage > 1) params.set("page", currentPage.toString())
 
-    // Sauvegarder la position de scroll
+    // Sauvegarder la position de scroll et marquer qu'on va vers la page détails
     sessionStorage.setItem("scrollPosition", window.scrollY.toString())
     sessionStorage.setItem("uniteTableParams", params.toString())
+    sessionStorage.setItem("fromUniteDetails", "true")
   }, [searchTerm, natureFilter, categorieFilter, sortConfig, currentPage])
 
   // Reset page when searching or filtering

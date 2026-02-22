@@ -13,7 +13,8 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
 import { Check, RotateCcw, AlertCircle } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
-import { gradeOptions, gouvernoratOptions } from "@/lib/selectOptions"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { gradeOptions, gouvernoratOptions, directionValues } from "@/lib/selectOptions"
 import { motion, AnimatePresence } from "motion/react"
 import { createClient } from "@/lib/supabase/client"
 import Toaster, { ToasterRef } from "@/components/ui/toast"
@@ -31,6 +32,8 @@ export default function DemandeMutationPage() {
   const [prenomNomValue, setPrenomNomValue] = useState("")
   const [gradeValue, setGradeValue] = useState("")
   const [affectationActuelleValue, setAffectationActuelleValue] = useState("")
+  const [districtValue, setDistrictValue] = useState("")
+  const [responsabiliteActuelleValue, setResponsabiliteActuelleValue] = useState("")
   const [causesValue, setCausesValue] = useState("")
   const [emergencyContactValue, setEmergencyContactValue] = useState("")
   const [startDateValue, setStartDateValue] = useState("")
@@ -49,6 +52,9 @@ export default function DemandeMutationPage() {
   const [showTableValidationError, setShowTableValidationError] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveProgress, setSaveProgress] = useState(0)
+
+  // État pour le radio group (responsabilité)
+  const [responsabiliteValue, setResponsabiliteValue] = useState<string>("بدون مسؤولية")
 
   // États pour les checkboxes
   const [selectedCheckbox, setSelectedCheckbox] = useState<string | null>(null)
@@ -190,7 +196,7 @@ export default function DemandeMutationPage() {
       const supabase = createClient()
       const { data, error } = await supabase
         .from("employees")
-        .select("prenom, nom, grade_actuel, unite_actuelle, date_affectation")
+        .select("prenom, nom, grade_actuel, unite_actuelle, date_affectation, district, responsabilite_actuelle")
         .eq("matricule", matricule)
         .neq("actif", "متقاعد")
         .maybeSingle()
@@ -205,6 +211,8 @@ export default function DemandeMutationPage() {
         setPrenomNomValue(`${data.prenom || ""} ${data.nom || ""}`.trim())
         setAffectationActuelleValue(data.unite_actuelle || "")
         setGradeValue(data.grade_actuel || "")
+        setDistrictValue(data.district || "")
+        setResponsabiliteActuelleValue(data.responsabilite_actuelle || "")
 
         // Remplir les champs de date si date_affectation existe
         if (data.date_affectation) {
@@ -223,6 +231,8 @@ export default function DemandeMutationPage() {
       } else {
         // Aucun employé trouvé - pas de toast
         setEmployeeFound(false)
+        setDistrictValue("")
+        setResponsabiliteActuelleValue("")
       }
     } catch (error) {
       console.error("Erreur inattendue:", error)
@@ -454,6 +464,9 @@ export default function DemandeMutationPage() {
           date_affectation: dateAffectation,
           causes: causesValue,
           type_demande: typeDemandeLabel,
+          responsable_agent: responsabiliteValue,
+          direction: districtValue || null,
+          responsabilite: responsabiliteActuelleValue || null,
         })
         .select("id")
         .single()
@@ -573,6 +586,8 @@ export default function DemandeMutationPage() {
     setPrenomNomValue("")
     setGradeValue("")
     setAffectationActuelleValue("")
+    setDistrictValue("")
+    setResponsabiliteActuelleValue("")
     setCausesValue("")
     setEmergencyContactValue("")
     setStartDateValue("")
@@ -586,6 +601,7 @@ export default function DemandeMutationPage() {
     setProgress(50)
     setIsTransitioning(false)
     setSelectedCheckbox(null)
+    setResponsabiliteValue("بدون مسؤولية")
     // Réinitialiser les données du tableau de l'étape 2
     const emptyTableData = {
       gouvernorat1: "",
@@ -650,13 +666,45 @@ export default function DemandeMutationPage() {
           <Card className="w-full max-w-4xl bg-white dark:bg-card rounded-2xl shadow-lg border-0 px-2">
             <CardHeader className="pb-2">
               <CardTitle className="text-xl font-semibold font-noto-naskh-arabic text-gray-900 dark:text-gray-100">
-                طـلــب نـقلــة لسنـة {new Date().getFullYear()} خـاص بغـيـر المتقلـديـن لمسـؤوليـة
+                {responsabiliteValue === "مسؤول"
+                  ? `طـلــب نـقلــة لسنـة ${new Date().getFullYear()} خـــاص برؤســاء الــوحـــدات`
+                  : `طـلــب نـقلــة لسنـة ${new Date().getFullYear()} خـاص بغـيـر المتقلـديـن لمسـؤوليـة`}
               </CardTitle>
               <div className="flex items-center justify-between -mt-1">
                 <p className="text-sm text-gray-600 dark:text-muted-foreground font-noto-naskh-arabic font-medium">
                   {currentStep === 1 && " البـيــانــات الشخـصـيـــة"}
                   {currentStep === 2 && " الـوحـــدات المطلــوبــــة"}
                 </p>
+                <RadioGroup
+                  dir="rtl"
+                  value={responsabiliteValue}
+                  onValueChange={setResponsabiliteValue}
+                  className="flex flex-row-reverse gap-3"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <RadioGroupItem
+                      value="بدون مسؤولية"
+                      id="radio-bidoun"
+                      className="h-3.5 w-3.5 cursor-pointer text-[#076784] border-[#076784] data-[state=checked]:bg-[#076784] data-[state=checked]:border-[#076784] [&_svg]:fill-white"
+                    />
+                    <Label htmlFor="radio-bidoun" className={`font-noto-naskh-arabic text-[12px] cursor-pointer ${responsabiliteValue === "بدون مسؤولية" ? "text-[#076784]" : "text-gray-600 dark:text-gray-400"}`}>
+                      بدون مسؤولية
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <RadioGroupItem
+                      value="مسؤول"
+                      id="radio-masoul"
+                      className="h-3.5 w-3.5 cursor-pointer text-[#076784] border-[#076784] data-[state=checked]:bg-[#076784] data-[state=checked]:border-[#076784] [&_svg]:fill-white"
+                    />
+                    <Label htmlFor="radio-masoul" className={`font-noto-naskh-arabic text-[12px] cursor-pointer ${responsabiliteValue === "مسؤول" ? "text-[#076784]" : "text-gray-600 dark:text-gray-400"}`}>
+                      مسؤول
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              <Separator className="mt-0.5 mb-1 bg-gray-300 dark:bg-gray-500" />
+              <div className="flex justify-end -mt-1 -mb-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -674,7 +722,6 @@ export default function DemandeMutationPage() {
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Separator className="mt-0.5 mb-1 bg-gray-300 dark:bg-gray-500" />
             </CardHeader>
             <div className="overflow-hidden relative min-h-123 -mt-6">
               <AnimatePresence mode="popLayout" custom={direction} initial={false}>
@@ -1156,7 +1203,7 @@ export default function DemandeMutationPage() {
                               </td>
                               <td
                                 rowSpan={2}
-                                className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45"
+                                className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-32"
                               >
                                 <Select
                                   dir="rtl"
@@ -1179,14 +1226,27 @@ export default function DemandeMutationPage() {
                                   </SelectContent>
                                 </Select>
                               </td>
-                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
-                                <Input
-                                  placeholder=""
-                                  autoComplete="new-password"
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card w-64 max-w-64">
+                                <Select
+                                  dir="rtl"
                                   value={tableData.direction1_1}
-                                  onChange={(e) => updateTableData("direction1_1", e.target.value)}
-                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
-                                />
+                                  onValueChange={(value) => updateTableData("direction1_1", value)}
+                                >
+                                  <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
+                                    <SelectValue placeholder="" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {directionValues.map((dir) => (
+                                      <SelectItem
+                                        key={dir}
+                                        value={dir}
+                                        className="font-noto-naskh-arabic hover:bg-[#EBF3F5] focus:bg-[#EBF3F5] data-highlighted:bg-[#EBF3F5]"
+                                      >
+                                        {dir}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </td>
                               <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
                                 1
@@ -1202,14 +1262,27 @@ export default function DemandeMutationPage() {
                               </td>
                             </tr>
                             <tr className="border-b border-gray-300 dark:border-gray-600">
-                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
-                                <Input
-                                  placeholder=""
-                                  autoComplete="new-password"
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card w-64 max-w-64">
+                                <Select
+                                  dir="rtl"
                                   value={tableData.direction1_2}
-                                  onChange={(e) => updateTableData("direction1_2", e.target.value)}
-                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
-                                />
+                                  onValueChange={(value) => updateTableData("direction1_2", value)}
+                                >
+                                  <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
+                                    <SelectValue placeholder="" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {directionValues.map((dir) => (
+                                      <SelectItem
+                                        key={dir}
+                                        value={dir}
+                                        className="font-noto-naskh-arabic hover:bg-[#EBF3F5] focus:bg-[#EBF3F5] data-highlighted:bg-[#EBF3F5]"
+                                      >
+                                        {dir}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </td>
                               <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
                                 2
@@ -1234,7 +1307,7 @@ export default function DemandeMutationPage() {
                               </td>
                               <td
                                 rowSpan={2}
-                                className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45"
+                                className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-32"
                               >
                                 <Select
                                   dir="rtl"
@@ -1257,14 +1330,27 @@ export default function DemandeMutationPage() {
                                   </SelectContent>
                                 </Select>
                               </td>
-                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
-                                <Input
-                                  placeholder=""
-                                  autoComplete="new-password"
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card w-64 max-w-64">
+                                <Select
+                                  dir="rtl"
                                   value={tableData.direction2_1}
-                                  onChange={(e) => updateTableData("direction2_1", e.target.value)}
-                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
-                                />
+                                  onValueChange={(value) => updateTableData("direction2_1", value)}
+                                >
+                                  <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
+                                    <SelectValue placeholder="" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {directionValues.map((dir) => (
+                                      <SelectItem
+                                        key={dir}
+                                        value={dir}
+                                        className="font-noto-naskh-arabic hover:bg-[#EBF3F5] focus:bg-[#EBF3F5] data-highlighted:bg-[#EBF3F5]"
+                                      >
+                                        {dir}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </td>
                               <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
                                 3
@@ -1280,14 +1366,27 @@ export default function DemandeMutationPage() {
                               </td>
                             </tr>
                             <tr className="border-b border-gray-300 dark:border-gray-600">
-                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
-                                <Input
-                                  placeholder=""
-                                  autoComplete="new-password"
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card w-64 max-w-64">
+                                <Select
+                                  dir="rtl"
                                   value={tableData.direction2_2}
-                                  onChange={(e) => updateTableData("direction2_2", e.target.value)}
-                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
-                                />
+                                  onValueChange={(value) => updateTableData("direction2_2", value)}
+                                >
+                                  <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
+                                    <SelectValue placeholder="" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {directionValues.map((dir) => (
+                                      <SelectItem
+                                        key={dir}
+                                        value={dir}
+                                        className="font-noto-naskh-arabic hover:bg-[#EBF3F5] focus:bg-[#EBF3F5] data-highlighted:bg-[#EBF3F5]"
+                                      >
+                                        {dir}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </td>
                               <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
                                 4
@@ -1312,7 +1411,7 @@ export default function DemandeMutationPage() {
                               </td>
                               <td
                                 rowSpan={2}
-                                className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-45"
+                                className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 align-middle bg-white dark:bg-card min-w-32"
                               >
                                 <Select
                                   dir="rtl"
@@ -1335,14 +1434,27 @@ export default function DemandeMutationPage() {
                                   </SelectContent>
                                 </Select>
                               </td>
-                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
-                                <Input
-                                  placeholder=""
-                                  autoComplete="new-password"
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card w-64 max-w-64">
+                                <Select
+                                  dir="rtl"
                                   value={tableData.direction3_1}
-                                  onChange={(e) => updateTableData("direction3_1", e.target.value)}
-                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
-                                />
+                                  onValueChange={(value) => updateTableData("direction3_1", value)}
+                                >
+                                  <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
+                                    <SelectValue placeholder="" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {directionValues.map((dir) => (
+                                      <SelectItem
+                                        key={dir}
+                                        value={dir}
+                                        className="font-noto-naskh-arabic hover:bg-[#EBF3F5] focus:bg-[#EBF3F5] data-highlighted:bg-[#EBF3F5]"
+                                      >
+                                        {dir}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </td>
                               <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
                                 5
@@ -1358,14 +1470,27 @@ export default function DemandeMutationPage() {
                               </td>
                             </tr>
                             <tr>
-                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card">
-                                <Input
-                                  placeholder=""
-                                  autoComplete="new-password"
+                              <td className="py-2 px-3 border-l border-gray-300 dark:border-gray-600 bg-white dark:bg-card w-64 max-w-64">
+                                <Select
+                                  dir="rtl"
                                   value={tableData.direction3_2}
-                                  onChange={(e) => updateTableData("direction3_2", e.target.value)}
-                                  className="font-noto-naskh-arabic text-gray-600 dark:text-gray-300 font-medium text-[14px] border border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card"
-                                />
+                                  onValueChange={(value) => updateTableData("direction3_2", value)}
+                                >
+                                  <SelectTrigger className="w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[14px] text-gray-600 dark:text-gray-300 font-medium rounded focus-visible:ring-0 focus-visible:ring-offset-0">
+                                    <SelectValue placeholder="" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {directionValues.map((dir) => (
+                                      <SelectItem
+                                        key={dir}
+                                        value={dir}
+                                        className="font-noto-naskh-arabic hover:bg-[#EBF3F5] focus:bg-[#EBF3F5] data-highlighted:bg-[#EBF3F5]"
+                                      >
+                                        {dir}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </td>
                               <td className="font-noto-naskh-arabic text-[14px] text-gray-600 dark:text-gray-300 py-3 px-2 border-l border-gray-300 dark:border-gray-600 text-center bg-white dark:bg-card w-12">
                                 6

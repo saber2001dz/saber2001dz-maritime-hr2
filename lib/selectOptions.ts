@@ -312,9 +312,9 @@ export const statutCongeOptions: SelectOption[] = [
 export const directionValues: string[] = [
   "إدارة حرس السواحل",
   "إقليم الحرس البحري بالشمال",
-  "إفليم الحرس البحري بالساحل",
+  "إقليم الحرس البحري بالساحل",
   "إقليم الحرس البحري بالوسط",
-  "إفليم الحرس البحري بالجنوب"
+  "إقليم الحرس البحري بالجنوب"
 ];
 
 // Options pour le statut des employés (basées sur l'ENUM employee_status de la base de données)

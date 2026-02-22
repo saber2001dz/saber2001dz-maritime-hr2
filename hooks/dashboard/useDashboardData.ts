@@ -474,9 +474,38 @@ const fetchEmployeeMonthlyStatistics = async (monthsLimit?: number, periodType: 
 
 const fetchRecentUnites = async (limit: number) => {
   const supabase = createClient()
+
+  // Liste des catégories d'unités autorisées (même liste que dans SimpleUniteTable)
+  const ALLOWED_CATEGORIES = [
+    "إدارة حرس السواحل",
+    "إقليم بحري",
+    "منطقة بحرية",
+    "إدارة فرعية",
+    "طوافة سريعة 35 متر",
+    "فرقة بحرية",
+    "فرقة تدخل سريع بحري",
+    "فرقة توقي من الإرهاب",
+    "خافرة 23 متر",
+    "خافرة 20 متر",
+    "خافرة 17 متر",
+    "مصلحة",
+    "مركز بحري",
+    "مركز بحري عملياتي",
+    "مركز إرشاد",
+    "برج مراقبة",
+    "محطة رصد",
+    "زورق سريع 16 متر",
+    "زورق سريع 15 متر",
+    "زورق سريع 14 متر",
+    "زورق سريع 12 متر",
+    "زورق سريع برق",
+    "زورق سريع صقر",
+  ]
+
   const { data, error } = await supabase
     .from("unite")
     .select("id, unite, unite_categorie, unite_type, niveau_1, navigante, unite_rang")
+    .in("unite_categorie", ALLOWED_CATEGORIES)
 
   if (error) {
     throw error

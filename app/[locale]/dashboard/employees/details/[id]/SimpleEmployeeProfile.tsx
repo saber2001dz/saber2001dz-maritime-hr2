@@ -493,8 +493,19 @@ const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialDa
     const currentStatus = employeeData?.employee?.actif
     const statusKey = String(currentStatus)
 
-    // Vérifier si le statut est "إجازة" (Congés) ou "مرض" (Maladie)
-    const isLeaveStatus = ["إجازة", "مرض"].includes(statusKey)
+    // Vérifier si le statut est un type de congé
+    const leaveStatuses = [
+      "إجازة",
+      "مرض",
+      "إجازة سنوية",
+      "إجازة طارئة",
+      "إجازة مرضية",
+      "إجازة زواج",
+      "إجازة أمومة",
+      "إجازة بدون راتب",
+      "إجازة تقاعد"
+    ]
+    const isLeaveStatus = leaveStatuses.includes(statusKey)
 
     if (!isLeaveStatus || !employeeData?.conges || employeeData.conges.length === 0) {
       return null
@@ -543,6 +554,55 @@ const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialDa
       },
       إجازة: {
         label: "في إجازة",
+        color: "bg-blue-100",
+        textColor: "text-blue-800",
+        dotColor: "bg-blue-500",
+        borderColor: "border-blue-800",
+      },
+      "إجازة سنوية": {
+        label: "إجازة سنوية",
+        color: "bg-blue-100",
+        textColor: "text-blue-800",
+        dotColor: "bg-blue-500",
+        borderColor: "border-blue-800",
+      },
+      "إجازة طارئة": {
+        label: "إجازة طارئة",
+        color: "bg-blue-100",
+        textColor: "text-blue-800",
+        dotColor: "bg-blue-500",
+        borderColor: "border-blue-800",
+      },
+      "إجازة مرضية": {
+        label: "إجازة مرضية",
+        color: "bg-blue-100",
+        textColor: "text-blue-800",
+        dotColor: "bg-blue-500",
+        borderColor: "border-blue-800",
+      },
+      "إجازة زواج": {
+        label: "إجازة زواج",
+        color: "bg-blue-100",
+        textColor: "text-blue-800",
+        dotColor: "bg-blue-500",
+        borderColor: "border-blue-800",
+      },
+      "إجازة أمومة": {
+        label: "إجازة أمومة",
+        color: "bg-blue-100",
+        textColor: "text-blue-800",
+        dotColor: "bg-blue-500",
+        borderColor: "border-blue-800",
+      },
+      "إجازة بدون راتب": {
+        label: "إجازة بدون راتب",
+        color: "bg-blue-100",
+        textColor: "text-blue-800",
+        dotColor: "bg-blue-500",
+        borderColor: "border-blue-800",
+      },
+      "إجازة تقاعد": {
+        label: "إجازة تقاعد",
         color: "bg-blue-100",
         textColor: "text-blue-800",
         dotColor: "bg-blue-500",
@@ -686,7 +746,7 @@ const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialDa
                         employeeData?.employee?.nom
                       )}
                     </h1>
-                    {getActiveSuspension ? (
+                    {getActiveSuspension || getActiveLeaveDates ? (
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div
@@ -709,43 +769,19 @@ const SimpleEmployeeProfile: React.FC<SimpleEmployeeProfileProps> = ({ initialDa
                           <div className="flex flex-col gap-2" dir="rtl">
                             <div className="text-xs">
                               <span className="font-semibold">من:</span>{" "}
-                              {formatDateDDMMYYYY(getActiveSuspension.dateDebut || "")}
+                              {getActiveSuspension
+                                ? formatDateDDMMYYYY(getActiveSuspension.dateDebut || "")
+                                : getActiveLeaveDates
+                                ? formatDateDDMMYYYY(getActiveLeaveDates.dateDebut)
+                                : ""}
                             </div>
                             <div className="text-xs">
                               <span className="font-semibold">إلى:</span>{" "}
-                              {formatDateDDMMYYYY(getActiveSuspension.dateFin || "")}
-                            </div>
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : getActiveLeaveDates ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div
-                            className={`${getEmployeeStatus().color} ${getEmployeeStatus().textColor} ${
-                              getEmployeeStatus().borderColor
-                            } font-medium ${
-                              isRTL ? "text-[11px]" : "text-xs"
-                            } px-3 py-1.5 border rounded-full inline-flex items-center justify-center leading-none gap-1.5 ${
-                              isRTL ? "font-jazeera-bold" : ""
-                            } cursor-help`}
-                          >
-                            <span className={`w-1.5 h-1.5 ${getEmployeeStatus().dotColor} rounded-full`}></span>
-                            {getEmployeeStatus().label}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="bottom"
-                          className="font-noto-naskh-arabic bg-gray-900 text-white border-none"
-                        >
-                          <div className="flex flex-col gap-2" dir="rtl">
-                            <div className="text-xs">
-                              <span className="font-semibold">من:</span>{" "}
-                              {formatDateDDMMYYYY(getActiveLeaveDates.dateDebut)}
-                            </div>
-                            <div className="text-xs">
-                              <span className="font-semibold">إلى:</span>{" "}
-                              {formatDateDDMMYYYY(getActiveLeaveDates.dateFin)}
+                              {getActiveSuspension
+                                ? formatDateDDMMYYYY(getActiveSuspension.dateFin || "")
+                                : getActiveLeaveDates
+                                ? formatDateDDMMYYYY(getActiveLeaveDates.dateFin)
+                                : ""}
                             </div>
                           </div>
                         </TooltipContent>

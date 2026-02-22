@@ -61,12 +61,15 @@ const calculateDuration = (debut: string | null | undefined, fin: string | null 
     }
     if (months < 0) return isRTL ? "غير محدد" : "Non défini"
     if (months < 12) {
-      return isRTL ? `${months} شهر` : `${months} mois`
+      const monthWord = months >= 2 && months <= 10 ? "أشـهــر" : "شـهــر"
+      return isRTL ? `${months} ${monthWord}` : `${months} mois`
     }
     const years = Math.floor(months / 12)
     const remainingMonths = months % 12
     if (isRTL) {
-      return remainingMonths > 0 ? `${years} سنة ${remainingMonths} شهر` : `${years} سنة`
+      const yearWord = years >= 3 && years <= 10 ? "سنــوات" : "سنــة"
+      const monthWord = remainingMonths >= 2 && remainingMonths <= 10 ? "أشـهــر" : "شـهــر"
+      return remainingMonths > 0 ? `${years} ${yearWord} ${remainingMonths} ${monthWord}` : `${years} ${yearWord}`
     } else {
       return remainingMonths > 0
         ? `${years} an${years > 1 ? "s" : ""} ${remainingMonths} mois`
@@ -1100,7 +1103,7 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                   {isRTL
                     ? sortedAffectations.length > 3
                       ? `3 أحدث من أصل ${sortedAffectations.length}`
-                      : `${sortedAffectations.length} تعيين`
+                      : `${sortedAffectations.length} ${sortedAffectations.length >= 2 && sortedAffectations.length <= 10 ? "تعييـنــات" : "تعييـــن"}`
                     : sortedAffectations.length > 3
                     ? `3 dernières sur ${sortedAffectations.length}`
                     : `${sortedAffectations.length} affectation${sortedAffectations.length > 1 ? "s" : ""}`}
@@ -1160,32 +1163,32 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
                             const status = getAffectationStatus(affectation)
                             return (
                               <tr key={affectation.id || index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <td className={`px-3 py-2 ${jazeeraFontClass}`}>
+                                <td className={`px-3 py-2 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                                   {affectation.unite || (isRTL ? "-" : "-")}
                                 </td>
-                                <td className={`px-3 py-2 ${jazeeraFontClass}`}>
+                                <td className={`px-3 py-2 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                                   {affectation.responsibility || (isRTL ? "-" : "-")}
                                 </td>
-                                <td className={`px-3 py-2 ${jazeeraFontClass}`}>
+                                <td className={`px-3 py-2 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                                   {formatDate(affectation.date_debut, isRTL)}
                                 </td>
-                                <td className={`px-3 py-2 ${jazeeraFontClass}`}>
+                                <td className={`px-3 py-2 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                                   {affectation.date_fin
                                     ? formatDate(affectation.date_fin, isRTL)
                                     : isRTL
-                                    ? "جاري"
+                                    ? "جــــاري"
                                     : "En cours"}
                                 </td>
-                                <td className={`px-3 py-2 ${jazeeraFontClass}`}>
+                                <td className={`px-3 py-2 ${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                                   {calculateDuration(affectation.date_debut, affectation.date_fin, isRTL)}
                                 </td>
                                 <td className="px-3 py-2">
                                   <span
-                                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                    className={`px-3 py-1 rounded-full text-[11px] font-medium ${getStatusColor(
                                       status
-                                    )} ${cardSubtitleFontClass}`}
+                                    )} ${isRTL ? 'font-noto-naskh-arabic' : ''}`}
                                   >
-                                    {status === "actuel" ? (isRTL ? "جـــاري" : "En cours") : isRTL ? "منتهـي" : "Terminé"}
+                                    {status === "actuel" ? (isRTL ? "جــــاري" : "En cours") : isRTL ? "منتهـــي" : "Terminé"}
                                   </span>
                                 </td>
                               </tr>
@@ -1255,11 +1258,11 @@ export default function TabProfessionalInfo({ data }: TabProfessionalInfoProps) 
           )}
           <div className="mt-3 ml-4 pt-4 border-t border-gray-200 dark:border-gray-600">
             <div className="flex flex-wrap gap-3 text-[13px] text-gray-500 dark:text-gray-400">
-              <span>
-                {isRTL ? "الأقدمية الإجمالية : " : "Ancienneté totale:"} {calculateTotalSeniority}
+              <span className={`${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
+                {isRTL ? "الأقـدميـة الإجماليـة : " : "Ancienneté totale:"} {calculateTotalSeniority}
               </span>
               <span>|</span>
-              <span>
+              <span className={`${isRTL ? 'font-noto-naskh-arabic' : ''}`}>
                 {isRTL ? "عــدد التعـيـيـنـــات : " : "Nombre d'affectations:"} {sortedAffectations.length}
               </span>
             </div>

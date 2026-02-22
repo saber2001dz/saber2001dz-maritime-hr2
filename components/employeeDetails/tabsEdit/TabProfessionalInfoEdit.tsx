@@ -2584,7 +2584,7 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
               <h3
                 className={`text-md font-medium text-gray-900 dark:text-gray-300 ${isRTL ? cardSubtitleFontClass : ""}`}
               >
-                {isRTL ? "قائمــة التعيينـات" : "Liste des Affectations"}
+                {isRTL ? "قائمــة التعيينـــات" : "Liste des Affectations"}
               </h3>
               <button
                 onClick={addAffectation}
@@ -2652,15 +2652,22 @@ export default function EditDialogs({ data, onSave, activeDialog, onClose, showT
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                   {affectations.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                      <td
+                        colSpan={6}
+                        className={`px-4 py-8 text-center text-gray-500 dark:text-gray-400 ${
+                          isRTL ? cardSubtitleFontClass : ""
+                        }`}
+                      >
                         <div className="flex flex-col items-center">
                           <ClipboardList className="w-8 h-8 text-gray-300 dark:text-gray-600 mb-2" />
-                          <span>Aucune affectation enregistrée</span>
+                          <span>{isRTL ? "لا توجد تعيينـات مسجلـة" : "Aucune affectation enregistrée"}</span>
                           <button
                             onClick={addAffectation}
-                            className="mt-2 text-[#076784] hover:text-[#065a72] text-sm underline cursor-pointer"
+                            className={`mt-2 text-[#076784] hover:text-[#065a72] text-sm underline cursor-pointer ${
+                              isRTL ? cardSubtitleFontClass : ""
+                            }`}
                           >
-                            Ajouter la première affectation
+                            {isRTL ? "إضافة التعيين الأول" : "Ajouter la première affectation"}
                           </button>
                         </div>
                       </td>

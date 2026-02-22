@@ -179,8 +179,17 @@ export async function updateEmployeeStatusBasedOnAbsencesRPC(
 }
 
 // Liste des statuts liés aux congés (qui peuvent être remplacés par "مباشر")
-// Note: Utilise les statuts définis dans le type TypeScript (إجازة et مرض)
-const LEAVE_RELATED_STATUSES: EmployeeStatus[] = ['إجازة', 'مرض']
+const LEAVE_RELATED_STATUSES: EmployeeStatus[] = [
+  'إجازة',
+  'مرض',
+  'إجازة سنوية' as EmployeeStatus,
+  'إجازة طارئة' as EmployeeStatus,
+  'إجازة مرضية' as EmployeeStatus,
+  'إجازة زواج' as EmployeeStatus,
+  'إجازة أمومة' as EmployeeStatus,
+  'إجازة بدون راتب' as EmployeeStatus,
+  'إجازة تقاعد' as EmployeeStatus
+]
 
 /**
  * Détermine le statut de l'employé basé sur ses congés actifs
@@ -216,15 +225,19 @@ export function determineEmployeeStatus(conges: CongeData[], currentStatus: Empl
     return currentStatus
   }
 
-  // Déterminer le statut basé sur le type de congé actif
-  // Priorité: مرض > إجازة (pour les autres types)
-  const hasActiveIllness = activeLeaves.some(leave => leave.type_conge === "مرض")
-  if (hasActiveIllness) {
-    return "مرض"
+  // Mapper le type de congé vers le statut spécifique
+  const activeLeave = activeLeaves[0] // Prendre le premier congé actif
+  const leaveTypeToStatus: Record<string, EmployeeStatus> = {
+    "سنوية": "إجازة سنوية" as EmployeeStatus,
+    "طارئة": "إجازة طارئة" as EmployeeStatus,
+    "مرض": "إجازة مرضية" as EmployeeStatus,
+    "زواج": "إجازة زواج" as EmployeeStatus,
+    "أمومة": "إجازة أمومة" as EmployeeStatus,
+    "بدون راتب": "إجازة بدون راتب" as EmployeeStatus,
+    "إجازة تقاعد": "إجازة تقاعد" as EmployeeStatus
   }
 
-  // Pour tout autre type de congé actif (أمومة, طارئة, بدون راتب, etc.)
-  return "إجازة"
+  return leaveTypeToStatus[activeLeave.type_conge] || "إجازة"
 }
 
 /**

@@ -108,7 +108,7 @@ function useNavigationData() {
             url: `/${locale}/dashboard/employees/mutations/demande/nouvelle-demande`,
           },
           {
-            title: "مطـالـب النـقـــل",
+            title: "قـائمـــة النـقـــل",
             url: `/${locale}/dashboard/employees/mutations/table-mutations`,
           },
         ],
@@ -171,7 +171,7 @@ function LogoHeader() {
         <span
           className={`truncate -mb-1 ${
             isRTL ? "text-base" : "text-lg"
-          } font-semibold text-sidebar-primary ${mainTitleFontClass}`}
+          } font-semibold text-[#076784] dark:text-[#7FD4D3] ${mainTitleFontClass}`}
         >
           {t("appTitle")}
         </span>

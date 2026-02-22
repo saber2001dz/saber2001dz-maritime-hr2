@@ -13,6 +13,13 @@ export interface RawMutationData {
   causes: string | null
   type_demande: string | null
   direction: string | null
+  responsable_agent: string | null
+  avis_niveau1: string | null
+  avis_niveau2: string | null
+  avis_niveau3: string | null
+  avis_niveau4: string | null
+  avis_directeur: string | null
+  avis_direction_generale: string | null
 }
 
 export interface DisplayMutation {
@@ -26,7 +33,14 @@ export interface DisplayMutation {
   causes: string | null
   type_demande: string | null
   direction: string | null
+  responsable_agent: string | null
   created_at: string
+  avis_niveau1: string | null
+  avis_niveau2: string | null
+  avis_niveau3: string | null
+  avis_niveau4: string | null
+  avis_directeur: string | null
+  avis_direction_generale: string | null
 }
 
 // Fonction pour traiter les données brutes en données d'affichage
@@ -42,7 +56,14 @@ export function processMutationData(raw: RawMutationData): DisplayMutation {
     causes: raw.causes,
     type_demande: raw.type_demande,
     direction: raw.direction,
+    responsable_agent: raw.responsable_agent,
     created_at: raw.created_at,
+    avis_niveau1: raw.avis_niveau1,
+    avis_niveau2: raw.avis_niveau2,
+    avis_niveau3: raw.avis_niveau3,
+    avis_niveau4: raw.avis_niveau4,
+    avis_directeur: raw.avis_directeur,
+    avis_direction_generale: raw.avis_direction_generale,
   }
 }
 
@@ -58,5 +79,12 @@ export const MUTATION_SELECT_QUERY = `
   causes,
   type_demande,
   direction,
-  created_at
+  responsable_agent,
+  created_at,
+  avis_niveau1,
+  avis_niveau2,
+  avis_niveau3,
+  avis_niveau4,
+  avis_directeur,
+  avis_direction_generale
 `

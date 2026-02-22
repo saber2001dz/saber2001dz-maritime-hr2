@@ -17,6 +17,8 @@ import {
   Trash2,
   Loader2,
   Pencil,
+  MoreVertical,
+  Eye,
 } from "lucide-react"
 import * as XLSX from "xlsx"
 import { useEffect, useState, useCallback, useMemo, useRef } from "react"
@@ -26,9 +28,8 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DisplayMutation, RawMutationData, processMutationData, MUTATION_SELECT_QUERY } from "@/types/mutation.types"
-import { directionValues } from "@/lib/selectOptions"
 import { formatDateForRTL } from "@/utils/dateUtils"
-import { getGradeLabel } from "@/lib/selectOptions"
+import { getGradeLabel, directionValues, gradeOptions } from "@/lib/selectOptions"
 import {
   getCardSubtitleFont,
   getMainTitleFont,
@@ -82,6 +83,7 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
   const [matriculeSearchTerm, setMatriculeSearchTerm] = useState("")
   const [directionFilter, setDirectionFilter] = useState<string>("")
   const [typeDemandeFilter, setTypeDemandeFilter] = useState<string>("")
+  const [responsableFilter, setResponsableFilter] = useState<string>("")
   const [realtimeConnected, setRealtimeConnected] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
@@ -91,6 +93,8 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
   const [showDeleteProgress, setShowDeleteProgress] = useState(false)
   const toasterRef = useRef<ToasterRef>(null)
   const [highlightedMutationId, setHighlightedMutationId] = useState<string | null>(null)
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
+  const [unitesDialogMutationId, setUnitesDialogMutationId] = useState<string | null>(null)
 
   const supabase = createClient()
 
@@ -245,8 +249,13 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
       filtered = filtered.filter((mutation) => mutation.type_demande === typeDemandeFilter)
     }
 
+    // Filtrage par responsable_agent
+    if (responsableFilter && responsableFilter !== "") {
+      filtered = filtered.filter((mutation) => mutation.responsable_agent === responsableFilter)
+    }
+
     return filtered
-  }, [mutations, searchTerm, matriculeSearchTerm, directionFilter, typeDemandeFilter, normalize])
+  }, [mutations, searchTerm, matriculeSearchTerm, directionFilter, typeDemandeFilter, responsableFilter, normalize])
 
   // Tri des mutations
   const sortedMutations = useMemo(() => {
@@ -270,9 +279,16 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
       })
     }
 
-    // Par défaut, trier par date de création (plus récent en premier)
+    // Par défaut, trier par grade (hiérarchie), puis par matricule pour le même grade
     return [...filteredMutations].sort((a, b) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      const gradeIndexA = gradeOptions.findIndex((g) => g.value === a.grade)
+      const gradeIndexB = gradeOptions.findIndex((g) => g.value === b.grade)
+      const idxA = gradeIndexA === -1 ? 9999 : gradeIndexA
+      const idxB = gradeIndexB === -1 ? 9999 : gradeIndexB
+      if (idxA !== idxB) return idxA - idxB
+      const matA = (a.matricule || "").replace(/\D/g, "")
+      const matB = (b.matricule || "").replace(/\D/g, "")
+      return matA.localeCompare(matB, undefined, { numeric: true })
     })
   }, [filteredMutations, sortConfig])
 
@@ -298,7 +314,7 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
   // Reset de la page quand la recherche change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, matriculeSearchTerm, directionFilter, typeDemandeFilter])
+  }, [searchTerm, matriculeSearchTerm, directionFilter, typeDemandeFilter, responsableFilter])
 
   // Fonction pour sauvegarder les paramètres actuels avant navigation
   const saveCurrentParams = useCallback((mutationId: string) => {
@@ -320,6 +336,7 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
     setMatriculeSearchTerm("")
     setDirectionFilter("")
     setTypeDemandeFilter("")
+    setResponsableFilter("")
     setSortConfig({
       key: null,
       direction: "ascending",
@@ -334,10 +351,11 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
       matriculeSearchTerm.trim() !== "" ||
       directionFilter !== "" ||
       typeDemandeFilter !== "" ||
+      responsableFilter !== "" ||
       sortConfig.key !== null ||
       sortConfig.direction !== "ascending"
     )
-  }, [searchTerm, matriculeSearchTerm, directionFilter, typeDemandeFilter, sortConfig])
+  }, [searchTerm, matriculeSearchTerm, directionFilter, typeDemandeFilter, responsableFilter, sortConfig])
 
   // Fonction pour actualiser les données
   const handleRefresh = useCallback(async () => {
@@ -621,8 +639,8 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
       </div>
       <div className="bg-white dark:bg-card rounded-sm px-8 py-6 border border-gray-200 dark:border-[#393A41] min-h-150 flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
-          <div className="w-full sm:max-w-4xl flex gap-3">
-            <div className="relative w-70">
+          <div className="w-full sm:max-w-6xl flex gap-3">
+            <div className="relative w-100">
               <input
                 id="search-name"
                 name="search-name"
@@ -670,21 +688,31 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                 </button>
               )}
             </div>
-            <div className="w-54">
+            <div className="w-74">
               <Select
                 dir="rtl"
-                value={directionFilter}
+                value={directionFilter || "all"}
                 onValueChange={(value) => {
-                  setDirectionFilter(value)
+                  setDirectionFilter(value === "all" ? "" : value)
                   setCurrentPage(1)
                 }}
               >
                 <SelectTrigger
-                  className="w-full h-8.5! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent font-noto-naskh-arabic"
+                  className="w-full h-8.5! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:hover:bg-transparent font-noto-naskh-arabic"
                 >
-                  <SelectValue placeholder="إختيار الإقليم..." />
+                  {directionFilter ? (
+                    <SelectValue />
+                  ) : (
+                    <span className="text-gray-400 dark:text-[#959594]">إختيار الإقليم...</span>
+                  )}
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50">
+                  <SelectItem
+                    value="all"
+                    className="px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white font-noto-naskh-arabic"
+                  >
+                    جميـع الإدارات
+                  </SelectItem>
                   {directionValues.map((direction) => (
                     <SelectItem
                       key={direction}
@@ -700,18 +728,28 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
             <div className="w-54">
               <Select
                 dir="rtl"
-                value={typeDemandeFilter}
+                value={typeDemandeFilter || "all"}
                 onValueChange={(value) => {
-                  setTypeDemandeFilter(value)
+                  setTypeDemandeFilter(value === "all" ? "" : value)
                   setCurrentPage(1)
                 }}
               >
                 <SelectTrigger
-                  className="w-full h-8.5! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] data-placeholder:text-gray-400 dark:data-placeholder:text-[#959594] dark:hover:bg-transparent font-noto-naskh-arabic"
+                  className="w-full h-8.5! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:hover:bg-transparent font-noto-naskh-arabic"
                 >
-                  <SelectValue placeholder="نوع النقلة..." />
+                  {typeDemandeFilter ? (
+                    <SelectValue />
+                  ) : (
+                    <span className="text-gray-400 dark:text-[#959594]">نوع النقلة...</span>
+                  )}
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50">
+                  <SelectItem
+                    value="all"
+                    className="px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white font-noto-naskh-arabic"
+                  >
+                    جميـع المطالب
+                  </SelectItem>
                   <SelectItem
                     value="بطلب"
                     className="px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white font-noto-naskh-arabic"
@@ -735,6 +773,46 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                     className="px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white font-noto-naskh-arabic"
                   >
                     نقل تعديلية
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-54">
+              <Select
+                dir="rtl"
+                value={responsableFilter || "all"}
+                onValueChange={(value) => {
+                  setResponsableFilter(value === "all" ? "" : value)
+                  setCurrentPage(1)
+                }}
+              >
+                <SelectTrigger
+                  className="w-full h-8.5! px-2 py-1.5 text-sm border border-gray-300 dark:border-[#565656] rounded bg-white dark:bg-[#1C1C1C] text-gray-900 dark:text-white focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[rgb(7,103,132)] data-[state=open]:border-[rgb(7,103,132)] dark:hover:bg-transparent font-noto-naskh-arabic"
+                >
+                  {responsableFilter ? (
+                    <SelectValue />
+                  ) : (
+                    <span className="text-gray-400 dark:text-[#959594]">المسؤولية...</span>
+                  )}
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#1C1C1C] border border-gray-200 dark:border-gray-600 rounded shadow-lg z-50">
+                  <SelectItem
+                    value="all"
+                    className="px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white font-noto-naskh-arabic"
+                  >
+                    جميـع المطالب
+                  </SelectItem>
+                  <SelectItem
+                    value="بدون مسؤولية"
+                    className="px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white font-noto-naskh-arabic"
+                  >
+                    بدون مسؤولية
+                  </SelectItem>
+                  <SelectItem
+                    value="مسؤول"
+                    className="px-2 py-1.5 text-sm hover:bg-[rgb(236,243,245)] dark:hover:bg-[#363C44] cursor-pointer text-gray-700 dark:text-gray-300 focus:bg-[rgb(236,243,245)] dark:focus:bg-[#363C44] focus:text-[rgb(14,102,129)] dark:focus:text-white font-noto-naskh-arabic"
+                  >
+                    مسؤول
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -804,12 +882,12 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
               <thead className="bg-[#D7E7EC] dark:bg-[#17272D] border-b border-gray-200 dark:border-[#393A41]">
                 <tr>
                   <th
-                    className={`px-4 py-4 text-start text-[15px] font-semibold w-12 text-[#076784] dark:text-[#076784] font-noto-naskh-arabic`}
+                    className={`px-4 py-4 text-start text-[15px] font-semibold w-12 text-[#076784] dark:text-[#7FD4D3] font-noto-naskh-arabic`}
                   >
                     ع/ر
                   </th>
                   <th
-                    className={`px-4 py-4 text-start text-[15px] font-semibold cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-44 text-[#076784] dark:text-[#076784] font-noto-naskh-arabic`}
+                    className={`px-4 py-4 text-start text-[15px] font-semibold cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-44 text-[#076784] dark:text-[#7FD4D3] font-noto-naskh-arabic`}
                     onClick={() => requestSort("prenom_nom")}
                   >
                     <div className="flex items-center">
@@ -818,12 +896,12 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                     </div>
                   </th>
                   <th
-                    className={`px-4 py-4 text-start text-[15px] font-semibold w-24 text-[#076784] dark:text-[#076784] font-noto-naskh-arabic`}
+                    className={`px-4 py-4 text-start text-[15px] font-semibold w-24 text-[#076784] dark:text-[#7FD4D3] font-noto-naskh-arabic`}
                   >
                     الــرقـــم
                   </th>
                   <th
-                    className={`px-4 py-4 text-start text-[15px] font-semibold cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-36 text-[#076784] dark:text-[#076784] font-noto-naskh-arabic`}
+                    className={`px-4 py-4 text-start text-[15px] font-semibold cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-58 text-[#076784] dark:text-[#7FD4D3] font-noto-naskh-arabic`}
                     onClick={() => requestSort("unite_actuelle")}
                   >
                     <div className="flex items-center">
@@ -832,7 +910,7 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                     </div>
                   </th>
                   <th
-                    className={`px-4 py-4 text-start text-[15px] font-semibold cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-32 text-[#076784] dark:text-[#076784] font-noto-naskh-arabic`}
+                    className={`px-4 py-4 text-start text-[15px] font-semibold cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-32 text-[#076784] dark:text-[#7FD4D3] font-noto-naskh-arabic`}
                     onClick={() => requestSort("date_affectation")}
                   >
                     <div className="flex items-center">
@@ -841,12 +919,7 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                     </div>
                   </th>
                   <th
-                    className={`px-4 py-4 text-start text-[15px] font-semibold w-56 text-[#076784] dark:text-[#076784] font-noto-naskh-arabic`}
-                  >
-                    الأسبــــاب
-                  </th>
-                  <th
-                    className={`px-4 py-4 text-start text-[15px] font-semibold cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-32 text-[#076784] dark:text-[#076784] font-noto-naskh-arabic`}
+                    className={`px-4 py-4 text-start text-[15px] font-semibold cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-600/30 w-32 text-[#076784] dark:text-[#7FD4D3] font-noto-naskh-arabic`}
                     onClick={() => requestSort("type_demande")}
                   >
                     <div className="flex items-center">
@@ -855,9 +928,14 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                     </div>
                   </th>
                   <th
-                    className={`px-4 py-4 text-center text-[15px] font-semibold w-24 text-[#076784] dark:text-[#076784] font-noto-naskh-arabic`}
+                    className={`px-4 py-4 text-start text-[15px] font-semibold w-26 text-[#076784] dark:text-[#7FD4D3] font-noto-naskh-arabic`}
                   >
-                    خيــارات
+                    إبــداء الــرأي
+                  </th>
+                  <th
+                    className={`px-4 py-4 text-center text-[15px] font-semibold w-20 text-[#076784] dark:text-[#7FD4D3] font-noto-naskh-arabic`}
+                  >
+                    ...
                   </th>
                 </tr>
               </thead>
@@ -884,10 +962,10 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                           isHighlighted ? "animate-highlightBlink" : "hover:bg-gray-50 dark:hover:bg-[#363C44]"
                         }`}
                       >
-                        <td className="px-4 py-2.5 w-12">
+                        <td className="px-4 py-1.5 w-12">
                           <span className="text-sm font-medium text-gray-900 dark:text-white">{overallIndex}</span>
                         </td>
-                        <td className="px-4 py-2.5 w-44">
+                        <td className="px-4 py-1.5 w-44">
                           <Link
                             href={`/${params.locale}/dashboard/employees/details/${mutation.employee_id}`}
                             className="flex flex-col cursor-pointer focus:outline-none"
@@ -905,14 +983,14 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                             </span>
                           </Link>
                         </td>
-                        <td className="px-4 py-2.5 w-24">
+                        <td className="px-4 py-1.5 w-24">
                           <span
                             className={`text-[15px] text-gray-700 dark:text-gray-300 block truncate font-noto-naskh-arabic`}
                           >
                             {mutation.matricule || "-"}
                           </span>
                         </td>
-                        <td className="px-4 py-2.5 w-36">
+                        <td className="px-4 py-1.5 w-58">
                           <span
                             className={`text-[15px] text-gray-700 dark:text-gray-300 block truncate font-noto-naskh-arabic`}
                             title={mutation.unite_actuelle || "-"}
@@ -920,7 +998,7 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                             {mutation.unite_actuelle || "-"}
                           </span>
                         </td>
-                        <td className="px-4 py-2.5 w-32">
+                        <td className="px-4 py-1.5 w-32">
                           <span
                             className={`text-[15px] text-gray-700 dark:text-gray-300 block truncate font-noto-naskh-arabic`}
                           >
@@ -929,15 +1007,7 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                               : "-"}
                           </span>
                         </td>
-                        <td className="px-4 py-2.5 w-56">
-                          <span
-                            className={`text-[15px] text-gray-700 dark:text-gray-300 block truncate font-noto-naskh-arabic`}
-                            title={mutation.causes || "-"}
-                          >
-                            {mutation.causes || "-"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2.5 w-32">
+                        <td className="px-4 py-1.5 w-32">
                           <span
                             className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-medium font-noto-naskh-arabic ${getTypeDemandeStyle(mutation.type_demande)}`}
                           >
@@ -945,24 +1015,68 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
                             {getTypeDemandeLabel(mutation.type_demande)}
                           </span>
                         </td>
-                        <td className="px-4 py-2.5 w-24">
+                        <td className="px-4 py-1.5 w-26">
+                          <div className="flex items-center gap-0.5">
+                            {[
+                              mutation.avis_niveau1,
+                              mutation.avis_niveau2,
+                              mutation.avis_niveau3,
+                              mutation.avis_niveau4,
+                              mutation.avis_directeur,
+                              mutation.avis_direction_generale,
+                            ].map((avis, i) => (
+                              <span
+                                key={i}
+                                className={`text-lg leading-none ${avis !== null ? "text-yellow-400" : "text-gray-300 dark:text-gray-600"}`}
+                                style={{ background: "transparent" }}
+                              >
+                                {avis !== null ? "★" : "☆"}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-4 py-1.5 w-20">
                           <div className="flex items-center justify-center">
-                            <Link
-                              href={`/${params.locale}/dashboard/employees/mutations/details-mutation?id=${mutation.id}`}
-                              className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors cursor-pointer focus:outline-none"
-                              title="تعديل"
-                              onClick={() => saveCurrentParams(mutation.id)}
-                            >
-                              <Pencil className="w-3.5 h-3.5 text-blue-500" />
-                            </Link>
-                            <MutationUnitesPopover mutationId={mutation.id} />
+                            <div className="relative">
                             <button
-                              onClick={() => setMutationToDelete(mutation)}
-                              className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors cursor-pointer focus:outline-none"
-                              title="حذف"
+                              onClick={() => setOpenDropdownId(openDropdownId === mutation.id ? null : mutation.id)}
+                              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer focus:outline-none"
                             >
-                              <Trash2 className="w-4 h-4 text-red-500" />
+                              <MoreVertical className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                             </button>
+                            {openDropdownId === mutation.id && (
+                              <>
+                                <div
+                                  className="fixed inset-0 z-10"
+                                  onClick={() => setOpenDropdownId(null)}
+                                />
+                                <div className="absolute left-0 top-full mt-1 w-40 bg-white dark:bg-card border border-gray-200 dark:border-[#393A41] rounded-md shadow-lg z-20 py-1" dir="rtl">
+                                  <Link
+                                    href={`/${params.locale}/dashboard/employees/mutations/details-mutation?id=${mutation.id}`}
+                                    className="flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#363C44] transition-colors font-noto-naskh-arabic"
+                                    onClick={() => { saveCurrentParams(mutation.id); setOpenDropdownId(null) }}
+                                  >
+                                    <Pencil className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                                    تعديــل البيـانــات
+                                  </Link>
+                                  <button
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#363C44] transition-colors font-noto-naskh-arabic cursor-pointer"
+                                    onClick={() => { setOpenDropdownId(null); setUnitesDialogMutationId(mutation.id) }}
+                                  >
+                                    <Eye className="w-3.5 h-3.5 shrink-0 text-[#076784] dark:text-[#7FD4D3]" />
+                                    الوحدات المطلوبة
+                                  </button>
+                                  <button
+                                    onClick={() => { setMutationToDelete(mutation); setOpenDropdownId(null) }}
+                                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-noto-naskh-arabic cursor-pointer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                                    حــــــــــــــــــــذف
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -1067,6 +1181,15 @@ export function SimpleMutationsTable({ initialMutations }: SimpleMutationsTableP
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Dialog unités demandées */}
+      {unitesDialogMutationId && (
+        <MutationUnitesPopover
+          mutationId={unitesDialogMutationId}
+          dialogOpen
+          onDialogClose={() => setUnitesDialogMutationId(null)}
+        />
+      )}
 
       {/* Toaster pour les notifications */}
       <Toaster ref={toasterRef} defaultPosition="top-right" />

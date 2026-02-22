@@ -64,13 +64,13 @@ export default function TabPersonalInfo({ data }: TabPersonalInfoProps) {
     if (hasAddress && hasGovernorat) {
       return `${adresse}, ${gouvernorat}`
     } else if (hasGovernorat && !hasAddress) {
-      return `Non précis, l'agent réside à ${gouvernorat}`
+      return isRTL ? `غير محدد، المقيم بـ ${gouvernorat}` : `Non précis, l'agent réside à ${gouvernorat}`
     } else if (!hasAddress && !hasGovernorat) {
-      return "Non fourni"
+      return isRTL ? "غير محدد" : "Non fourni"
     } else if (hasAddress && !hasGovernorat) {
       return adresse
     }
-    return "Non fourni"
+    return isRTL ? "غير محدد" : "Non fourni"
   }
 
   const mainAddress = formatAddress(mainContact.adresse || "", mainContact.gouvernorat || "")
@@ -82,7 +82,7 @@ export default function TabPersonalInfo({ data }: TabPersonalInfoProps) {
 
     // Si l'adresse actuelle est explicitement null (utilisateur a décoché la case), afficher "Non Fournie"
     if (currentAddr === null && currentGov === null) {
-      return "Non Fournie"
+      return isRTL ? "غير محدد" : "Non Fournie"
     }
 
     // Si aucune adresse actuelle n'est définie (undefined ou chaîne vide), utiliser l'adresse principale
@@ -376,7 +376,7 @@ export default function TabPersonalInfo({ data }: TabPersonalInfoProps) {
           />
           <div className="space-y-4">
             <p className={`text-gray-900 dark:text-white text-start font-medium mb-2.5 ${cardSubtitleFontClass}`}>
-              {isRTL ? "رقــم الهـاتـف و البـريــد" : "Contact Personnel"}
+              {isRTL ? "الهـاتـف و البريد الإلكتروني" : "Contact Personnel"}
             </p>
             <div className="grid grid-cols-2 gap-6">
               <BadgeField

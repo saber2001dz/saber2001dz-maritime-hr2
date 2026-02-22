@@ -10,11 +10,11 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { gouvernoratOptions, getTranslatedOptions, getGradeLabel } from "@/lib/selectOptions"
-import { ArrowLeft, Check, Undo2, Redo2, User, Building2, ClipboardCheck, Save } from "lucide-react"
+import { ArrowLeft, Check, Undo2, Redo2, User, Building2, ClipboardCheck, Save, MessageSquareQuote } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -52,6 +52,13 @@ interface MutationDetails {
   motivation?: string
   adaptation?: string
   communication?: string
+  // Champs إبداء الرأي - Étape 4 (6 rubriques)
+  avis_niveau1?: string
+  avis_niveau2?: string
+  avis_niveau3?: string
+  avis_niveau4?: string
+  avis_directeur?: string
+  avis_direction_generale?: string
 }
 
 const typeDemandeOptions = [
@@ -64,12 +71,15 @@ const typeDemandeOptions = [
 export default function DetailsMutationPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const mutationId = searchParams.get("id")
   const isRTL = params.locale === "ar"
   const toasterRef = useRef<ToasterRef>(null)
   const [mutationData, setMutationData] = useState<MutationDetails | null>(null)
   const [originalData, setOriginalData] = useState<MutationDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isEditable, setIsEditable] = useState(false)
+  const [activeTab, setActiveTab] = useState("personal")
   const [isSearching, setIsSearching] = useState(false)
   const [showSaveDialog, setShowSaveDialog] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -82,19 +92,21 @@ export default function DetailsMutationPage() {
   const [currentIndexUnites, setCurrentIndexUnites] = useState(-1)
   const [historyEvaluation, setHistoryEvaluation] = useState<MutationDetails[]>([])
   const [currentIndexEvaluation, setCurrentIndexEvaluation] = useState(-1)
+  const [historyAvis, setHistoryAvis] = useState<MutationDetails[]>([])
+  const [currentIndexAvis, setCurrentIndexAvis] = useState(-1)
 
   useEffect(() => {
-    // TODO: Récupérer l'ID de la mutation depuis les paramètres URL
-    // Pour l'instant, on utilise des données factices
     const fetchMutationData = async () => {
+      if (!mutationId) {
+        setIsLoading(false)
+        return
+      }
       try {
         const supabase = createClient()
-        // Exemple: récupérer la dernière mutation
         const { data: mutationData, error: mutationError } = await supabase
           .from("employee_mutations")
           .select("*")
-          .order("created_at", { ascending: false })
-          .limit(1)
+          .eq("id", mutationId)
           .single()
 
         if (mutationError || !mutationData) {
@@ -144,6 +156,13 @@ export default function DetailsMutationPage() {
           motivation: evaluationData?.motivation_travail || "",
           adaptation: evaluationData?.adaptation_collegues || "",
           communication: evaluationData?.communication || "",
+          // Champs إبداء الرأي (6 rubriques)
+          avis_niveau1: mutationData.avis_niveau1 || "",
+          avis_niveau2: mutationData.avis_niveau2 || "",
+          avis_niveau3: mutationData.avis_niveau3 || "",
+          avis_niveau4: mutationData.avis_niveau4 || "",
+          avis_directeur: mutationData.avis_directeur || "",
+          avis_direction_generale: mutationData.avis_direction_generale || "",
         }
         setMutationData(loadedData)
         setOriginalData(loadedData)
@@ -154,6 +173,8 @@ export default function DetailsMutationPage() {
         setCurrentIndexUnites(0)
         setHistoryEvaluation([loadedData])
         setCurrentIndexEvaluation(0)
+        setHistoryAvis([loadedData])
+        setCurrentIndexAvis(0)
       } catch (error) {
         console.error("Erreur inattendue:", error)
       } finally {
@@ -162,7 +183,7 @@ export default function DetailsMutationPage() {
     }
 
     fetchMutationData()
-  }, [])
+  }, [mutationId])
 
   // Pendant le chargement, afficher le spinner
   if (isLoading) {
@@ -186,50 +207,6 @@ export default function DetailsMutationPage() {
     if (!originalData || !mutationData) return false
     if (field === "unites") return false // Ne pas vérifier les unités ici
     return originalData[field] !== mutationData[field]
-  }
-
-  // Fonction pour vérifier si des modifications ont été faites
-  const hasModifications = (): boolean => {
-    if (!originalData || !mutationData) return false
-
-    // Vérifier les champs simples
-    const simpleFieldsModified =
-      originalData.matricule !== mutationData.matricule ||
-      originalData.prenom_nom !== mutationData.prenom_nom ||
-      originalData.grade !== mutationData.grade ||
-      originalData.unite_actuelle !== mutationData.unite_actuelle ||
-      originalData.date_affectation !== mutationData.date_affectation ||
-      originalData.causes !== mutationData.causes ||
-      originalData.type_demande !== mutationData.type_demande ||
-      originalData.interet_travail !== mutationData.interet_travail ||
-      originalData.discipline !== mutationData.discipline ||
-      originalData.secret_professionnel !== mutationData.secret_professionnel ||
-      originalData.apparence !== mutationData.apparence ||
-      originalData.respect_horaire !== mutationData.respect_horaire ||
-      originalData.conduite !== mutationData.conduite ||
-      originalData.motivation !== mutationData.motivation ||
-      originalData.adaptation !== mutationData.adaptation ||
-      originalData.communication !== mutationData.communication
-
-    if (simpleFieldsModified) return true
-
-    // Vérifier les unités
-    if (originalData.unites.length !== mutationData.unites.length) return true
-
-    for (let i = 0; i < originalData.unites.length; i++) {
-      const origUnite = originalData.unites[i]
-      const currUnite = mutationData.unites[i]
-      if (
-        origUnite.gouvernorat !== currUnite.gouvernorat ||
-        origUnite.direction !== currUnite.direction ||
-        origUnite.unite !== currUnite.unite ||
-        origUnite.ordre_saisie !== currUnite.ordre_saisie
-      ) {
-        return true
-      }
-    }
-
-    return false
   }
 
   // Fonction pour enregistrer les modifications
@@ -290,6 +267,12 @@ export default function DetailsMutationPage() {
           date_affectation: mutationData?.date_affectation,
           causes: mutationData?.causes,
           type_demande: mutationData?.type_demande,
+          avis_niveau1: mutationData?.avis_niveau1 || null,
+          avis_niveau2: mutationData?.avis_niveau2 || null,
+          avis_niveau3: mutationData?.avis_niveau3 || null,
+          avis_niveau4: mutationData?.avis_niveau4 || null,
+          avis_directeur: mutationData?.avis_directeur || null,
+          avis_direction_generale: mutationData?.avis_direction_generale || null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", mutationRecord.id)
@@ -421,6 +404,8 @@ export default function DetailsMutationPage() {
         setCurrentIndexUnites(0)
         setHistoryEvaluation([mutationData])
         setCurrentIndexEvaluation(0)
+        setHistoryAvis([mutationData])
+        setCurrentIndexAvis(0)
       }
 
       // Afficher le toast de succès
@@ -517,7 +502,7 @@ export default function DetailsMutationPage() {
   }
 
   // Fonction pour ajouter un état à l'historique d'un onglet spécifique
-  const addToHistory = (newData: MutationDetails, tabType: "personal" | "unites" | "evaluation") => {
+  const addToHistory = (newData: MutationDetails, tabType: "personal" | "unites" | "evaluation" | "avis") => {
     let history: MutationDetails[]
     let currentIndex: number
     let setHistory: React.Dispatch<React.SetStateAction<MutationDetails[]>>
@@ -533,11 +518,16 @@ export default function DetailsMutationPage() {
       currentIndex = currentIndexUnites
       setHistory = setHistoryUnites
       setCurrentIndex = setCurrentIndexUnites
-    } else {
+    } else if (tabType === "evaluation") {
       history = historyEvaluation
       currentIndex = currentIndexEvaluation
       setHistory = setHistoryEvaluation
       setCurrentIndex = setCurrentIndexEvaluation
+    } else {
+      history = historyAvis
+      currentIndex = currentIndexAvis
+      setHistory = setHistoryAvis
+      setCurrentIndex = setCurrentIndexAvis
     }
 
     // Supprimer tout l'historique après l'index actuel
@@ -598,6 +588,22 @@ export default function DetailsMutationPage() {
     }
   }
 
+  const handleUndoAvis = () => {
+    if (currentIndexAvis > 0) {
+      const newIndex = currentIndexAvis - 1
+      setCurrentIndexAvis(newIndex)
+      setMutationData(JSON.parse(JSON.stringify(historyAvis[newIndex])))
+    }
+  }
+
+  const handleRedoAvis = () => {
+    if (currentIndexAvis < historyAvis.length - 1) {
+      const newIndex = currentIndexAvis + 1
+      setCurrentIndexAvis(newIndex)
+      setMutationData(JSON.parse(JSON.stringify(historyAvis[newIndex])))
+    }
+  }
+
   // Fonction wrapper pour mettre à jour les données avec historique par onglet
   const updateMutationDataPersonal = (newData: MutationDetails) => {
     setMutationData(newData)
@@ -612,6 +618,11 @@ export default function DetailsMutationPage() {
   const updateMutationDataEvaluation = (newData: MutationDetails) => {
     setMutationData(newData)
     addToHistory(newData, "evaluation")
+  }
+
+  const updateMutationDataAvis = (newData: MutationDetails) => {
+    setMutationData(newData)
+    addToHistory(newData, "avis")
   }
 
   // Handler pour mettre à jour les données du tableau
@@ -702,6 +713,61 @@ export default function DetailsMutationPage() {
               </div>
 
               <div className="flex items-center gap-3">
+                {/* Boutons Undo/Redo globaux selon l'onglet actif */}
+                {isEditable && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        if (activeTab === "personal") handleRedoPersonal()
+                        else if (activeTab === "unites") handleRedoUnites()
+                        else if (activeTab === "evaluation") handleRedoEvaluation()
+                        else if (activeTab === "avis") handleRedoAvis()
+                      }}
+                      disabled={
+                        activeTab === "personal" ? currentIndexPersonal >= historyPersonal.length - 1 :
+                        activeTab === "unites" ? currentIndexUnites >= historyUnites.length - 1 :
+                        activeTab === "evaluation" ? currentIndexEvaluation >= historyEvaluation.length - 1 :
+                        currentIndexAvis >= historyAvis.length - 1
+                      }
+                      className={`p-1.5 rounded ${
+                        (activeTab === "personal" ? currentIndexPersonal >= historyPersonal.length - 1 :
+                        activeTab === "unites" ? currentIndexUnites >= historyUnites.length - 1 :
+                        activeTab === "evaluation" ? currentIndexEvaluation >= historyEvaluation.length - 1 :
+                        currentIndexAvis >= historyAvis.length - 1)
+                          ? "opacity-40 cursor-not-allowed"
+                          : "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                      }`}
+                      title="إعــادة"
+                    >
+                      <Redo2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (activeTab === "personal") handleUndoPersonal()
+                        else if (activeTab === "unites") handleUndoUnites()
+                        else if (activeTab === "evaluation") handleUndoEvaluation()
+                        else if (activeTab === "avis") handleUndoAvis()
+                      }}
+                      disabled={
+                        activeTab === "personal" ? currentIndexPersonal <= 0 :
+                        activeTab === "unites" ? currentIndexUnites <= 0 :
+                        activeTab === "evaluation" ? currentIndexEvaluation <= 0 :
+                        currentIndexAvis <= 0
+                      }
+                      className={`p-1.5 rounded ${
+                        (activeTab === "personal" ? currentIndexPersonal <= 0 :
+                        activeTab === "unites" ? currentIndexUnites <= 0 :
+                        activeTab === "evaluation" ? currentIndexEvaluation <= 0 :
+                        currentIndexAvis <= 0)
+                          ? "opacity-40 cursor-not-allowed"
+                          : "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                      }`}
+                      title="تراجــع"
+                    >
+                      <Undo2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                    </button>
+                  </div>
+                )}
                 {/* Checkbox pour activer/désactiver l'édition */}
                 <div className="flex items-center gap-2">
                   <Checkbox
@@ -724,9 +790,9 @@ export default function DetailsMutationPage() {
             <Separator className="mt-0.5 mb-1 bg-gray-300 dark:bg-gray-500" />
           </CardHeader>
 
-          <CardContent className="px-4 pb-2 -mt-6">
-            <Tabs defaultValue="personal" className="w-full mt-4" dir="rtl">
-              <TabsList className="grid w-full grid-cols-3 h-12 p-1 bg-muted rounded-sm">
+          <CardContent className="px-4 -mt-6">
+            <Tabs defaultValue="personal" className="w-full mt-4" dir="rtl" onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-4 h-12 p-1 bg-muted rounded-sm">
                 <TabsTrigger
                   value="personal"
                   className="font-noto-naskh-arabic text-sm font-medium cursor-pointer gap-2"
@@ -745,45 +811,21 @@ export default function DetailsMutationPage() {
                   <ClipboardCheck className="h-4 w-4" />
                   تقييــم رئيــس الــوحــــدة
                 </TabsTrigger>
+                <TabsTrigger
+                  value="avis"
+                  className="font-noto-naskh-arabic text-sm font-medium cursor-pointer gap-2"
+                >
+                  <MessageSquareQuote className="h-4 w-4" />
+                  إبــداء الـــرأي
+                </TabsTrigger>
               </TabsList>
 
               {/* Tab 1: Informations personnelles */}
-              <TabsContent value="personal" className="mt-4 overflow-y-auto px-2 min-h-127.5">
-                {/* Sous-titre avec boutons Undo/Redo */}
-                <div className="pb-4 flex justify-between items-center">
+              <TabsContent value="personal" className="mt-4 mb-4.5 overflow-y-auto px-2 min-h-127.5">
+                <div className="pb-4">
                   <h3 className="font-noto-naskh-arabic text-[16px] font-semibold text-[#076784] dark:text-[#7FD4D3]">
                      البيــانــات الشخـصـيــة
                   </h3>
-                  <div className="flex items-center gap-1" style={{ minWidth: "64px", minHeight: "32px" }}>
-                    {isEditable && (
-                      <>
-                        <button
-                          onClick={handleRedoPersonal}
-                          disabled={currentIndexPersonal >= historyPersonal.length - 1}
-                          className={`p-1.5 ${
-                            currentIndexPersonal >= historyPersonal.length - 1
-                              ? "opacity-40 cursor-not-allowed"
-                              : "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-                          }`}
-                          title={isRTL ? "إعــادة" : "Refaire"}
-                        >
-                          <Redo2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                        </button>
-                        <button
-                          onClick={handleUndoPersonal}
-                          disabled={currentIndexPersonal <= 0}
-                          className={`p-1.5 ${
-                            currentIndexPersonal <= 0
-                              ? "opacity-40 cursor-not-allowed"
-                              : "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-                          }`}
-                          title={isRTL ? "تراجــع" : "Annuler"}
-                        >
-                          <Undo2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                        </button>
-                      </>
-                    )}
-                  </div>
                 </div>
 
                 <div className="space-y-5">
@@ -818,8 +860,8 @@ export default function DetailsMutationPage() {
                         onFocus={handleInputFocus}
                         className={`font-noto-naskh-arabic ${
                           !isEditable
-                            ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[14px]"
-                            : "text-gray-800 dark:text-gray-200 font-medium text-[14px]"
+                            ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[14px]"
+                            : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[14px]"
                         } pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1`}
                       />
                       {!isSearching && isFieldModified("matricule") && (
@@ -851,7 +893,7 @@ export default function DetailsMutationPage() {
                         value={mutationData.prenom_nom}
                         disabled={true}
                         onChange={(e) => updateMutationDataPersonal({ ...mutationData, prenom_nom: e.target.value })}
-                        className="font-noto-naskh-arabic text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                        className="font-noto-naskh-arabic text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
                       />
                       {isFieldModified("prenom_nom") && (
                         <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
@@ -885,7 +927,7 @@ export default function DetailsMutationPage() {
                         value={getGradeLabel(mutationData.grade || undefined) || "-"}
                         disabled={true}
                         onChange={(e) => updateMutationDataPersonal({ ...mutationData, grade: e.target.value })}
-                        className="font-noto-naskh-arabic text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                        className="font-noto-naskh-arabic text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
                       />
                       {isFieldModified("grade") && (
                         <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
@@ -918,7 +960,7 @@ export default function DetailsMutationPage() {
                         onChange={(e) =>
                           updateMutationDataPersonal({ ...mutationData, unite_actuelle: e.target.value })
                         }
-                        className="font-noto-naskh-arabic text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                        className="font-noto-naskh-arabic text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
                       />
                       {isFieldModified("unite_actuelle") && (
                         <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
@@ -953,8 +995,8 @@ export default function DetailsMutationPage() {
                           id="type_demande"
                           className={`w-89 font-noto-naskh-arabic bg-white dark:bg-card border-0 dark:border-0 h-8 text-[15px] ${
                             !isEditable
-                              ? "text-[#055566] dark:text-[#5BC5C4] font-bold"
-                              : "text-gray-800 dark:text-gray-200 font-semibold"
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-semibold"
                           } rounded focus-visible:ring-0 focus-visible:ring-offset-0 pb-1`}
                         >
                           <SelectValue placeholder="نـــوع الـطـلــــب" />
@@ -1004,7 +1046,7 @@ export default function DetailsMutationPage() {
                         onChange={(e) =>
                           updateMutationDataPersonal({ ...mutationData, date_affectation: e.target.value })
                         }
-                        className="font-noto-naskh-arabic text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
+                        className="font-noto-naskh-arabic text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px] pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1"
                       />
                       {isFieldModified("date_affectation") && (
                         <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
@@ -1034,17 +1076,18 @@ export default function DetailsMutationPage() {
                       placeholder="أذكـــر أسبــاب طلــب النقلــة"
                       variant="lg"
                       autoComplete="on"
+                      rows={5}
                       value={mutationData.causes}
                       disabled={!isEditable}
                       onChange={(e) => updateMutationDataPersonal({ ...mutationData, causes: e.target.value })}
                       className={`font-noto-naskh-arabic ${
                         !isEditable
-                          ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px]"
-                          : "text-gray-800 dark:text-gray-200 font-semibold text-[15px]"
-                      } pr-1 border-0 dark:border-0 min-h-16 w-195 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500`}
+                          ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                          : "text-[#076784] dark:text-[#7FD4D3] font-semibold text-[15px]"
+                      } pr-1 border-0 dark:border-0 field-sizing-fixed w-195 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500`}
                     />
                     {isFieldModified("causes") && (
-                      <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
+                      <div className="absolute left-2 top-8 bg-[#339370]/20 rounded-full p-0.5 ml-1.5">
                         <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
                       </div>
                     )}
@@ -1053,42 +1096,11 @@ export default function DetailsMutationPage() {
               </TabsContent>
 
               {/* Tab 2: Unités demandées */}
-              <TabsContent value="unites" className="mt-4 overflow-y-auto px-2 min-h-127.5">
-                {/* Sous-titre avec boutons Undo/Redo */}
-                <div className="pb-4 flex justify-between items-center">
+              <TabsContent value="unites" className="mt-4 mb-4.5 overflow-y-auto px-2 min-h-127.5">
+                <div className="pb-4">
                   <h3 className="font-noto-naskh-arabic text-[16px] font-semibold text-[#076784] dark:text-[#7FD4D3]">
                     الــوحـــدات المطلــوبـــة
                   </h3>
-                  <div className="flex items-center gap-1" style={{ minWidth: "64px", minHeight: "32px" }}>
-                    {isEditable && (
-                      <>
-                        <button
-                          onClick={handleRedoUnites}
-                          disabled={currentIndexUnites >= historyUnites.length - 1}
-                          className={`p-1.5 ${
-                            currentIndexUnites >= historyUnites.length - 1
-                              ? "opacity-40 cursor-not-allowed"
-                              : "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-                          }`}
-                          title={isRTL ? "إعادة" : "Refaire"}
-                        >
-                          <Redo2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                        </button>
-                        <button
-                          onClick={handleUndoUnites}
-                          disabled={currentIndexUnites <= 0}
-                          className={`p-1.5 ${
-                            currentIndexUnites <= 0
-                              ? "opacity-40 cursor-not-allowed"
-                              : "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-                          }`}
-                          title={isRTL ? "تراجع" : "Annuler"}
-                        >
-                          <Undo2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                        </button>
-                      </>
-                    )}
-                  </div>
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border border-gray-300 dark:border-gray-600">
@@ -1136,8 +1148,8 @@ export default function DetailsMutationPage() {
                                 <SelectTrigger
                                   className={`w-full font-noto-naskh-arabic bg-white dark:bg-card border border-gray-200 dark:border-gray-600 h-9 text-[15px] ${
                                     !isEditable
-                                      ? "text-[#055566] dark:text-[#5BC5C4] font-bold"
-                                      : "text-gray-800 dark:text-gray-200 font-medium"
+                                      ? "text-[#076784] dark:text-[#7FD4D3] font-bold"
+                                      : "text-[#076784] dark:text-[#7FD4D3] font-medium"
                                   } rounded focus-visible:ring-0 focus-visible:ring-offset-0`}
                                 >
                                   <SelectValue placeholder="" />
@@ -1165,8 +1177,8 @@ export default function DetailsMutationPage() {
                                 onFocus={handleInputFocus}
                                 className={`font-noto-naskh-arabic ${
                                   !isEditable
-                                    ? "text-[#055566] dark:text-[#5BC5C4] font-bold"
-                                    : "text-gray-800 dark:text-gray-200 font-medium"
+                                    ? "text-[#076784] dark:text-[#7FD4D3] font-bold"
+                                    : "text-[#076784] dark:text-[#7FD4D3] font-medium"
                                 } text-[15px] border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card`}
                               />
                             </td>
@@ -1183,8 +1195,8 @@ export default function DetailsMutationPage() {
                                 onFocus={handleInputFocus}
                                 className={`font-noto-naskh-arabic ${
                                   !isEditable
-                                    ? "text-[#055566] dark:text-[#5BC5C4] font-bold"
-                                    : "text-gray-800 dark:text-gray-200 font-medium"
+                                    ? "text-[#076784] dark:text-[#7FD4D3] font-bold"
+                                    : "text-[#076784] dark:text-[#7FD4D3] font-medium"
                                 } text-[15px] border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card`}
                               />
                             </td>
@@ -1204,8 +1216,8 @@ export default function DetailsMutationPage() {
                                 onFocus={handleInputFocus}
                                 className={`font-noto-naskh-arabic ${
                                   !isEditable
-                                    ? "text-[#055566] dark:text-[#5BC5C4] font-bold"
-                                    : "text-gray-800 dark:text-gray-200 font-medium"
+                                    ? "text-[#076784] dark:text-[#7FD4D3] font-bold"
+                                    : "text-[#076784] dark:text-[#7FD4D3] font-medium"
                                 } text-[15px] border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card`}
                               />
                             </td>
@@ -1222,8 +1234,8 @@ export default function DetailsMutationPage() {
                                 onFocus={handleInputFocus}
                                 className={`font-noto-naskh-arabic ${
                                   !isEditable
-                                    ? "text-[#055566] dark:text-[#5BC5C4] font-bold"
-                                    : "text-gray-800 dark:text-gray-200 font-medium"
+                                    ? "text-[#076784] dark:text-[#7FD4D3] font-bold"
+                                    : "text-[#076784] dark:text-[#7FD4D3] font-medium"
                                 } text-[15px] border-gray-200 dark:border-gray-600 h-9 w-full rounded bg-white dark:bg-card`}
                               />
                             </td>
@@ -1236,44 +1248,13 @@ export default function DetailsMutationPage() {
               </TabsContent>
 
               {/* Tab 3: Évaluation du chef d'unité */}
-              <TabsContent value="evaluation" className="mt-4 overflow-y-auto px-2 min-h-127.5">
+              <TabsContent value="evaluation" className="mt-4 mb-4.5 overflow-y-auto px-2 min-h-127.5">
                 <div className="space-y-5">
-                  {/* Section الكفايات المهنية avec boutons Undo/Redo */}
                   <div className="space-y-4">
-                    <div className="pb-0 flex justify-between items-center">
+                    <div className="pb-0">
                       <h3 className="font-noto-naskh-arabic text-[15px] font-bold text-[#076784] dark:text-[#7CCFCE]">
                         الكفـايــات المهـنـيــــة
                       </h3>
-                      <div className="flex items-center gap-1" style={{ minWidth: "64px", minHeight: "32px" }}>
-                        {isEditable && (
-                          <>
-                            <button
-                              onClick={handleRedoEvaluation}
-                              disabled={currentIndexEvaluation >= historyEvaluation.length - 1}
-                              className={`p-1.5 ${
-                                currentIndexEvaluation >= historyEvaluation.length - 1
-                                  ? "opacity-40 cursor-not-allowed"
-                                  : "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-                              }`}
-                              title={isRTL ? "إعادة" : "Refaire"}
-                            >
-                              <Redo2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                            </button>
-                            <button
-                              onClick={handleUndoEvaluation}
-                              disabled={currentIndexEvaluation <= 0}
-                              className={`p-1.5 ${
-                                currentIndexEvaluation <= 0
-                                  ? "opacity-40 cursor-not-allowed"
-                                  : "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-                              }`}
-                              title={isRTL ? "تراجع" : "Annuler"}
-                            >
-                              <Undo2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                            </button>
-                          </>
-                        )}
-                      </div>
                     </div>
 
                     {/* Ligne 1: الإهتمام بالعمل et الإنضبـــاط */}
@@ -1308,8 +1289,8 @@ export default function DetailsMutationPage() {
                           onFocus={handleInputFocus}
                           className={`font-noto-naskh-arabic ${
                             !isEditable
-                              ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px]"
-                              : "text-gray-800 dark:text-gray-200 font-medium text-[15px]"
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[15px]"
                           } pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1`}
                         />
                         {isFieldModified("interet_travail") && (
@@ -1347,8 +1328,8 @@ export default function DetailsMutationPage() {
                           onFocus={handleInputFocus}
                           className={`font-noto-naskh-arabic ${
                             !isEditable
-                              ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px]"
-                              : "text-gray-800 dark:text-gray-200 font-medium text-[15px]"
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[15px]"
                           } pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1`}
                         />
                         {isFieldModified("discipline") && (
@@ -1393,8 +1374,8 @@ export default function DetailsMutationPage() {
                           onFocus={handleInputFocus}
                           className={`font-noto-naskh-arabic ${
                             !isEditable
-                              ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px]"
-                              : "text-gray-800 dark:text-gray-200 font-medium text-[15px]"
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[15px]"
                           } pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1`}
                         />
                         {isFieldModified("secret_professionnel") && (
@@ -1440,8 +1421,8 @@ export default function DetailsMutationPage() {
                           onFocus={handleInputFocus}
                           className={`font-noto-naskh-arabic ${
                             !isEditable
-                              ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px]"
-                              : "text-gray-800 dark:text-gray-200 font-medium text-[15px]"
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[15px]"
                           } pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1`}
                         />
                         {isFieldModified("apparence") && (
@@ -1481,8 +1462,8 @@ export default function DetailsMutationPage() {
                           onFocus={handleInputFocus}
                           className={`font-noto-naskh-arabic ${
                             !isEditable
-                              ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px]"
-                              : "text-gray-800 dark:text-gray-200 font-medium text-[15px]"
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[15px]"
                           } pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1`}
                         />
                         {isFieldModified("respect_horaire") && (
@@ -1521,8 +1502,8 @@ export default function DetailsMutationPage() {
                           onFocus={handleInputFocus}
                           className={`font-noto-naskh-arabic ${
                             !isEditable
-                              ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px]"
-                              : "text-gray-800 dark:text-gray-200 font-medium text-[15px]"
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[15px]"
                           } pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1`}
                         />
                         {isFieldModified("conduite") && (
@@ -1560,8 +1541,8 @@ export default function DetailsMutationPage() {
                           onFocus={handleInputFocus}
                           className={`font-noto-naskh-arabic ${
                             !isEditable
-                              ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px]"
-                              : "text-gray-800 dark:text-gray-200 font-medium text-[15px]"
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[15px]"
                           } pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1`}
                         />
                         {isFieldModified("motivation") && (
@@ -1602,8 +1583,8 @@ export default function DetailsMutationPage() {
                           onFocus={handleInputFocus}
                           className={`font-noto-naskh-arabic ${
                             !isEditable
-                              ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px]"
-                              : "text-gray-800 dark:text-gray-200 font-medium text-[15px]"
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[15px]"
                           } pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1`}
                         />
                         {isFieldModified("adaptation") && (
@@ -1641,8 +1622,8 @@ export default function DetailsMutationPage() {
                           onFocus={handleInputFocus}
                           className={`font-noto-naskh-arabic ${
                             !isEditable
-                              ? "text-[#055566] dark:text-[#5BC5C4] font-bold text-[15px]"
-                              : "text-gray-800 dark:text-gray-200 font-medium text-[15px]"
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[15px]"
                           } pr-1 border-0 dark:border-0 h-8 w-90 rounded bg-white dark:bg-card placeholder:text-gray-300 dark:placeholder:text-gray-500 truncate pb-1`}
                         />
                         {isFieldModified("communication") && (
@@ -1663,12 +1644,98 @@ export default function DetailsMutationPage() {
                   </div>
                 </div>
               </TabsContent>
+
+              {/* Tab 4: إبداء الرأي */}
+              <TabsContent value="avis" className="mt-6 overflow-y-auto px-2 min-h-127.5">
+                {/* Tableau des 6 rubriques */}
+                <div className="rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+                  {(
+                    [
+                      {
+                        field: "avis_niveau1" as keyof MutationDetails,
+                        label: "رأي رئيس المركز\nأو رئيس الخلية\nأو رئيس القسم\nأو امر الفصيل",
+                        num: 1,
+                      },
+                      {
+                        field: "avis_niveau2" as keyof MutationDetails,
+                        label: "رأي رئيس المصلحة\nأو رئيس الفرقة\nأو آمر السرية",
+                        num: 2,
+                      },
+                      {
+                        field: "avis_niveau3" as keyof MutationDetails,
+                        label: "رأي رئيس المنطقة\nأو آمر الفوج\nأو رئيس الإدارة الفرعية",
+                        num: 3,
+                      },
+                      {
+                        field: "avis_niveau4" as keyof MutationDetails,
+                        label: "رأي رئيس اللجنة الجهوية\n(مدير الاقليم أو\nرئيس المنطقة المنفردة)",
+                        num: 4,
+                      },
+                      {
+                        field: "avis_directeur" as keyof MutationDetails,
+                        label: "رأي مدير الادارة المركزية\n(مدير إدارة الاختصاص أو\nمدير احدى الهياكل\nالمرتبطة بالقيادة)",
+                        num: 5,
+                      },
+                      {
+                        field: "avis_direction_generale" as keyof MutationDetails,
+                        label: "رأي رئيس اللجنة المركزية\n(مدير عالم الاختصاص)",
+                        num: 6,
+                      },
+                    ] as { field: keyof MutationDetails; label: string; num: number }[]
+                  ).map(({ field, label, num }, idx, arr) => (
+                    <div
+                      key={field}
+                      className={`flex flex-row ${idx < arr.length - 1 ? "border-b border-gray-300 dark:border-gray-600" : ""}`}
+                    >
+                      {/* Champ الاقتراحات المعللة (gauche) */}
+                      <div className="flex-1 flex flex-col px-2 py-1">
+                        <span className="font-noto-naskh-arabic text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-0.5">
+                          الاقتراحات المعللة :
+                        </span>
+                        <Textarea
+                          id={field}
+                          name={field}
+                          variant="lg"
+                          autoComplete="on"
+                          value={(mutationData[field] as string) || ""}
+                          disabled={!isEditable}
+                          onChange={(e) =>
+                            updateMutationDataAvis({ ...mutationData, [field]: e.target.value })
+                          }
+                          className={`font-noto-naskh-arabic resize-none ${
+                            !isEditable
+                              ? "text-[#076784] dark:text-[#7FD4D3] font-bold text-[15px]"
+                              : "text-[#076784] dark:text-[#7FD4D3] font-medium text-[15px]"
+                          } border-0 dark:border-0 min-h-14 max-h-14 w-full rounded bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-500 px-0 py-0 leading-5`}
+                        />
+                        {isFieldModified(field) && (
+                          <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#339370]/20 rounded-full p-0.5">
+                            <Check className="h-3 w-3 text-[#339370]" strokeWidth={3} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Label (droite) */}
+                      <div className="w-44 shrink-0 flex items-start justify-start border-r border-gray-300 dark:border-gray-600 px-2 py-1.5 bg-gray-50 dark:bg-gray-800/50">
+                        <span className="font-noto-naskh-arabic text-[11.5px] font-semibold text-gray-700 dark:text-gray-200 text-start leading-5 whitespace-pre-line">
+                          {label}
+                        </span>
+                      </div>
+
+                      {/* Numéro (tout à droite) */}
+                      <div className="flex items-center justify-center w-8 shrink-0 border-r border-gray-300 dark:border-gray-600 text-[13px] font-semibold text-gray-500 dark:text-gray-400 font-noto-naskh-arabic">
+                        {num}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
             </Tabs>
           </CardContent>
-          <CardFooter className="pt-4 pb-2 flex justify-end gap-3">
+          <CardFooter className="pt-2 pb-2 flex justify-end gap-3">
             <Button
               onClick={() => setShowSaveDialog(true)}
-              disabled={isSaving || !isEditable || !hasModifications()}
+              disabled={isSaving || !isEditable}
               className="font-noto-naskh-arabic px-8 h-10 w-32 rounded-md bg-[#076784] hover:bg-[#2B778F] dark:bg-gray-700 dark:hover:bg-gray-800 text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed gap-2"
             >
               <Save className="h-4 w-4" />
@@ -1686,7 +1753,8 @@ export default function DetailsMutationPage() {
               تأكيــد حـفــظ التعــديـــلات
             </AlertDialogTitle>
             <AlertDialogDescription className="text-start leading-relaxed font-noto-naskh-arabic">
-              هل أنت متأكد من أنك تريد حفظ التعديلات التي أجريتها على طلب النقلة للموظف{" "}
+              هل أنت متأكد من أنك تريد حفظ التعديلات التي أجريتها على طلب النقلة للموظف
+              <br />
               <span className="font-semibold text-foreground">{mutationData?.prenom_nom || ""}</span>؟
             </AlertDialogDescription>
           </AlertDialogHeader>
